@@ -20,7 +20,6 @@
             android:id="@+id/edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
             android:selectAllOnFocus="true"
             android:hint="例: http://m.ting56.com/mp3/1520.html"
             />

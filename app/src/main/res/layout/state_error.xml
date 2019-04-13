@@ -22,7 +22,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:background="?selectableItemBackground"
+        android:textColor="@color/primary_text"
+        android:textSize="16sp"
         android:padding="8dp"
-        android:text="报错了"
+        android:text="报错了, 点击重试(有时候需要多试几次才能成功）"
         />
 </LinearLayout>

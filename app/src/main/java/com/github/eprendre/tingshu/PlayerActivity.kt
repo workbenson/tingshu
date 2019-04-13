@@ -118,56 +118,65 @@ class PlayerActivity : AppCompatActivity() {
     private fun handleIntent() {
         val bookurl = intent.getStringExtra("bookurl")
         if (!bookurl.isNullOrBlank()) {
-            Completable.fromCallable {
-                val doc = Jsoup.connect(bookurl).get()
-                val book = doc.getElementsByClass("list-ov-tw").first()
-                val cover = book.getElementsByTag("img").first().attr("src")
-                //下载封面
-                val glideOptions = RequestOptions()
-                    .fallback(R.drawable.default_art)
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                App.coverBitmap = Glide.with(App.appContext)
-                    .applyDefaultRequestOptions(glideOptions)
-                    .asBitmap()
-                    .load(cover)
-                    .submit(144, 144)
-                    .get()
-
-                val bookInfos = book.getElementsByTag("span").map { it.text() }
-                Prefs.artist = "${bookInfos[2]} ${bookInfos[3]}"
-
-                val episodes = doc.getElementById("playlist")
-                    .getElementsByTag("a")
-                    .map {
-                        Episode(it.text(), "http://m.ting56.com${it.attr("href")}")
-                    }
-                App.playList.apply {
-                    clear()
-                    addAll(episodes)
-                }
-
-                var index = App.currentEpisodeIndex()
-                if (index < 0) {
-                    index = 0
-                    Prefs.currentEpisodePosition = 0
-                }
-                mediaController.transportControls.playFromUri(Uri.parse(App.playList[index].url), null)
-            }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    infos.text = Prefs.artist
-                }, { error ->
-                    error.printStackTrace()
-                    state_layout.showError()
-                })
-                .addTo(compositeDisposable)
-
+            playFromBookurl(bookurl)
         } else {
-            infos.text = Prefs.artist
-            updateState(mediaController.playbackState)
-            state_layout.showContent()
+            if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PAUSED) {
+                //因为56tingshu返回的播放地址会过期，当播放器暂停很久回来后会出现当前的播放地址失效的情况
+                //故检回到此Activity并且为暂停状态时主动去获取新的播放地址
+                Prefs.currentBookUrl?.apply { playFromBookurl(this) }
+            } else {
+                infos.text = Prefs.artist
+                updateState(mediaController.playbackState)
+                state_layout.showContent()
+            }
         }
+    }
+
+    private fun playFromBookurl(bookurl: String) {
+        Completable.fromCallable {
+            val doc = Jsoup.connect(bookurl).get()
+            val book = doc.getElementsByClass("list-ov-tw").first()
+            val cover = book.getElementsByTag("img").first().attr("src")
+            //下载封面
+            val glideOptions = RequestOptions()
+                .fallback(R.drawable.default_art)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+            App.coverBitmap = Glide.with(App.appContext)
+                .applyDefaultRequestOptions(glideOptions)
+                .asBitmap()
+                .load(cover)
+                .submit(144, 144)
+                .get()
+
+            val bookInfos = book.getElementsByTag("span").map { it.text() }
+            Prefs.artist = "${bookInfos[2]} ${bookInfos[3]}"
+
+            val episodes = doc.getElementById("playlist")
+                .getElementsByTag("a")
+                .map {
+                    Episode(it.text(), "http://m.ting56.com${it.attr("href")}")
+                }
+            App.playList.apply {
+                clear()
+                addAll(episodes)
+            }
+
+            var index = App.currentEpisodeIndex()
+            if (index < 0) {
+                index = 0
+                Prefs.currentEpisodePosition = 0
+            }
+            mediaController.transportControls.playFromUri(Uri.parse(App.playList[index].url), null)
+        }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                infos.text = Prefs.artist
+            }, { error ->
+                error.printStackTrace()
+                state_layout.showError()
+            })
+            .addTo(compositeDisposable)
     }
 
     /**
@@ -177,6 +186,12 @@ class PlayerActivity : AppCompatActivity() {
         recycler_view.layoutManager = GridLayoutManager(this, 3)
         recycler_view.adapter = listAdapter
         listAdapter.submitList(App.playList)
+
+        //报错时的点击重试
+        state_layout.setErrorListener {
+            state_layout.showLoading()
+            playFromBookurl(Prefs.currentBookUrl!!)
+        }
 
         myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
         when (Prefs.speed) {
