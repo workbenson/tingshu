@@ -1,6 +1,5 @@
 package com.github.eprendre.tingshu.sources
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -11,21 +10,16 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.core.graphics.drawable.toBitmap
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.extensions.*
 import com.github.eprendre.tingshu.utils.Prefs
+import com.github.eprendre.tingshu.widget.RxBus
+import com.github.eprendre.tingshu.widget.RxEvent
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.upstream.DataSource
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import org.apache.commons.lang3.StringEscapeUtils
 import org.jsoup.Jsoup
 
@@ -137,6 +131,7 @@ class WLPlaybackPreparer(
         isAudioGet = false
         isPageFinished = false
         Prefs.currentEpisodeUrl = uri.toString()
+        RxBus.post(RxEvent.ParsingPlayUrlEvent())
         webView.loadUrl(uri.toString())
     }
 

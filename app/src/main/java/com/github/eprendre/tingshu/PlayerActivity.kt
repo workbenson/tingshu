@@ -12,6 +12,7 @@ import android.os.IBinder
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
+import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -32,11 +33,13 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_player.*
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.toast
 import org.jsoup.Jsoup
 import java.util.concurrent.TimeUnit
 
 
-class PlayerActivity : AppCompatActivity() {
+class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private val compositeDisposable = CompositeDisposable()
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var myService: TingShuService
@@ -92,13 +95,19 @@ class PlayerActivity : AppCompatActivity() {
      */
     private fun updateState(state: PlaybackStateCompat) {
         when (state.state) {
-//            PlaybackStateCompat.STATE_BUFFERING,
+            PlaybackStateCompat.STATE_ERROR -> {
+                play_progress.visibility = View.GONE
+                supportActionBar?.title = mediaController.metadata.title
+                listAdapter.notifyDataSetChanged()
+                recycler_view.scrollToPosition(App.currentEpisodeIndex())
+                toast("当前播放地址出错了")
+            }
             PlaybackStateCompat.STATE_PLAYING -> {
                 supportActionBar?.title = mediaController.metadata.title
                 button_play.setImageResource(R.drawable.exo_controls_pause)
                 listAdapter.notifyDataSetChanged()
                 recycler_view.scrollToPosition(App.currentEpisodeIndex())
-                state_layout.showContent()
+                play_progress.visibility = View.GONE
             }
             PlaybackStateCompat.STATE_PAUSED -> button_play.setImageResource(R.drawable.exo_controls_play)
         }
@@ -107,6 +116,7 @@ class PlayerActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
+        state_layout.showLoading()
         handleIntent()
     }
 
@@ -132,6 +142,9 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 根据传入的地址抓取书籍信息
+     */
     private fun playFromBookurl(bookurl: String) {
         Completable.fromCallable {
             val doc = Jsoup.connect(bookurl).get()
@@ -148,9 +161,11 @@ class PlayerActivity : AppCompatActivity() {
                 .submit(144, 144)
                 .get()
 
+            //获取艺术家
             val bookInfos = book.getElementsByTag("span").map { it.text() }
             Prefs.artist = "${bookInfos[2]} ${bookInfos[3]}"
 
+            //获取章节列表
             val episodes = doc.getElementById("playlist")
                 .getElementsByTag("a")
                 .map {
@@ -160,18 +175,22 @@ class PlayerActivity : AppCompatActivity() {
                 clear()
                 addAll(episodes)
             }
-
-            var index = App.currentEpisodeIndex()
-            if (index < 0) {
-                index = 0
-                Prefs.currentEpisodePosition = 0
-            }
-            mediaController.transportControls.playFromUri(Uri.parse(App.playList[index].url), null)
         }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 infos.text = Prefs.artist
+                state_layout.showContent()
+
+                //开始请求播放
+                var index = App.currentEpisodeIndex()
+                //如果当前播放列表有上一次的播放地址就继续播放，否则清空记录的播放时间
+                if (index < 0) {
+                    index = 0
+                    Prefs.currentEpisodePosition = 0
+                }
+                supportActionBar?.title = App.playList[index].title
+                mediaController.transportControls.playFromUri(Uri.parse(App.playList[index].url), null)
             }, { error ->
                 error.printStackTrace()
                 state_layout.showError()
@@ -234,6 +253,13 @@ class PlayerActivity : AppCompatActivity() {
             }
             .addTo(compositeDisposable)
 
+        //播放按钮的圈圈
+        RxBus.toFlowable(RxEvent.ParsingPlayUrlEvent::class.java)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                play_progress.visibility = View.VISIBLE
+            }
+            .addTo(compositeDisposable)
         //播放速度
         radiogroup.setOnCheckedChangeListener { group, checkedId ->
             val params = when (checkedId) {

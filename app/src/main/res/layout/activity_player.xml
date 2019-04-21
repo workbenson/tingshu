@@ -156,7 +156,7 @@
             <ImageButton
                     android:id="@+id/button_previous"
                     android:layout_weight="1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:background="?selectableItemBackgroundBorderless"
                     android:src="@drawable/exo_icon_previous"
@@ -166,27 +166,40 @@
             <ImageButton
                     android:id="@+id/button_rewind"
                     android:layout_weight="1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:background="?selectableItemBackgroundBorderless"
                     android:src="@drawable/exo_icon_rewind"
                     android:tint="@color/colorAccent"
                     />
 
-            <ImageButton
-                    android:id="@+id/button_play"
+            <FrameLayout
                     android:layout_weight="2"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:background="?selectableItemBackgroundBorderless"
-                    android:src="@drawable/exo_icon_play"
-                    android:tint="@color/colorAccent"
-                    />
+                    >
+
+                <ImageButton
+                        android:id="@+id/button_play"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:src="@drawable/exo_icon_play"
+                        android:tint="@color/colorAccent"
+                        />
+
+                <ProgressBar
+                        android:id="@+id/play_progress"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:indeterminate="true"
+                        />
+            </FrameLayout>
 
             <ImageButton
                     android:id="@+id/button_fastforward"
                     android:layout_weight="1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:background="?selectableItemBackgroundBorderless"
                     android:src="@drawable/exo_icon_fastforward"
@@ -196,7 +209,7 @@
             <ImageButton
                     android:id="@+id/button_next"
                     android:layout_weight="1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:background="?selectableItemBackgroundBorderless"
                     android:src="@drawable/exo_icon_next"
