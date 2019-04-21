@@ -1,4 +1,4 @@
-package com.github.eprendre.tingshu
+package com.github.eprendre.tingshu.ui
 
 import android.content.ComponentName
 import android.content.Context
@@ -13,6 +13,8 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.utils.Prefs
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity

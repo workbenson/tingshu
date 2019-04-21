@@ -19,6 +19,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.media.session.MediaButtonReceiver
 import com.github.eprendre.tingshu.sources.WLPlaybackPreparer
 import com.github.eprendre.tingshu.sources.WLQueueNavigator
+import com.github.eprendre.tingshu.ui.PlayerActivity
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.NOW_PLAYING_NOTIFICATION
 import com.github.eprendre.tingshu.widget.NotificationBuilder

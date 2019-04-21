@@ -1,4 +1,4 @@
-package com.github.eprendre.tingshu
+package com.github.eprendre.tingshu.ui
 
 import android.annotation.SuppressLint
 import android.content.ComponentName
@@ -20,6 +20,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.extensions.title
 import com.github.eprendre.tingshu.utils.Episode
 import com.github.eprendre.tingshu.utils.Prefs
