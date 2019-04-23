@@ -164,8 +164,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 .submit(144, 144)
                 .get()
 
-            //获取艺术家
+            //获取书本信息
             val bookInfos = book.getElementsByTag("span").map { it.text() }
+            Prefs.currentBookName = bookInfos[0]
             Prefs.artist = "${bookInfos[2]} ${bookInfos[3]}"
 
             //获取章节列表
@@ -192,7 +193,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     index = 0
                     Prefs.currentEpisodePosition = 0
                 }
-                supportActionBar?.title = App.playList[index].title
+                supportActionBar?.title = Prefs.currentBookName + App.playList[index].title
                 mediaController.transportControls.playFromUri(Uri.parse(App.playList[index].url), null)
             }, { error ->
                 error.printStackTrace()

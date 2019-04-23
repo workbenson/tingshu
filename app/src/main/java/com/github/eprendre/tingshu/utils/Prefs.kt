@@ -32,6 +32,10 @@ object Prefs {
         get() = prefs.getString("artist", "")
         set(value) = prefs.edit().putString("artist", value).apply()
 
+    var currentBookName: String?
+        get() = prefs.getString("current_book_name", "")
+        set(value) = prefs.edit().putString("current_book_name", value).apply()
+
 //    var currentName: String?
 //        get() = prefs.getString("current_name", "")
 //        set(value) = prefs.edit().putString("current_name", value).apply()
