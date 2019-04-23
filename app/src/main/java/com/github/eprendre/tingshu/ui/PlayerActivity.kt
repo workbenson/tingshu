@@ -12,6 +12,7 @@ import android.os.IBinder
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
+import android.view.KeyEvent
 import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
@@ -356,5 +357,19 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         super.onDestroy()
         compositeDisposable.clear()
         unbindService(myConnection)
+    }
+
+    /**
+     * 方便咱使用黑莓key2
+     */
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_SPACE -> button_play.performClick()
+            KeyEvent.KEYCODE_F -> button_fastforward.performClick()
+            KeyEvent.KEYCODE_R -> button_rewind.performClick()
+            KeyEvent.KEYCODE_N -> button_next.performClick()
+            KeyEvent.KEYCODE_P -> button_previous.performClick()
+            else -> super.onKeyUp(keyCode, event)
+        }
     }
 }
