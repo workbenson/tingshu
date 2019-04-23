@@ -30,6 +30,7 @@ import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.RxBus
 import com.github.eprendre.tingshu.widget.RxEvent
 import com.google.android.exoplayer2.PlaybackParameters
+import com.google.android.exoplayer2.Player
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -38,6 +39,7 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_player.*
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
 import org.jetbrains.anko.toast
 import org.jsoup.Jsoup
 import java.util.concurrent.TimeUnit
@@ -80,7 +82,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             val binder = service as TingShuService.MyLocalBinder
             myService = binder.getService()
-            isBound = true
 
             mediaController = MediaControllerCompat(this@PlayerActivity, myService.mediaSession.sessionToken)
             mediaController.registerCallback(object : MediaControllerCompat.Callback() {
@@ -91,6 +92,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
             initViews()
             handleIntent()
+            isBound = true
         }
     }
 
@@ -351,6 +353,14 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 }
             }
             .addTo(compositeDisposable)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        //当通知被划掉并且当前页面仍然存活时需要重新播放
+        if (::myService.isInitialized && isBound && myService.exoPlayer.playbackState == Player.STATE_IDLE) {
+            handleIntent()
+        }
     }
 
     override fun onDestroy() {
