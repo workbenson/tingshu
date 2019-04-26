@@ -39,7 +39,6 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_player.*
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
 import org.jetbrains.anko.toast
 import org.jsoup.Jsoup
 import java.util.concurrent.TimeUnit
@@ -132,7 +131,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
      * 如果不是则加载上一次听书的播放列表
      */
     private fun handleIntent() {
-        val bookurl = intent.getStringExtra("bookurl")
+        val bookurl = intent.getStringExtra(ARG_BOOKURL)
         if (!bookurl.isNullOrBlank()) {
             playFromBookurl(bookurl)
         } else {
@@ -218,6 +217,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             state_layout.showLoading()
             playFromBookurl(Prefs.currentBookUrl!!)
         }
+        state_layout.setErrorText("报错了, 点击重试(有时候需要多试几次才能成功）")
 
         myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
         when (Prefs.speed) {
@@ -381,5 +381,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             KeyEvent.KEYCODE_P -> button_previous.performClick()
             else -> super.onKeyUp(keyCode, event)
         }
+    }
+
+    companion object {
+        val ARG_BOOKURL = "bookurl"
     }
 }

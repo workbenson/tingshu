@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             }
             val bookurl = edittext.text.toString()
             Prefs.currentBookUrl = bookurl
-            startActivity<PlayerActivity>("bookurl" to bookurl)
+            startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to bookurl)
         }
     }
 
@@ -86,11 +86,14 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.player -> {
                 if (mediaController.playbackState.state == PlaybackStateCompat.STATE_NONE) {
-                    startActivity<PlayerActivity>("bookurl" to Prefs.currentBookUrl)
+                    startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBookUrl)
                 } else {
                     startActivity<PlayerActivity>()
                 }
                 return true
+            }
+            R.id.search -> {
+                startActivity<SearchActivity>()
             }
         }
         return super.onOptionsItemSelected(item)

@@ -10,13 +10,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.utils.Episode
 import com.github.eprendre.tingshu.utils.Prefs
-import kotlinx.android.synthetic.main.episode_item.view.*
+import kotlinx.android.synthetic.main.item_episode.view.*
 
 class EpisodeAdapter(private val itemClickedListener: (Episode) -> Unit) :
-    ListAdapter<Episode, EpisodeViewHolder>(Episode.difffCallback) {
+    ListAdapter<Episode, EpisodeViewHolder>(Episode.diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpisodeViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.episode_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_episode, parent, false)
         return EpisodeViewHolder(view, itemClickedListener)
     }
 
