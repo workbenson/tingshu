@@ -15,29 +15,17 @@
             android:layout_weight="1"
             >
 
+        <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="点击右上角开始搜索"
+                android:textSize="20sp"
+                android:textColor="@color/primary_text"
+                />
+
     </FrameLayout>
 
-    <!--<Button-->
-    <!--android:id="@+id/fetch_button"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="去获取播放地址, 复制小说网址并粘贴到下面"-->
-    <!--/>-->
-
-    <!--<EditText-->
-    <!--android:id="@+id/edittext"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:selectAllOnFocus="true"-->
-    <!--android:hint="例: http://m.ting56.com/mp3/1520.html"-->
-    <!--/>-->
-
-    <!--<Button-->
-    <!--android:id="@+id/gotobutton"-->
-    <!--android:text="开始播放"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--/>-->
     <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
