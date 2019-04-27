@@ -19,5 +19,6 @@ class App : Application() {
         val playList by lazy { ArrayList<Episode>() }
         var coverBitmap: Bitmap? = null
         fun currentEpisodeIndex() = playList.indexOfFirst { it.url == Prefs.currentEpisodeUrl }
+        fun currentEpisode() = playList.first { it.url == Prefs.currentEpisodeUrl }
     }
 }

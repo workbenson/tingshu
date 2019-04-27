@@ -5,20 +5,20 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.media.AudioManager
-import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.utils.Prefs
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
-import org.jetbrains.anko.toast
 
 class MainActivity : AppCompatActivity() {
     var isBound = false
@@ -29,31 +29,37 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         volumeControlStream = AudioManager.STREAM_MUSIC
+        last_play.visibility = View.GONE
 
         val intent = Intent(this, TingShuService::class.java)
         startService(intent)
         bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
+    }
 
-        if (!Prefs.currentBookUrl.isNullOrEmpty()) {
-            edittext.setText(Prefs.currentBookUrl)
+    private fun initViews() {
+        if (Prefs.currentBookUrl.isNullOrBlank()) {
+            last_play.visibility = View.GONE
+        } else {
+            last_play.visibility = View.VISIBLE
+            Glide.with(this).load(Prefs.currentCover).into(cover_image)
+            book_name_text.text = Prefs.currentBookName
+            author_text.text = Prefs.author
+            artist_text.text = Prefs.artist
+            episode_text.text = Prefs.currentEpisodeName
+            last_play.setOnClickListener {
+                if (mediaController.playbackState.state == PlaybackStateCompat.STATE_NONE) {
+                    startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBookUrl)
+                } else {
+                    startActivity<PlayerActivity>()
+                }
+            }
         }
+    }
 
-        fetch_button.setOnClickListener {
-            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://m.ting56.com/"))
-            startActivity(browserIntent)
-        }
-        gotobutton.setOnClickListener {
-            if (edittext.text.isBlank()) {
-                toast("请输入正确的网址")
-                return@setOnClickListener
-            }
-            if (!edittext.text.startsWith("http://m.ting56.com/mp3")) {
-                toast("请输入正确的网址")
-                return@setOnClickListener
-            }
-            val bookurl = edittext.text.toString()
-            Prefs.currentBookUrl = bookurl
-            startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to bookurl)
+    override fun onResume() {
+        super.onResume()
+        if (isBound) {
+            initViews()
         }
     }
 
@@ -68,6 +74,7 @@ class MainActivity : AppCompatActivity() {
             isBound = true
             mediaController = MediaControllerCompat(this@MainActivity, myService.mediaSession.sessionToken)
             invalidateOptionsMenu()
+            initViews()
         }
     }
 

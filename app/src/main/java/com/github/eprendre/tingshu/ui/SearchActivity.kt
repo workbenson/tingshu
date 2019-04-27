@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.utils.Book
+import com.github.eprendre.tingshu.utils.Prefs
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -16,7 +17,6 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_search.*
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
 import org.jetbrains.anko.startActivity
 import org.jsoup.Jsoup
 import java.net.URLEncoder
@@ -25,6 +25,11 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     private val compositeDisposable = CompositeDisposable()
 
     private val listAdapter = SearchAdapter {
+        Prefs.currentBookUrl = it.bookUrl
+        Prefs.currentCover = it.coverUrl
+        Prefs.currentBookName = it.title
+        Prefs.artist = it.artist
+        Prefs.author = it.author
         startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to it.bookUrl)
     }
 
@@ -55,6 +60,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
 
         val searchView = menu.findItem(R.id.search).actionView as SearchView
         searchView.isIconified = false
+        searchView.queryHint = "搜索"
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null && query.isNotBlank()) {

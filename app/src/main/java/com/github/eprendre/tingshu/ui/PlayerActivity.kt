@@ -169,7 +169,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             //获取书本信息
             val bookInfos = book.getElementsByTag("span").map { it.text() }
             Prefs.currentBookName = bookInfos[0]
-            Prefs.artist = "${bookInfos[2]} ${bookInfos[3]}"
+            Prefs.author = bookInfos[2]
+            Prefs.artist = bookInfos[3]
 
             //获取章节列表
             val episodes = doc.getElementById("playlist")

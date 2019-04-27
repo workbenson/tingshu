@@ -131,6 +131,7 @@ class WLPlaybackPreparer(
         isAudioGet = false
         isPageFinished = false
         Prefs.currentEpisodeUrl = uri.toString()
+        Prefs.currentEpisodeName = App.currentEpisode().title
         RxBus.post(RxEvent.ParsingPlayUrlEvent())
         webView.loadUrl(uri.toString())
     }
