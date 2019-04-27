@@ -384,6 +384,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     }
 
     companion object {
-        val ARG_BOOKURL = "bookurl"
+        const val ARG_BOOKURL = "bookurl"
     }
 }

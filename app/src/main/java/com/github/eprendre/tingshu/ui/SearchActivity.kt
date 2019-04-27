@@ -100,7 +100,11 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
             .retry(3)
             .subscribeBy(onSuccess = {
                 listAdapter.submitList(it)
-                state_layout.showContent()
+                if (it.isEmpty()) {
+                    state_layout.showEmpty()
+                } else {
+                    state_layout.showContent()
+                }
             }, onError = {
                 state_layout.showError()
             })
