@@ -59,7 +59,7 @@
                 android:id="@+id/intro_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:textColor="@color/secondary_text"
                 android:maxLines="2"
                 android:ellipsize="end"

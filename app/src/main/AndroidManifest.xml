@@ -17,6 +17,7 @@
             android:usesCleartextTraffic="true"
             tools:ignore="GoogleAppIndexingWarning">
         <activity
+                android:configChanges="keyboardHidden|orientation|screenSize"
                 android:name=".ui.SearchActivity"
                 android:label="搜索">
         </activity>
@@ -28,6 +29,7 @@
             </intent-filter>
         </activity>
         <activity
+                android:configChanges="keyboardHidden|orientation|screenSize"
                 android:name=".ui.PlayerActivity"
                 android:launchMode="singleTask">
         </activity>

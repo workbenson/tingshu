@@ -18,7 +18,6 @@ import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
@@ -27,6 +26,7 @@ import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.extensions.title
 import com.github.eprendre.tingshu.utils.Episode
 import com.github.eprendre.tingshu.utils.Prefs
+import com.github.eprendre.tingshu.widget.GlideApp
 import com.github.eprendre.tingshu.widget.RxBus
 import com.github.eprendre.tingshu.widget.RxEvent
 import com.google.android.exoplayer2.PlaybackParameters
@@ -159,7 +159,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             val glideOptions = RequestOptions()
                 .fallback(R.drawable.default_art)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-            App.coverBitmap = Glide.with(App.appContext)
+            App.coverBitmap = GlideApp.with(App.appContext)
                 .applyDefaultRequestOptions(glideOptions)
                 .asBitmap()
                 .load(cover)

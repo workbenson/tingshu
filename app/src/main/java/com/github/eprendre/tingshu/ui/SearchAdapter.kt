@@ -5,9 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.utils.Book
+import com.github.eprendre.tingshu.widget.GlideApp
 import kotlinx.android.synthetic.main.item_search.view.*
 
 class SearchAdapter(private val itemClickListener: (Book) -> Unit) :
@@ -42,7 +42,7 @@ class SearchViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycler
         authorView.text = book.author
         artistView.text = book.artist
         introView.text = book.intro
-        Glide.with(itemView).load(book.coverUrl).into(coverView)
+        GlideApp.with(itemView).load(book.coverUrl).into(coverView)
     }
 
 }
