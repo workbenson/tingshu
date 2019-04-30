@@ -13,10 +13,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.utils.Prefs
+import com.github.eprendre.tingshu.widget.GlideApp
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
 
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
             last_play.visibility = View.GONE
         } else {
             last_play.visibility = View.VISIBLE
-            Glide.with(this).load(Prefs.currentCover).into(cover_image)
+            GlideApp.with(this).load(Prefs.currentCover).into(cover_image)
             book_name_text.text = Prefs.currentBookName
             author_text.text = Prefs.author
             artist_text.text = Prefs.artist
@@ -78,11 +78,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(R.id.player).isVisible = !Prefs.currentBookUrl.isNullOrEmpty() && isBound
-        return true
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.player_menu, menu)
@@ -91,13 +86,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.player -> {
-                if (mediaController.playbackState.state == PlaybackStateCompat.STATE_NONE) {
-                    startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBookUrl)
-                } else {
-                    startActivity<PlayerActivity>()
-                }
-                return true
+            R.id.settings -> {
+                startActivity<SettingsActivity>()
             }
             R.id.search -> {
                 startActivity<SearchActivity>()

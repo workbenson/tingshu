@@ -10,12 +10,13 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 
-class WLQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
+class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
     TimelineQueueNavigator(mediaSessionCompat) {
     private val window = Timeline.Window()
 
     override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
-        return player.currentTimeline.getWindow(windowIndex, window, true).tag as MediaDescriptionCompat
+        val discription = player.currentTimeline.getWindow(windowIndex, window, true).tag as MediaDescriptionCompat
+        return discription
     }
 
     /**
@@ -56,6 +57,9 @@ class WLQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
      */
     override fun onSkipToNext(player: Player) {
         Prefs.currentEpisodePosition = 0
-        mediaSessionCompat.controller.transportControls.playFromUri(Uri.parse(App.playList[App.currentEpisodeIndex() + 1].url), null)
+        mediaSessionCompat.controller.transportControls.playFromUri(
+            Uri.parse(App.playList[App.currentEpisodeIndex() + 1].url),
+            null
+        )
     }
 }

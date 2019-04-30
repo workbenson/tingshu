@@ -8,10 +8,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.EndlessRecyclerViewScrollListener
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -19,10 +19,7 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_search.*
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
 import org.jetbrains.anko.startActivity
-import org.jsoup.Jsoup
-import java.net.URLEncoder
 
 class SearchActivity : AppCompatActivity(), AnkoLogger {
     private val compositeDisposable = CompositeDisposable()
@@ -99,29 +96,8 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun search(page: Int = 1) {
-        Single.fromCallable {
-            val url = "http://m.ting56.com/search.asp?searchword=${URLEncoder.encode(keywords, "gb2312")}&page=$page"
-            val list = ArrayList<Book>()
-            val doc = Jsoup.connect(url).get()
-            val container = doc.selectFirst(".xsdz")
-            container.getElementById("page_num1").text().split("/").let {
-                currentPage = it[0].toInt()
-                totalPage = it[1].toInt()
-            }
-            val elementList = container.getElementsByClass("list-ov-tw")
-            elementList.forEach { item ->
-                val coverUrl = item.selectFirst(".list-ov-t a img").attr("original")
-                val ov = item.selectFirst(".list-ov-w")
-                val bookUrl = "http://m.ting56.com${ov.selectFirst(".bt a").attr("href")}"
-                val title = ov.selectFirst(".bt a").text()
-                val (author, artist) = ov.select(".zz").let { element ->
-                    Pair(element[0].text(), element[1].text())
-                }
-                val intro = ov.selectFirst(".nr").text()
-                list.add(Book(coverUrl, bookUrl, title, author, artist, intro))
-            }
-            return@fromCallable list
-        }
+        TingShuSourceHandler
+            .search(keywords, page)
             .subscribeOn(Schedulers.io())
             .doOnSubscribe {
                 if (page == 1) {
@@ -132,15 +108,17 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
             .observeOn(AndroidSchedulers.mainThread())
             .retry(3)
             .subscribeBy(onSuccess = {
+                currentPage = page
+                totalPage = it.second
                 val newList = ArrayList<Book>()
                 if (page == 1) {
                     scrollListener.resetState()
                 } else {
                     newList.addAll(oldList)
                 }
-                newList.addAll(it)
-                oldList = newList
+                newList.addAll(it.first)
                 listAdapter.submitList(newList)//diff 需要 new 一个 List 进去才会比较
+                oldList = newList
                 if (newList.isEmpty()) {
                     state_layout.showEmpty()
                 } else {

@@ -18,20 +18,17 @@ import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.extensions.title
-import com.github.eprendre.tingshu.utils.Episode
+import com.github.eprendre.tingshu.sources.M56TingShu
+import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.Prefs
-import com.github.eprendre.tingshu.widget.GlideApp
 import com.github.eprendre.tingshu.widget.RxBus
 import com.github.eprendre.tingshu.widget.RxEvent
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -40,7 +37,6 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_player.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.toast
-import org.jsoup.Jsoup
 import java.util.concurrent.TimeUnit
 
 
@@ -85,6 +81,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             mediaController = MediaControllerCompat(this@PlayerActivity, myService.mediaSession.sessionToken)
             mediaController.registerCallback(object : MediaControllerCompat.Callback() {
                 override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
+                    supportActionBar?.title = Prefs.currentEpisodeName + " - " + Prefs.currentBookName
                     updateState(state)
                 }
             })
@@ -99,19 +96,15 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
      * 根据播放状态更新 "播放/暂停" 按钮的图标
      */
     private fun updateState(state: PlaybackStateCompat) {
+        recycler_view.scrollToPosition(App.currentEpisodeIndex())
+        listAdapter.notifyDataSetChanged()//更新当前正在播放的item颜色
         when (state.state) {
             PlaybackStateCompat.STATE_ERROR -> {
                 play_progress.visibility = View.GONE
-                supportActionBar?.title = mediaController.metadata.title
-                listAdapter.notifyDataSetChanged()
-                recycler_view.scrollToPosition(App.currentEpisodeIndex())
                 toast("当前播放地址出错了")
             }
             PlaybackStateCompat.STATE_PLAYING -> {
-                supportActionBar?.title = mediaController.metadata.title
                 button_play.setImageResource(R.drawable.exo_controls_pause)
-                listAdapter.notifyDataSetChanged()
-                recycler_view.scrollToPosition(App.currentEpisodeIndex())
                 play_progress.visibility = View.GONE
             }
             PlaybackStateCompat.STATE_PAUSED -> button_play.setImageResource(R.drawable.exo_controls_play)
@@ -132,15 +125,16 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
      */
     private fun handleIntent() {
         val bookurl = intent.getStringExtra(ARG_BOOKURL)
-        if (!bookurl.isNullOrBlank()) {
-            playFromBookurl(bookurl)
+        if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {
+            playFromBookUrl(bookurl)
         } else {
-            if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PAUSED) {
+            if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
                 //因为56tingshu返回的播放地址会过期，当播放器暂停很久回来后会出现当前的播放地址失效的情况
                 //故检回到此Activity并且为暂停状态时主动去获取新的播放地址
-                Prefs.currentBookUrl?.apply { playFromBookurl(this) }
+                Prefs.currentBookUrl?.apply { playFromBookUrl(this) }
             } else {
                 infos.text = Prefs.artist
+                supportActionBar?.title = Prefs.currentEpisodeName + " - " + Prefs.currentBookName
                 updateState(mediaController.playbackState)
                 state_layout.showContent()
             }
@@ -150,39 +144,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     /**
      * 根据传入的地址抓取书籍信息
      */
-    private fun playFromBookurl(bookurl: String) {
-        Completable.fromCallable {
-            val doc = Jsoup.connect(bookurl).get()
-            val book = doc.getElementsByClass("list-ov-tw").first()
-            val cover = book.getElementsByTag("img").first().attr("src")
-            //下载封面
-            val glideOptions = RequestOptions()
-                .fallback(R.drawable.default_art)
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-            App.coverBitmap = GlideApp.with(App.appContext)
-                .applyDefaultRequestOptions(glideOptions)
-                .asBitmap()
-                .load(cover)
-                .submit(144, 144)
-                .get()
-
-            //获取书本信息
-            val bookInfos = book.getElementsByTag("span").map { it.text() }
-            Prefs.currentBookName = bookInfos[0]
-            Prefs.author = bookInfos[2]
-            Prefs.artist = bookInfos[3]
-
-            //获取章节列表
-            val episodes = doc.getElementById("playlist")
-                .getElementsByTag("a")
-                .map {
-                    Episode(it.text(), "http://m.ting56.com${it.attr("href")}")
-                }
-            App.playList.apply {
-                clear()
-                addAll(episodes)
-            }
-        }
+    private fun playFromBookUrl(bookUrl: String) {
+        TingShuSourceHandler.playFromBookUrl(bookUrl)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -196,7 +159,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     index = 0
                     Prefs.currentEpisodePosition = 0
                 }
-                supportActionBar?.title = Prefs.currentBookName + App.playList[index].title
+                supportActionBar?.title = App.playList[index].title + " - " + Prefs.currentBookName
+                listAdapter.submitList(App.playList)
                 mediaController.transportControls.playFromUri(Uri.parse(App.playList[index].url), null)
             }, { error ->
                 error.printStackTrace()
@@ -216,7 +180,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         //报错时的点击重试
         state_layout.setErrorListener {
             state_layout.showLoading()
-            playFromBookurl(Prefs.currentBookUrl!!)
+            playFromBookUrl(Prefs.currentBookUrl!!)
         }
         state_layout.setErrorText("报错了, 点击重试(有时候需要多试几次才能成功）")
 

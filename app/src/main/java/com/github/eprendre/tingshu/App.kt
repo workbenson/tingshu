@@ -16,7 +16,7 @@ class App : Application() {
 
     companion object {
         lateinit var appContext: Context
-        val playList by lazy { ArrayList<Episode>() }
+        var playList: List<Episode> = emptyList()
         var coverBitmap: Bitmap? = null
         fun currentEpisodeIndex() = playList.indexOfFirst { it.url == Prefs.currentEpisodeUrl }
         fun currentEpisode() = playList.first { it.url == Prefs.currentEpisodeUrl }

@@ -71,4 +71,11 @@ object Prefs {
     var currentCover: String?
         get() = prefs.getString("current_cover", "")
         set(value) = prefs.edit().putString("current_cover", value).apply()
+
+    var source: String
+        get() = prefs.getString("current_source", SOURCE_56TINGSHU)
+        set(value) = prefs.edit().putString("current_source", value).apply()
+
+    const val SOURCE_56TINGSHU = "56tingshu"
+    const val SOURCE_520TINGSHU = "520tingshu"
 }

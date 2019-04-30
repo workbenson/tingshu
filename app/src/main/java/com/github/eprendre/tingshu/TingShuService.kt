@@ -17,8 +17,8 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.session.MediaButtonReceiver
-import com.github.eprendre.tingshu.sources.WLPlaybackPreparer
-import com.github.eprendre.tingshu.sources.WLQueueNavigator
+import com.github.eprendre.tingshu.sources.MyPlaybackPreparer
+import com.github.eprendre.tingshu.sources.MyQueueNavigator
 import com.github.eprendre.tingshu.ui.PlayerActivity
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.NOW_PLAYING_NOTIFICATION
@@ -85,9 +85,9 @@ class TingShuService : Service() {
         mediaSessionConnector = MediaSessionConnector(mediaSession).also {
             val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, "tingshu"))
 
-            val playbackPrepare = WLPlaybackPreparer(exoPlayer, dataSourceFactory)
+            val playbackPrepare = MyPlaybackPreparer(exoPlayer, dataSourceFactory)
             it.setPlayer(exoPlayer, playbackPrepare)
-            it.setQueueNavigator(WLQueueNavigator(mediaSession))
+            it.setQueueNavigator(MyQueueNavigator(mediaSession))
         }
         exoPlayer.addListener(object : Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
