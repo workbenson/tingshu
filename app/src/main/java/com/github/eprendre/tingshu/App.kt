@@ -1,17 +1,16 @@
 package com.github.eprendre.tingshu
 
-import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.multidex.MultiDexApplication
 import com.github.eprendre.tingshu.utils.Episode
 import com.github.eprendre.tingshu.utils.Prefs
 
-class App : Application() {
+class App : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         appContext = this
         Prefs.init()
-
     }
 
     companion object {

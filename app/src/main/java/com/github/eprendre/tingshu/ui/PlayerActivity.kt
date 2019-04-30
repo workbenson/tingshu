@@ -5,8 +5,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.res.ColorStateList
+import android.graphics.PorterDuff
+import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.session.MediaControllerCompat
@@ -14,27 +18,35 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
 import android.view.KeyEvent
 import android.view.View
+import android.view.WindowManager
+import android.widget.AdapterView
 import android.widget.SeekBar
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.ColorUtils
+import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.GridLayoutManager
+import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
-import com.github.eprendre.tingshu.extensions.title
-import com.github.eprendre.tingshu.sources.M56TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.Prefs
+import com.github.eprendre.tingshu.widget.GlideApp
 import com.github.eprendre.tingshu.widget.RxBus
 import com.github.eprendre.tingshu.widget.RxEvent
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
+import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.android.synthetic.main.activity_player.*
+import kotlinx.android.synthetic.main.dialog_episodes.view.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
@@ -44,10 +56,23 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private val compositeDisposable = CompositeDisposable()
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var myService: TingShuService
-    var isBound = false
+    private var isBound = false
+    private var bodyTextColor: Int? = null //spinner每次选择后需要重新染色
+    private val dialog: BottomSheetDialog by lazy {
+        BottomSheetDialog(this).apply {
+            setContentView(dialogView)
+        }
+    }
+    private val dialogView by lazy {
+        layoutInflater.inflate(R.layout.dialog_episodes, null).apply {
+            recycler_view.layoutManager = GridLayoutManager(this@PlayerActivity, 3)
+            recycler_view.adapter = listAdapter
+        }
+    }
     private val listAdapter = EpisodeAdapter {
         Prefs.currentEpisodePosition = 0
         mediaController.transportControls.playFromUri(Uri.parse(it.url), null)
+        dialog.dismiss()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -81,7 +106,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             mediaController = MediaControllerCompat(this@PlayerActivity, myService.mediaSession.sessionToken)
             mediaController.registerCallback(object : MediaControllerCompat.Callback() {
                 override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
-                    supportActionBar?.title = Prefs.currentEpisodeName + " - " + Prefs.currentBookName
                     updateState(state)
                 }
             })
@@ -96,7 +120,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
      * 根据播放状态更新 "播放/暂停" 按钮的图标
      */
     private fun updateState(state: PlaybackStateCompat) {
-        recycler_view.scrollToPosition(App.currentEpisodeIndex())
+        artist_text.text = "${Prefs.artist}"
+        episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
         listAdapter.notifyDataSetChanged()//更新当前正在播放的item颜色
         when (state.state) {
             PlaybackStateCompat.STATE_ERROR -> {
@@ -126,6 +151,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private fun handleIntent() {
         val bookurl = intent.getStringExtra(ARG_BOOKURL)
         if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {
+            Prefs.currentBookUrl = bookurl
             playFromBookUrl(bookurl)
         } else {
             if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
@@ -133,10 +159,12 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 //故检回到此Activity并且为暂停状态时主动去获取新的播放地址
                 Prefs.currentBookUrl?.apply { playFromBookUrl(this) }
             } else {
-                infos.text = Prefs.artist
-                supportActionBar?.title = Prefs.currentEpisodeName + " - " + Prefs.currentBookName
+                artist_text.text = "${Prefs.artist}"
+                episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
+                supportActionBar?.title = Prefs.currentBookName
                 updateState(mediaController.playbackState)
                 state_layout.showContent()
+                tintColor()
             }
         }
     }
@@ -149,8 +177,11 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                infos.text = Prefs.artist
+                artist_text.text = "${Prefs.artist}"
+                episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
                 state_layout.showContent()
+                tintColor()
+
 
                 //开始请求播放
                 var index = App.currentEpisodeIndex()
@@ -159,7 +190,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     index = 0
                     Prefs.currentEpisodePosition = 0
                 }
-                supportActionBar?.title = App.playList[index].title + " - " + Prefs.currentBookName
+                supportActionBar?.title = Prefs.currentBookName
                 listAdapter.submitList(App.playList)
                 mediaController.transportControls.playFromUri(Uri.parse(App.playList[index].url), null)
             }, { error ->
@@ -170,13 +201,61 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     }
 
     /**
+     * 使用 Palette 提取封面颜色，并给相关控件染色
+     */
+    private fun tintColor() {
+        App.coverBitmap?.let { cover ->
+            Palette.from(cover).generate { palette ->
+                if (palette == null) {
+                    return@generate
+                }
+
+                palette.dominantSwatch?.let { swatch ->
+                    val colorDrawable = ColorDrawable(swatch.rgb)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                        window.statusBarColor = swatch.rgb
+                    }
+                    supportActionBar?.setBackgroundDrawable(colorDrawable)
+                    artist_text.setTextColor(swatch.titleTextColor)
+                    artist_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)//加上阴影可以解决字体颜色和附近背景颜色接近时不能识别的情况
+                    episode_text.setTextColor(swatch.titleTextColor)
+                    episode_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)
+                    control_panel.setBackgroundColor(ColorUtils.setAlphaComponent(swatch.rgb, 180))
+                    timer_button.setTextColor(swatch.bodyTextColor)
+                    playlist_button.setColorFilter(swatch.bodyTextColor)
+                    (speed_spinner.selectedView as TextView).setTextColor(swatch.bodyTextColor)
+                    speed_spinner.supportBackgroundTintList = ColorStateList.valueOf(swatch.bodyTextColor)
+                    text_current.setTextColor(swatch.bodyTextColor)
+                    seekbar.progressDrawable.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
+                    seekbar.thumb.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
+                    text_duration.setTextColor(swatch.bodyTextColor)
+                    button_previous.setColorFilter(swatch.bodyTextColor)
+                    button_rewind.setColorFilter(swatch.bodyTextColor)
+                    button_play.setColorFilter(swatch.bodyTextColor)
+                    button_fastforward.setColorFilter(swatch.bodyTextColor)
+                    button_next.setColorFilter(swatch.bodyTextColor)
+                    play_progress.indeterminateDrawable.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
+                    bodyTextColor = swatch.bodyTextColor
+                }
+            }
+        }
+    }
+
+
+    /**
      * 初始化控件，需要在serviceConnected之后
      */
     private fun initViews() {
-        recycler_view.layoutManager = GridLayoutManager(this, 3)
-        recycler_view.adapter = listAdapter
-        listAdapter.submitList(App.playList)
 
+        GlideApp.with(this)
+            .load(Prefs.currentCover)
+            .circleCrop()
+            .into(cover_round_image)
+        GlideApp.with(this)
+            .load(Prefs.currentCover)
+            .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 3)))
+            .into(cover_image)
         //报错时的点击重试
         state_layout.setErrorListener {
             state_layout.showLoading()
@@ -186,12 +265,12 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
         myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
         when (Prefs.speed) {
-            0.75f -> radiogroup.check(R.id.button_speed_0_75)
-            1f -> radiogroup.check(R.id.button_speed_1)
-            1.25f -> radiogroup.check(R.id.button_speed_1_25)
-            1.5f -> radiogroup.check(R.id.button_speed_1_5)
-            2f -> radiogroup.check(R.id.button_speed_2)
-            else -> radiogroup.check(R.id.button_speed_1)
+            0.75f -> speed_spinner.setSelection(0, true)
+            1f -> speed_spinner.setSelection(1, true)
+            1.25f -> speed_spinner.setSelection(2, true)
+            1.5f -> speed_spinner.setSelection(3, true)
+            2f -> speed_spinner.setSelection(4, true)
+            else -> speed_spinner.setSelection(1, true)
         }
 
         //定时关闭
@@ -218,6 +297,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 .show()
         }
 
+        //监听倒计时, 更新按钮的剩余时间
         RxBus.toFlowable(RxEvent.TimerEvent::class.java)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
@@ -233,17 +313,23 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             }
             .addTo(compositeDisposable)
         //播放速度
-        radiogroup.setOnCheckedChangeListener { group, checkedId ->
-            val params = when (checkedId) {
-                R.id.button_speed_0_75 -> PlaybackParameters(0.75f)
-                R.id.button_speed_1 -> PlaybackParameters(1f)
-                R.id.button_speed_1_25 -> PlaybackParameters(1.25f)
-                R.id.button_speed_1_5 -> PlaybackParameters(1.5f)
-                R.id.button_speed_2 -> PlaybackParameters(2f)
-                else -> PlaybackParameters(1f)
+        speed_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
             }
-            myService.exoPlayer.playbackParameters = params
-            Prefs.speed = params.speed
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
+                bodyTextColor?.let { (view as TextView).setTextColor(it) }//给spinner染色
+                val params = when (position) {
+                    0 -> PlaybackParameters(0.75f)
+                    1 -> PlaybackParameters(1f)
+                    2 -> PlaybackParameters(1.25f)
+                    3 -> PlaybackParameters(1.5f)
+                    4 -> PlaybackParameters(2f)
+                    else -> PlaybackParameters(1f)
+                }
+                myService.exoPlayer.playbackParameters = params
+                Prefs.speed = params.speed
+            }
         }
         //进度条
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -299,6 +385,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 mediaController.transportControls.play()
             }
         }
+        playlist_button.setOnClickListener { openEpisodesDialog() }
         //定时更新播放时长、进度条
         Flowable.interval(1, TimeUnit.SECONDS)
             .observeOn(AndroidSchedulers.mainThread())
@@ -320,6 +407,11 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             .addTo(compositeDisposable)
     }
 
+    private fun openEpisodesDialog() {
+        dialogView.recycler_view.scrollToPosition(App.currentEpisodeIndex())
+        dialog.show()
+    }
+
     override fun onResume() {
         super.onResume()
         //当通知被划掉并且当前页面仍然存活时需要重新播放
@@ -335,7 +427,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     }
 
     /**
-     * 方便咱使用黑莓key2
+     * 注册按键，方便咱使用黑莓key2的键盘
      */
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
         return when (keyCode) {

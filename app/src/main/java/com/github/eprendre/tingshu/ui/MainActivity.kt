@@ -19,6 +19,7 @@ import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.GlideApp
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 
 class MainActivity : AppCompatActivity() {
     var isBound = false
@@ -52,6 +53,10 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     startActivity<PlayerActivity>()
                 }
+            }
+            last_play.setOnLongClickListener {
+                toast(Prefs.currentBookUrl!!)
+                return@setOnLongClickListener true
             }
         }
     }

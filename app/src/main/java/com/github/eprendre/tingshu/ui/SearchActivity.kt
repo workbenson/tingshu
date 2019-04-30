@@ -30,7 +30,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     private lateinit var scrollListener: EndlessRecyclerViewScrollListener
 
     private val listAdapter = SearchAdapter {
-        Prefs.currentBookUrl = it.bookUrl
+//        Prefs.currentBookUrl = it.bookUrl//这个不能在这里赋值，在PlayerActivity检测后再赋值
         Prefs.currentCover = it.coverUrl
         Prefs.currentBookName = it.title
         Prefs.artist = it.artist

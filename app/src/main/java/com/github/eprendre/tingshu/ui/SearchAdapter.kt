@@ -9,6 +9,7 @@ import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.widget.GlideApp
 import kotlinx.android.synthetic.main.item_search.view.*
+import org.jetbrains.anko.toast
 
 class SearchAdapter(private val itemClickListener: (Book) -> Unit) :
     ListAdapter<Book, SearchViewHolder>(Book.diffCallback) {
@@ -33,6 +34,12 @@ class SearchViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycler
     init {
         view.setOnClickListener {
             item?.let(itemClickListener)
+        }
+        view.setOnLongClickListener {
+            item?.let {
+                view.context.toast(it.bookUrl)
+            }
+            return@setOnLongClickListener true
         }
     }
 
