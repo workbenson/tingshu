@@ -65,7 +65,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        finish()
+        onBackPressed()
         return true
     }
 

@@ -59,6 +59,7 @@ dependencies {
     implementation 'jp.wasabeef:glide-transformations:4.0.1'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.preference:preference:1.1.0-alpha04'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     kapt "com.github.bumptech.glide:compiler:4.8.0"
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
     testImplementation 'junit:junit:4.12'

@@ -18,14 +18,16 @@
             tools:ignore="GoogleAppIndexingWarning">
         <activity
                 android:name=".ui.SettingsActivity"
-                android:label="@string/title_activity_settings_test">
+                android:label="@string/title_activity_settings">
         </activity>
         <activity
                 android:name=".ui.SearchActivity"
                 android:configChanges="keyboardHidden|orientation|screenSize"
                 android:label="搜索">
         </activity>
-        <activity android:name=".ui.MainActivity">
+        <activity
+                android:name=".ui.MainActivity"
+                android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

@@ -10,8 +10,16 @@
     <string name="notification_play">Play</string>
     <string name="notification_pause">Pause</string>
 
-    <string name="title_activity_settings_test">设置</string>
+    <string name="title_activity_settings">设置</string>
 
     <string name="sources_header">选择源站点</string>
     <string name="source_title">当前站点</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+
 </resources>
