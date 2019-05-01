@@ -7,3 +7,9 @@
 
 * [http://m.520tingshu.com](http://m.520tingshu.com)
 * [http://m.ting56.com](http://m.ting56.com)
+
+## 截图
+
+![home](art/home.jpg)
+
+![play](art/play.jpg)
