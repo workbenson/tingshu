@@ -29,13 +29,15 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     private lateinit var oldList: ArrayList<Book>
     private lateinit var scrollListener: EndlessRecyclerViewScrollListener
 
-    private val listAdapter = SearchAdapter {
-//        Prefs.currentBookUrl = it.bookUrl//这个不能在这里赋值，在PlayerActivity检测后再赋值
-        Prefs.currentCover = it.coverUrl
-        Prefs.currentBookName = it.title
-        Prefs.artist = it.artist
-        Prefs.author = it.author
-        startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to it.bookUrl)
+    private val listAdapter by lazy {
+        SearchAdapter {
+            //        Prefs.currentBookUrl = it.bookUrl//这个不能在这里赋值，在PlayerActivity检测后再赋值避免不必要的bug
+            Prefs.currentCover = it.coverUrl
+            Prefs.currentBookName = it.title
+            Prefs.artist = it.artist
+            Prefs.author = it.author
+            startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to it.bookUrl)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,6 +130,10 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
                 state_layout.showError()
             })
             .addTo(compositeDisposable)
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.clear()
     }
 }

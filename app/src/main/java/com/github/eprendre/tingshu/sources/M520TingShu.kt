@@ -6,14 +6,13 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.text.isDigitsOnly
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.extensions.*
-import com.github.eprendre.tingshu.utils.Book
-import com.github.eprendre.tingshu.utils.Episode
-import com.github.eprendre.tingshu.utils.Prefs
+import com.github.eprendre.tingshu.utils.*
 import com.github.eprendre.tingshu.widget.GlideApp
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
@@ -25,6 +24,34 @@ import java.net.URLEncoder
 
 object M520TingShu : TingShu {
     private lateinit var extractor: M520AudioUrlExtractor
+
+    override fun getMainSectionTabs(): List<SectionTab> {
+        return listOf(
+            SectionTab("玄幻奇幻", "http://m.520tingshu.com/list/?1.html"),
+            SectionTab("修真武侠", "http://m.520tingshu.com/list/?2.html"),
+            SectionTab("恐怖灵异", "http://m.520tingshu.com/list/?3.html"),
+            SectionTab("都市言情", "http://m.520tingshu.com/list/?4.html"),
+            SectionTab("穿越有声", "http://m.520tingshu.com/list/?43.html"),
+            SectionTab("网游小说", "http://m.520tingshu.com/list/?6.html")
+        )
+    }
+
+    override fun getOtherSectionTabs(): List<SectionTab> {
+        return listOf(
+            SectionTab("评书大全", "http://m.520tingshu.com/list/?8.html"),
+            SectionTab("粤语古仔", "http://m.520tingshu.com/list/?5.html"),
+            SectionTab("百家讲坛", "http://m.520tingshu.com/list/?9.html"),
+            SectionTab("历史纪实", "http://m.520tingshu.com/list/?11.html"),
+            SectionTab("军事", "http://m.520tingshu.com/list/?13.html"),
+            SectionTab("推理", "http://m.520tingshu.com/list/?46.html"),
+            SectionTab("儿童", "http://m.520tingshu.com/list/?29.html"),
+            SectionTab("广播剧", "http://m.520tingshu.com/list/?10.html"),
+            SectionTab("官场商战", "http://m.520tingshu.com/list/?47.html"),
+            SectionTab("相声小说", "http://m.520tingshu.com/list/?44.html"),
+            SectionTab("ebc5系列", "http://m.520tingshu.com/list/?48.html"),
+            SectionTab("通俗文学", "http://m.520tingshu.com/list/?12.html")
+        )
+    }
 
     override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {
         if (!::extractor.isInitialized) {
@@ -40,14 +67,19 @@ object M520TingShu : TingShu {
 
             //下载封面
             val glideOptions = RequestOptions()
-                .fallback(R.drawable.default_art)
+                .error(R.drawable.ic_launcher_background)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-            App.coverBitmap = GlideApp.with(App.appContext)
-                .applyDefaultRequestOptions(glideOptions)
-                .asBitmap()
-                .load(Prefs.currentCover)
-                .submit(144, 144)
-                .get()
+            try {
+                App.coverBitmap = GlideApp.with(App.appContext)
+                    .applyDefaultRequestOptions(glideOptions)
+                    .asBitmap()
+                    .load(Prefs.currentCover)
+                    .submit(144, 144)
+                    .get()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                App.coverBitmap = getBitmapFromVectorDrawable(App.appContext, R.drawable.ic_launcher_background)
+            }
 
 //            val vodmain = doc.selectFirst("#wrap .vod .vodbox .vodmain")
 //            Prefs.currentBookName = vodmain.selectFirst(".title").text()
@@ -63,6 +95,30 @@ object M520TingShu : TingShu {
 
             App.playList = episodes
             return@fromCallable null
+        }
+    }
+
+    override fun getSectionDetail(url: String): Single<Section> {
+        return Single.fromCallable {
+            val list = ArrayList<Book>()
+            val doc = Jsoup.connect(url).get()
+            val pages = doc.select(".main .page a")
+            val totalPage = pages.last { it.text().isDigitsOnly() }.text().toInt()
+            val currentPage = doc.selectFirst(".main .page span").text().toInt()
+            val nextUrl = pages[pages.size - 2].attr("abs:href")
+
+            val elementList = doc.select(".main .lb_zk li")
+            elementList.forEach { element ->
+                val coverUrl = element.selectFirst("a .L1 img").attr("src")
+                val bookUrl = element.selectFirst("a").attr("abs:href")
+                val (title, author, artist) = element.select("a .R1 p").let { row ->
+                    Triple(row[0].text(), row[1].text(), row[2].text())
+                }
+                val intro = ""//520tingshu 没有简介
+                list.add(Book(coverUrl, bookUrl, title, author, artist, intro))
+            }
+
+            return@fromCallable Section(list, currentPage, totalPage, url, nextUrl)
         }
     }
 

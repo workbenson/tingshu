@@ -11,9 +11,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.extensions.*
-import com.github.eprendre.tingshu.utils.Book
-import com.github.eprendre.tingshu.utils.Episode
-import com.github.eprendre.tingshu.utils.Prefs
+import com.github.eprendre.tingshu.utils.*
 import com.github.eprendre.tingshu.widget.GlideApp
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
@@ -22,10 +20,31 @@ import io.reactivex.Single
 import org.apache.commons.lang3.StringEscapeUtils
 import org.jsoup.Jsoup
 import java.net.URLEncoder
-import kotlin.contracts.Returns
 
 object M56TingShu : TingShu {
     private lateinit var extractor: M56AudioUrlExtractor
+
+    override fun getMainSectionTabs(): List<SectionTab> {
+        return listOf(
+            SectionTab("玄幻武侠", "http://m.ting56.com/paihangbang/1-1.html"),
+            SectionTab("都市言情", "http://m.ting56.com/paihangbang/2-2.html"),
+            SectionTab("恐怖悬疑", "http://m.ting56.com/paihangbang/3-3.html"),
+            SectionTab("网友竞技", "http://m.ting56.com/paihangbang/4-4.html"),
+            SectionTab("军事历史", "http://m.ting56.com/paihangbang/6-6.html"),
+            SectionTab("刑侦推理", "http://m.ting56.com/paihangbang/41-41.html")
+        )
+    }
+
+    override fun getOtherSectionTabs(): List<SectionTab> {
+        return listOf(
+            SectionTab("职场商战", "http://m.ting56.com/paihangbang/7-7.html"),
+            SectionTab("百家讲坛", "http://m.ting56.com/paihangbang/10-10.html"),
+            SectionTab("广播剧", "http://m.ting56.com/paihangbang/40-40.html"),
+            SectionTab("幽默笑话", "http://m.ting56.com/paihangbang/44-44.html"),
+            SectionTab("相声", "http://m.ting56.com/book/43.html"),
+            SectionTab("儿童读物", "http://m.ting56.com/paihangbang/11-11.html")
+        )
+    }
 
     override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {
         if (!::extractor.isInitialized) {
@@ -42,14 +61,19 @@ object M56TingShu : TingShu {
 //            val cover = book.getElementsByTag("img").first().attr("src")
             //下载封面
             val glideOptions = RequestOptions()
-                .fallback(R.drawable.default_art)
+                .error(R.drawable.ic_launcher_background)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-            App.coverBitmap = GlideApp.with(App.appContext)
-                .applyDefaultRequestOptions(glideOptions)
-                .asBitmap()
-                .load(Prefs.currentCover)
-                .submit(144, 144)
-                .get()
+            try {
+                App.coverBitmap = GlideApp.with(App.appContext)
+                    .applyDefaultRequestOptions(glideOptions)
+                    .asBitmap()
+                    .load(Prefs.currentCover)
+                    .submit(144, 144)
+                    .get()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                App.coverBitmap = getBitmapFromVectorDrawable(App.appContext, R.drawable.ic_launcher_background)
+            }
 
             //获取书本信息
 //            val bookInfos = book.getElementsByTag("span").map { it.text() }
@@ -65,6 +89,40 @@ object M56TingShu : TingShu {
                 }
             App.playList = episodes
             return@fromCallable null
+        }
+    }
+
+    override fun getSectionDetail(url: String): Single<Section> {
+        return Single.fromCallable {
+            var currentPage: Int
+            var totalPage: Int
+
+            val list = ArrayList<Book>()
+            val doc = Jsoup.connect(url).get()
+            val container = doc.selectFirst(".xsdz")
+            doc.getElementById("page_num1").text().split("/").let {
+                currentPage = it[0].toInt()
+                totalPage = it[1].toInt()
+            }
+            val nextUrl = doc.getElementById("page_next1").attr("abs:href")
+            val elementList = container.getElementsByClass("list-ov-tw")
+            elementList.forEach { item ->
+                var coverUrl = item.selectFirst(".list-ov-t a img").attr("original")
+                if (coverUrl.startsWith("/")) {//有些网址已拼接好，有些没有拼接
+                    //这里用主站去拼接，因为用http://m.ting56.com/拼接时经常封面报错
+                    coverUrl = "http://www.ting56.com$coverUrl"
+                }
+                val ov = item.selectFirst(".list-ov-w")
+                val bookUrl = ov.selectFirst(".bt a").attr("abs:href")
+                val title = ov.selectFirst(".bt a").text()
+                val (author, artist) = ov.select(".zz").let { element ->
+                    Pair(element[0].text(), element[1].text())
+                }
+                val intro = ov.selectFirst(".nr").text()
+                list.add(Book(coverUrl, bookUrl, title, author, artist, intro))
+            }
+
+            return@fromCallable Section(list, currentPage, totalPage, url, nextUrl)
         }
     }
 

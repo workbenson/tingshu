@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
+import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.GlideApp
 import kotlinx.android.synthetic.main.activity_main.*
@@ -28,22 +29,48 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var myService: TingShuService
     private val headerView by lazy { nav_view.getHeaderView(0) }
+    private val sectionsPagerAdapter by lazy {
+        SectionsPagerAdapter(
+            this,
+            supportFragmentManager
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        volumeControlStream = AudioManager.STREAM_MUSIC
+
+        initViews()
+
+        val intent = Intent(this, TingShuService::class.java)
+        startService(intent)
+        bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun initViews() {
+        nav_view.setCheckedItem(R.id.nav_home)
+        sectionsPagerAdapter.sections = TingShuSourceHandler.getMainSections()
+        view_pager.adapter = sectionsPagerAdapter
+        tabs.setupWithViewPager(view_pager)
 
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-        nav_view.setCheckedItem(R.id.nav_home)
         nav_view.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_home -> {
-
+                    sectionsPagerAdapter.sections = TingShuSourceHandler.getMainSections()
+                    sectionsPagerAdapter.notifyDataSetChanged()
+                    view_pager.setCurrentItem(0, false)
+                }
+                R.id.nav_other -> {
+                    sectionsPagerAdapter.sections = TingShuSourceHandler.getOtherSections()
+                    sectionsPagerAdapter.notifyDataSetChanged()
+                    view_pager.setCurrentItem(0, false)
                 }
                 R.id.nav_settings -> {
                     startActivity<SettingsActivity>()
@@ -53,14 +80,9 @@ class MainActivity : AppCompatActivity() {
             return@setNavigationItemSelectedListener true
         }
 
-        volumeControlStream = AudioManager.STREAM_MUSIC
-
-        val intent = Intent(this, TingShuService::class.java)
-        startService(intent)
-        bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
     }
 
-    private fun initViews() {
+    private fun updatePlayerInfo() {
         if (Prefs.currentBookUrl.isNullOrBlank()) {
             headerView.container.setOnClickListener(null)
         } else {
@@ -85,7 +107,23 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (isBound) {
-            initViews()
+            updatePlayerInfo()
+        }
+        when (nav_view.checkedItem!!.itemId) {
+            R.id.nav_home -> {
+                if (sectionsPagerAdapter.sections != TingShuSourceHandler.getMainSections()) {
+                    sectionsPagerAdapter.sections = TingShuSourceHandler.getMainSections()
+                    sectionsPagerAdapter.notifyDataSetChanged()
+                    view_pager.setCurrentItem(0, false)
+                }
+            }
+            R.id.nav_other -> {
+                if (sectionsPagerAdapter.sections != TingShuSourceHandler.getOtherSections()) {
+                    sectionsPagerAdapter.sections = TingShuSourceHandler.getOtherSections()
+                    sectionsPagerAdapter.notifyDataSetChanged()
+                    view_pager.setCurrentItem(0, false)
+                }
+            }
         }
     }
 
@@ -99,8 +137,7 @@ class MainActivity : AppCompatActivity() {
             myService = binder.getService()
             isBound = true
             mediaController = MediaControllerCompat(this@MainActivity, myService.mediaSession.sessionToken)
-            invalidateOptionsMenu()
-            initViews()
+            updatePlayerInfo()
         }
     }
 

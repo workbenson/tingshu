@@ -1,6 +1,8 @@
 package com.github.eprendre.tingshu.sources
 
 import com.github.eprendre.tingshu.utils.Book
+import com.github.eprendre.tingshu.utils.Section
+import com.github.eprendre.tingshu.utils.SectionTab
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
@@ -15,6 +17,12 @@ interface TingShu {
     fun playFromBookUrl(bookUrl: String): Completable
 
     fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor
+
+    fun getMainSectionTabs(): List<SectionTab>
+
+    fun getOtherSectionTabs(): List<SectionTab>
+
+    fun getSectionDetail(url: String): Single<Section>
 }
 
 interface AudioUrlExtractor {

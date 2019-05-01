@@ -15,7 +15,7 @@ import com.github.eprendre.tingshu.R
 class MyAppGlideModule : AppGlideModule() {
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         val requestOptions = RequestOptions()
-        requestOptions.placeholder(R.drawable.ic_notification)
+        requestOptions.error(R.drawable.ic_library_music)
         val transitionOptions = DrawableTransitionOptions.withCrossFade(
             DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true)
         )

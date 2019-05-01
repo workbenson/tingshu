@@ -2,6 +2,8 @@ package com.github.eprendre.tingshu.sources
 
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
+import com.github.eprendre.tingshu.utils.Section
+import com.github.eprendre.tingshu.utils.SectionTab
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
@@ -27,13 +29,33 @@ object TingShuSourceHandler {
             Prefs.SOURCE_520TINGSHU -> tingShu = M520TingShu
         }
     }
+
     //以下直接从已设置好的站点去获取数据
     fun search(keywords: String, page: Int): Single<Pair<List<Book>, Int>> {
         return tingShu.search(keywords, page)
     }
 
+    fun getMainSections(): List<SectionTab> {
+        return tingShu.getMainSectionTabs()
+    }
+
+    fun getOtherSections(): List<SectionTab> {
+        return tingShu.getOtherSectionTabs()
+    }
 
     //以下的方法需要根据传入的url判断用哪个站点解析
+    fun getSectionDetail(url: String): Single<Section> {
+        return when {
+            url.startsWith(SOURCE_URL_56) -> {
+                M56TingShu.getSectionDetail(url)
+            }
+            url.startsWith(SOURCE_URL_520) -> {
+                M520TingShu.getSectionDetail(url)
+            }
+            else -> throw RuntimeException("不能解析该网址")
+        }
+    }
+
     fun getAudioUrlExtractor(
         url: String,
         exoPlayer: ExoPlayer,

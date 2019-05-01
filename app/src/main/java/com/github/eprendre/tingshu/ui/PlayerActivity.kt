@@ -252,6 +252,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private fun initViews() {
         GlideApp.with(this)
             .load(Prefs.currentCover)
+            .error(R.drawable.ic_launcher_background)
             .circleCrop()
             .into(cover_round_image)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -269,6 +270,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         }
         GlideApp.with(this)
             .load(Prefs.currentCover)
+            .error(R.drawable.ic_launcher_background)
             .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 3)))
             .into(cover_image)
         //报错时的点击重试

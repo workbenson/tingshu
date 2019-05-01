@@ -10,7 +10,8 @@
         tools:openDrawer="start"
         >
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             >
@@ -31,31 +32,21 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <LinearLayout
+        <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabMode="scrollable"
+                app:tabGravity="center"
+                />
+
+        <androidx.viewpager.widget.ViewPager
+                android:id="@+id/view_pager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context=".ui.MainActivity"
-                android:orientation="vertical"
-                >
-
-            <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    >
-
-                <TextView
-                        android:layout_gravity="center"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="点击右上角开始搜索"
-                        android:textSize="20sp"
-                        android:textColor="@color/primary_text"
-                        />
-
-            </FrameLayout>
-        </LinearLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                />
+    </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView
             android:id="@+id/nav_view"

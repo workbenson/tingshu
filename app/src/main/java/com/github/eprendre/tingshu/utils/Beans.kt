@@ -38,3 +38,16 @@ data class Book(
         }
     }
 }
+
+data class SectionTab(
+    val title: String,
+    val url: String
+)
+
+data class Section(
+    val list: List<Book>,
+    val currentPage: Int,
+    val totalPage: Int,
+    val currentUrl: String,
+    val nextUrl: String
+)
