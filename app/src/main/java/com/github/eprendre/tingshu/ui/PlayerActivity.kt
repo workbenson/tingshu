@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.ColorStateList
+import android.graphics.Outline
 import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
@@ -18,6 +19,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewOutlineProvider
 import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.SeekBar
@@ -48,6 +50,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.android.synthetic.main.activity_player.*
 import kotlinx.android.synthetic.main.dialog_episodes.view.*
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.dip
 import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
 
@@ -221,7 +224,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     artist_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)//加上阴影可以解决字体颜色和附近背景颜色接近时不能识别的情况
                     episode_text.setTextColor(swatch.titleTextColor)
                     episode_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)
-                    control_panel.setBackgroundColor(ColorUtils.setAlphaComponent(swatch.rgb, 180))
+                    control_panel.setBackgroundColor(ColorUtils.setAlphaComponent(swatch.rgb, 204))
                     timer_button.setTextColor(swatch.bodyTextColor)
                     playlist_button.setColorFilter(swatch.bodyTextColor)
                     (speed_spinner.selectedView as TextView).setTextColor(swatch.bodyTextColor)
@@ -247,11 +250,23 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
      * 初始化控件，需要在serviceConnected之后
      */
     private fun initViews() {
-
         GlideApp.with(this)
             .load(Prefs.currentCover)
             .circleCrop()
             .into(cover_round_image)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //给中间封面添加一圈圆形的阴影
+            val offset = dip(12)
+            cover_round_image.outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: Outline) {
+                    val top = (view.height - view.width) / 2
+                    val bottom = top + view.width
+                    return outline.setOval(offset, top + offset, view.width - offset, bottom - offset)
+                }
+            }
+            cover_round_image.clipToOutline = true
+            cover_round_image.elevation = offset.toFloat()
+        }
         GlideApp.with(this)
             .load(Prefs.currentCover)
             .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 3)))
