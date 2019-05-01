@@ -298,7 +298,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 "10秒钟(测试用)"
             )
             AlertDialog.Builder(this)
-                .setItems(list) { dialog, which ->
+                .setItems(list) { _, which ->
                     myService.resetTimer()
                     when (which) {
                         0 -> timer_button.text = "定时关闭"

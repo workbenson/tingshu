@@ -17,6 +17,10 @@
             android:usesCleartextTraffic="true"
             tools:ignore="GoogleAppIndexingWarning">
         <activity
+                android:name=".ui.SettingsActivity"
+                android:label="@string/title_activity_settings_test">
+        </activity>
+        <activity
                 android:name=".ui.SearchActivity"
                 android:configChanges="keyboardHidden|orientation|screenSize"
                 android:label="搜索">
@@ -29,15 +33,10 @@
             </intent-filter>
         </activity>
         <activity
-                android:screenOrientation="portrait"
                 android:name=".ui.PlayerActivity"
                 android:configChanges="keyboardHidden|orientation|screenSize"
-                android:launchMode="singleTask">
-        </activity>
-
-        <activity
-                android:label="设置"
-                android:name=".ui.SettingsActivity">
+                android:launchMode="singleTask"
+                android:screenOrientation="portrait">
         </activity>
 
         <receiver android:name="androidx.media.session.MediaButtonReceiver">

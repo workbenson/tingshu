@@ -10,11 +10,8 @@
     <string name="notification_play">Play</string>
     <string name="notification_pause">Pause</string>
 
-    <string-array name="play_speed">
-        <item>0.75x</item>
-        <item>1.0x</item>
-        <item>1.25x</item>
-        <item>1.5x</item>
-        <item>2.0x</item>
-    </string-array>
+    <string name="title_activity_settings_test">设置</string>
+
+    <string name="sources_header">选择源站点</string>
+    <string name="source_title">当前站点</string>
 </resources>
