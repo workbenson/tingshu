@@ -158,13 +158,14 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             playFromBookUrl(bookurl)
         } else {
             if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
-                //因为56tingshu返回的播放地址会过期，当播放器暂停很久回来后会出现当前的播放地址失效的情况
+                //因为某些网站返回的播放地址会过期，当播放器暂停很久回来后会出现当前的播放地址失效的情况
                 //故检回到此Activity并且为暂停状态时主动去获取新的播放地址
                 Prefs.currentBookUrl?.apply { playFromBookUrl(this) }
             } else {
                 artist_text.text = "${Prefs.artist}"
                 episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
                 supportActionBar?.title = Prefs.currentBookName
+                listAdapter.submitList(App.playList)
                 updateState(mediaController.playbackState)
                 state_layout.showContent()
                 tintColor()
