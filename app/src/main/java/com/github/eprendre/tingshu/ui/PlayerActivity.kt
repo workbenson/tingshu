@@ -26,6 +26,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.GridLayoutManager
@@ -82,6 +83,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
+        setSupportActionBar(toolbar)
         volumeControlStream = AudioManager.STREAM_MUSIC
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -216,11 +218,22 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
                 palette.dominantSwatch?.let { swatch ->
                     val colorDrawable = ColorDrawable(swatch.rgb)
+                    supportActionBar?.setBackgroundDrawable(colorDrawable)
+                    //如果actionbar的背景颜色太亮，则修改toolbar, statusbar的文字、图标为深色
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                         window.statusBarColor = swatch.rgb
+                        if (ColorUtils.calculateLuminance(swatch.rgb) > 0.5) {
+                            val backArrow = ContextCompat.getDrawable(this, R.drawable.back)
+                            backArrow?.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
+                            supportActionBar?.setHomeAsUpIndicator(backArrow)
+                            toolbar.setTitleTextColor(swatch.bodyTextColor)
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                            }
+                        }
                     }
-                    supportActionBar?.setBackgroundDrawable(colorDrawable)
                     artist_text.setTextColor(swatch.titleTextColor)
                     artist_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)//加上阴影可以解决字体颜色和附近背景颜色接近时不能识别的情况
                     episode_text.setTextColor(swatch.titleTextColor)
