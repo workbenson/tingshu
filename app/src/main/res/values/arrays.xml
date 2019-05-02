@@ -1,12 +1,12 @@
 <resources>
     <string-array name="source_entries">
-        <item>http://m.ting56.com</item>
-        <item>http://m.520tingshu.com</item>
+        <item>56听书网</item>
+        <item>520听书网</item>
     </string-array>
 
     <string-array name="source_values">
-        <item>56tingshu</item>
-        <item>520tingshu</item>
+        <item>http://m.ting56.com</item>
+        <item>http://m.520tingshu.com</item>
     </string-array>
 
     <string-array name="play_speed">

@@ -47,7 +47,7 @@ class MyPlaybackPreparer(
         Prefs.currentEpisodeName = App.currentEpisode().title
         RxBus.post(RxEvent.ParsingPlayUrlEvent())
 
-        TingShuSourceHandler.getAudioUrlExtractor(url, exoPlayer, dataSourceFactory)?.extract(url)
+        TingShuSourceHandler.getAudioUrlExtractor(url, exoPlayer, dataSourceFactory).extract(url)
     }
 
     override fun onPrepare() {

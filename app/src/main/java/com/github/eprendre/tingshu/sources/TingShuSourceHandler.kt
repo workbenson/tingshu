@@ -1,5 +1,7 @@
 package com.github.eprendre.tingshu.sources
 
+import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.utils.Section
@@ -17,17 +19,22 @@ import io.reactivex.Single
 object TingShuSourceHandler {
     const val SOURCE_URL_56 = "http://m.ting56.com"
     const val SOURCE_URL_520 = "http://m.520tingshu.com"
+
     private lateinit var tingShu: TingShu
+    private val sourceList by lazy {
+        val array = App.appContext.resources.getStringArray(R.array.source_values)
+        listOf(
+            Pair(array[0], M56TingShu),
+            Pair(array[1], M520TingShu)
+        )
+    }
 
     init {
         setupConfig()
     }
 
     fun setupConfig() {
-        when (Prefs.source) {
-            Prefs.SOURCE_56TINGSHU -> tingShu = M56TingShu
-            Prefs.SOURCE_520TINGSHU -> tingShu = M520TingShu
-        }
+        tingShu = findSource(Prefs.source)
     }
 
     //以下直接从已设置好的站点去获取数据
@@ -45,42 +52,24 @@ object TingShuSourceHandler {
 
     //以下的方法需要根据传入的url判断用哪个站点解析
     fun getSectionDetail(url: String): Single<Section> {
-        return when {
-            url.startsWith(SOURCE_URL_56) -> {
-                M56TingShu.getSectionDetail(url)
-            }
-            url.startsWith(SOURCE_URL_520) -> {
-                M520TingShu.getSectionDetail(url)
-            }
-            else -> throw RuntimeException("不能解析该网址")
-        }
+        return findSource(url).getSectionDetail(url)
     }
 
     fun getAudioUrlExtractor(
         url: String,
         exoPlayer: ExoPlayer,
         dataSourceFactory: DataSource.Factory
-    ): AudioUrlExtractor? {
-        return when {
-            url.startsWith(SOURCE_URL_56) -> {
-                M56TingShu.getAudioUrlExtractor(exoPlayer, dataSourceFactory)
-            }
-            url.startsWith(SOURCE_URL_520) -> {
-                M520TingShu.getAudioUrlExtractor(exoPlayer, dataSourceFactory)
-            }
-            else -> null
-        }
+    ): AudioUrlExtractor {
+        return findSource(url).getAudioUrlExtractor(exoPlayer, dataSourceFactory)
     }
 
     fun playFromBookUrl(bookUrl: String): Completable {
-        return when {
-            bookUrl.startsWith(SOURCE_URL_56) -> {
-                M56TingShu.playFromBookUrl(bookUrl)
-            }
-            bookUrl.startsWith(SOURCE_URL_520) -> {
-                M520TingShu.playFromBookUrl(bookUrl)
-            }
-            else -> M56TingShu.playFromBookUrl(bookUrl)
-        }
+        return findSource(bookUrl).playFromBookUrl(bookUrl)
+    }
+
+    private fun findSource(url: String): TingShu {
+        return sourceList
+            .first { url.startsWith(it.first) }
+            .second
     }
 }

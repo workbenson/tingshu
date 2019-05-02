@@ -3,6 +3,7 @@ package com.github.eprendre.tingshu.utils
 import android.content.Context
 import android.content.SharedPreferences
 import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 
 object Prefs {
     private const val PREFS_FILENAME = "tingshu.prefs"
@@ -73,9 +74,6 @@ object Prefs {
         set(value) = prefs.edit().putString("current_cover", value).apply()
 
     var source: String
-        get() = prefs.getString("current_source", SOURCE_56TINGSHU)
+        get() = prefs.getString("current_source", TingShuSourceHandler.SOURCE_URL_56)!!
         set(value) = prefs.edit().putString("current_source", value).apply()
-
-    const val SOURCE_56TINGSHU = "56tingshu"
-    const val SOURCE_520TINGSHU = "520tingshu"
 }
