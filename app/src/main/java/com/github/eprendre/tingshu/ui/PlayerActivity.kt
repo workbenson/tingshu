@@ -131,7 +131,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         when (state.state) {
             PlaybackStateCompat.STATE_ERROR -> {
                 play_progress.visibility = View.GONE
-                toast("当前播放地址出错了")
+                toast("播放出错了(如果多次报错此地址可能已失效)")
             }
             PlaybackStateCompat.STATE_PLAYING -> {
                 button_play.setImageResource(R.drawable.exo_controls_pause)
@@ -292,7 +292,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             state_layout.showLoading()
             playFromBookUrl(Prefs.currentBookUrl!!)
         }
-        state_layout.setErrorText("报错了, 点击重试(有时候需要多试几次才能成功）")
+        state_layout.setErrorText("当前网址解析出错了, 点击重试(有时候需要多试几次才能成功）")
 
         myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
         when (Prefs.speed) {
@@ -410,10 +410,18 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         }
         //播放/暂停
         button_play.setOnClickListener {
-            if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
-                mediaController.transportControls.pause()
-            } else {
-                mediaController.transportControls.play()
+            when (mediaController.playbackState.state) {
+                PlaybackStateCompat.STATE_PLAYING -> {
+                    mediaController.transportControls.pause()
+                }
+                PlaybackStateCompat.STATE_PAUSED -> {
+                    mediaController.transportControls.play()
+                }
+                PlaybackStateCompat.STATE_ERROR,
+                PlaybackStateCompat.STATE_STOPPED,
+                PlaybackStateCompat.STATE_NONE -> {
+                    Prefs.currentBookUrl?.apply { playFromBookUrl(this) }
+                }
             }
         }
         playlist_button.setOnClickListener { openEpisodesDialog() }
