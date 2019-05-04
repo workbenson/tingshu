@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.github.eprendre.tingshu.widget.SimpleStateLayout
+<FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/state_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:inAnimation="@android:anim/fade_in"
-        android:outAnimation="@android:anim/fade_out"
+        android:orientation="vertical"
         >
 
     <ImageView
@@ -18,15 +16,16 @@
             />
 
     <LinearLayout
+            android:fitsSystemWindows="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".ui.PlayerActivity"
             android:orientation="vertical"
             >
 
         <com.google.android.material.appbar.AppBarLayout
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
+                android:background="@android:color/transparent"
                 android:theme="@style/AppTheme.AppBarOverlay"
                 >
 
@@ -40,219 +39,235 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <FrameLayout
+        <com.github.eprendre.tingshu.widget.SimpleStateLayout
+                android:id="@+id/state_layout"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:inAnimation="@android:anim/fade_in"
+                android:outAnimation="@android:anim/fade_out"
                 >
 
-            <ImageView
-                    android:layout_margin="48dp"
-                    android:id="@+id/cover_round_image"
+
+            <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    />
-
-            <LinearLayout
-                    android:layout_gravity="bottom"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    tools:context=".ui.PlayerActivity"
                     android:orientation="vertical"
-                    android:layout_margin="8dp"
                     >
 
-                <TextView
-                        android:paddingLeft="8dp"
-                        android:paddingRight="8dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:id="@+id/artist_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/primary_text"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        tools:text="播音: xxxx"
-                        />
-
-                <TextView
-                        android:paddingLeft="8dp"
-                        android:paddingRight="8dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:id="@+id/episode_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/primary_text"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        tools:text="第1章"
-                        />
-            </LinearLayout>
-
-        </FrameLayout>
-
-        <LinearLayout
-                android:id="@+id/control_panel"
-                android:padding="16dp"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
-
-            <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    >
-
-                <Button
-                        android:id="@+id/timer_button"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                        android:padding="4dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="定时关闭"
-                        />
-
-                <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:layout_gravity="right"
-                        >
-
-                    <androidx.appcompat.widget.AppCompatSpinner
-                            android:id="@+id/speed_spinner"
-                            android:entries="@array/play_speed"
-                            android:layout_width="wrap_content"
-                            android:dropDownWidth="80dp"
-                            android:layout_height="match_parent"
-                            style="@style/Widget.AppCompat.Spinner"
-                            />
-
-                    <ImageButton
-                            android:id="@+id/playlist_button"
-                            android:padding="8dp"
-                            android:layout_width="40dp"
-                            android:layout_height="match_parent"
-                            android:src="@drawable/ic_playlist_play"
-                            android:tint="@color/colorAccent"
-                            android:background="?selectableItemBackground"
-                            android:scaleType="fitCenter"
-                            android:contentDescription="@null"
-                            />
-                </LinearLayout>
-            </FrameLayout>
-
-            <LinearLayout
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="8dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
-
-                <TextView
-                        android:id="@+id/text_current"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/secondary_text"
-                        tools:text="00:12"
-                        />
-
-                <SeekBar
-                        android:layout_weight="1"
-                        android:id="@+id/seekbar"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        />
-
-                <TextView
-                        android:id="@+id/text_duration"
-                        android:layout_gravity="right"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/secondary_text"
-                        tools:text="21:35"
-                        />
-            </LinearLayout>
-
-
-            <LinearLayout
-                    android:layout_marginTop="8dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:orientation="horizontal"
-                    >
-
-                <ImageButton
-                        android:id="@+id/button_previous"
-                        android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:src="@drawable/exo_icon_previous"
-                        android:tint="@color/colorAccent"
-                        />
-
-                <ImageButton
-                        android:id="@+id/button_rewind"
-                        android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:src="@drawable/exo_icon_rewind"
-                        android:tint="@color/colorAccent"
-                        />
 
                 <FrameLayout
-                        android:layout_weight="2"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
                         >
 
-                    <ImageButton
-                            android:id="@+id/button_play"
+                    <ImageView
+                            android:layout_margin="48dp"
+                            android:id="@+id/cover_round_image"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:background="?selectableItemBackgroundBorderless"
-                            android:src="@drawable/exo_icon_play"
-                            android:tint="@color/colorAccent"
                             />
 
-                    <ProgressBar
-                            android:id="@+id/play_progress"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:indeterminate="true"
-                            />
+                    <LinearLayout
+                            android:layout_gravity="bottom"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_margin="8dp"
+                            >
+
+                        <TextView
+                                android:paddingLeft="8dp"
+                                android:paddingRight="8dp"
+                                android:paddingTop="4dp"
+                                android:paddingBottom="4dp"
+                                android:id="@+id/artist_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/primary_text"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                tools:text="播音: xxxx"
+                                />
+
+                        <TextView
+                                android:paddingLeft="8dp"
+                                android:paddingRight="8dp"
+                                android:paddingTop="4dp"
+                                android:paddingBottom="4dp"
+                                android:id="@+id/episode_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/primary_text"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                tools:text="第1章"
+                                />
+                    </LinearLayout>
+
                 </FrameLayout>
 
-                <ImageButton
-                        android:id="@+id/button_fastforward"
-                        android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:src="@drawable/exo_icon_fastforward"
-                        android:tint="@color/colorAccent"
-                        />
+                <LinearLayout
+                        android:id="@+id/control_panel"
+                        android:padding="16dp"
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        >
 
-                <ImageButton
-                        android:id="@+id/button_next"
-                        android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:src="@drawable/exo_icon_next"
-                        android:tint="@color/colorAccent"
-                        />
+                    <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            >
 
+                        <Button
+                                android:id="@+id/timer_button"
+                                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                                android:padding="4dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="定时关闭"
+                                />
+
+                        <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:orientation="horizontal"
+                                android:layout_gravity="right"
+                                >
+
+                            <androidx.appcompat.widget.AppCompatSpinner
+                                    android:id="@+id/speed_spinner"
+                                    android:entries="@array/play_speed"
+                                    android:layout_width="wrap_content"
+                                    android:dropDownWidth="80dp"
+                                    android:layout_height="match_parent"
+                                    style="@style/Widget.AppCompat.Spinner"
+                                    />
+
+                            <ImageButton
+                                    android:id="@+id/playlist_button"
+                                    android:padding="8dp"
+                                    android:layout_width="40dp"
+                                    android:layout_height="match_parent"
+                                    android:src="@drawable/ic_playlist_play"
+                                    android:tint="@color/colorAccent"
+                                    android:background="?selectableItemBackground"
+                                    android:scaleType="fitCenter"
+                                    android:contentDescription="@null"
+                                    />
+                        </LinearLayout>
+                    </FrameLayout>
+
+                    <LinearLayout
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="8dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            >
+
+                        <TextView
+                                android:id="@+id/text_current"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/secondary_text"
+                                tools:text="00:12"
+                                />
+
+                        <SeekBar
+                                android:layout_weight="1"
+                                android:id="@+id/seekbar"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                />
+
+                        <TextView
+                                android:id="@+id/text_duration"
+                                android:layout_gravity="right"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/secondary_text"
+                                tools:text="21:35"
+                                />
+                    </LinearLayout>
+
+
+                    <LinearLayout
+                            android:layout_marginTop="8dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:orientation="horizontal"
+                            >
+
+                        <ImageButton
+                                android:id="@+id/button_previous"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:background="?selectableItemBackgroundBorderless"
+                                android:src="@drawable/exo_icon_previous"
+                                android:tint="@color/colorAccent"
+                                />
+
+                        <ImageButton
+                                android:id="@+id/button_rewind"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:background="?selectableItemBackgroundBorderless"
+                                android:src="@drawable/exo_icon_rewind"
+                                android:tint="@color/colorAccent"
+                                />
+
+                        <FrameLayout
+                                android:layout_weight="2"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                >
+
+                            <ImageButton
+                                    android:id="@+id/button_play"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="?selectableItemBackgroundBorderless"
+                                    android:src="@drawable/exo_icon_play"
+                                    android:tint="@color/colorAccent"
+                                    />
+
+                            <ProgressBar
+                                    android:id="@+id/play_progress"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:indeterminate="true"
+                                    />
+                        </FrameLayout>
+
+                        <ImageButton
+                                android:id="@+id/button_fastforward"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:background="?selectableItemBackgroundBorderless"
+                                android:src="@drawable/exo_icon_fastforward"
+                                android:tint="@color/colorAccent"
+                                />
+
+                        <ImageButton
+                                android:id="@+id/button_next"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:background="?selectableItemBackgroundBorderless"
+                                android:src="@drawable/exo_icon_next"
+                                android:tint="@color/colorAccent"
+                                />
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
-
-        </LinearLayout>
-
+        </com.github.eprendre.tingshu.widget.SimpleStateLayout>
     </LinearLayout>
-</com.github.eprendre.tingshu.widget.SimpleStateLayout>
+</FrameLayout>

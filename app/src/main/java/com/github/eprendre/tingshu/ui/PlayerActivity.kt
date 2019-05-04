@@ -210,6 +210,11 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
      * 使用 Palette 提取封面颜色，并给相关控件染色
      */
     private fun tintColor() {
+        GlideApp.with(this)
+            .load(Prefs.currentCover)
+            .error(R.drawable.ic_launcher_background)
+            .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 3)))
+            .into(cover_image)//背景封面太提前加载不好看，所以放到这里去加载。
         App.coverBitmap?.let { cover ->
             Palette.from(cover).generate { palette ->
                 if (palette == null) {
@@ -217,12 +222,13 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 }
 
                 palette.dominantSwatch?.let { swatch ->
-                    val colorDrawable = ColorDrawable(swatch.rgb)
-                    supportActionBar?.setBackgroundDrawable(colorDrawable)
+                    val bgColor = ColorUtils.setAlphaComponent(swatch.rgb, 204)
+                    toolbar.setBackgroundColor(bgColor)
                     //如果actionbar的背景颜色太亮，则修改toolbar, statusbar的文字、图标为深色
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                        window.statusBarColor = swatch.rgb
+                        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        window.statusBarColor = bgColor
                         if (ColorUtils.calculateLuminance(swatch.rgb) > 0.5) {
                             val backArrow = ContextCompat.getDrawable(this, R.drawable.back)
                             backArrow?.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
@@ -238,7 +244,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     artist_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)//加上阴影可以解决字体颜色和附近背景颜色接近时不能识别的情况
                     episode_text.setTextColor(swatch.titleTextColor)
                     episode_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)
-                    control_panel.setBackgroundColor(ColorUtils.setAlphaComponent(swatch.rgb, 204))
+                    control_panel.setBackgroundColor(bgColor)
                     timer_button.setTextColor(swatch.bodyTextColor)
                     playlist_button.setColorFilter(swatch.bodyTextColor)
                     (speed_spinner.selectedView as TextView).setTextColor(swatch.bodyTextColor)
@@ -282,11 +288,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             cover_round_image.clipToOutline = true
             cover_round_image.elevation = offset.toFloat()
         }
-        GlideApp.with(this)
-            .load(Prefs.currentCover)
-            .error(R.drawable.ic_launcher_background)
-            .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 3)))
-            .into(cover_image)
         //报错时的点击重试
         state_layout.setErrorListener {
             state_layout.showLoading()
