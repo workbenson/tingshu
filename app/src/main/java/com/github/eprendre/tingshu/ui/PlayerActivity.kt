@@ -227,8 +227,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     //如果actionbar的背景颜色太亮，则修改toolbar, statusbar的文字、图标为深色
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        window.statusBarColor = bgColor
+                        window.statusBarColor = swatch.rgb
                         if (ColorUtils.calculateLuminance(swatch.rgb) > 0.5) {
                             val backArrow = ContextCompat.getDrawable(this, R.drawable.back)
                             backArrow?.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
