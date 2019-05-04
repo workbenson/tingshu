@@ -8,6 +8,10 @@
 * [http://m.520tingshu.com](http://m.520tingshu.com)
 * [http://m.ting56.com](http://m.ting56.com)
 
+## 注意事项
+
+在某些手机里锁屏自动切换下一首时会卡住, 原因是由于每次播放时都要先去抓取实际的播放地址。需要加到后台白名单才能解决。
+
 ## 截图
 
 ![home](art/home.jpg)

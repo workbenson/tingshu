@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         volumeControlStream = AudioManager.STREAM_MUSIC
 
+        updateTitle()
         initViews()
 
         val intent = Intent(this, TingShuService::class.java)
@@ -115,6 +116,7 @@ class MainActivity : AppCompatActivity() {
                     sectionsPagerAdapter.sections = TingShuSourceHandler.getMainSections()
                     sectionsPagerAdapter.notifyDataSetChanged()
                     view_pager.setCurrentItem(0, false)
+                    updateTitle()
                 }
             }
             R.id.nav_other -> {
@@ -122,8 +124,17 @@ class MainActivity : AppCompatActivity() {
                     sectionsPagerAdapter.sections = TingShuSourceHandler.getOtherSections()
                     sectionsPagerAdapter.notifyDataSetChanged()
                     view_pager.setCurrentItem(0, false)
+                    updateTitle()
                 }
             }
+        }
+    }
+
+    private fun updateTitle() {
+        val sources = resources.getStringArray(R.array.source_entries)
+        val index = resources.getStringArray(R.array.source_values).indexOfFirst { it == Prefs.source }
+        if (index != -1) {
+            supportActionBar?.title = "${getString(R.string.app_name)} - ${sources[index]}"
         }
     }
 
