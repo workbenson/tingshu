@@ -127,6 +127,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
                     state_layout.showContent()
                 }
             }, onError = {
+                it.printStackTrace()
                 state_layout.showError()
             })
             .addTo(compositeDisposable)

@@ -1,4 +1,4 @@
-package com.github.eprendre.tingshu.sources
+package com.github.eprendre.tingshu.sources.impl
 
 import android.graphics.BitmapFactory
 import android.os.Handler
@@ -6,13 +6,13 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.extensions.*
+import com.github.eprendre.tingshu.sources.AudioUrlExtractor
+import com.github.eprendre.tingshu.sources.TingShu
+import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.*
-import com.github.eprendre.tingshu.widget.GlideApp
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
@@ -47,7 +47,7 @@ object M56TingShu : TingShu {
     }
 
     override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {
-        if (!::extractor.isInitialized) {
+        if (!M56TingShu::extractor.isInitialized) {
             extractor = M56AudioUrlExtractor(exoPlayer, dataSourceFactory)
         }
 
@@ -59,21 +59,8 @@ object M56TingShu : TingShu {
             val doc = Jsoup.connect(bookUrl).get()
 //            val book = doc.getElementsByClass("list-ov-tw").first()
 //            val cover = book.getElementsByTag("img").first().attr("src")
-            //下载封面
-            val glideOptions = RequestOptions()
-                .error(R.drawable.ic_launcher_background)
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-            try {
-                App.coverBitmap = GlideApp.with(App.appContext)
-                    .applyDefaultRequestOptions(glideOptions)
-                    .asBitmap()
-                    .load(Prefs.currentCover)
-                    .submit(144, 144)
-                    .get()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                App.coverBitmap = getBitmapFromVectorDrawable(App.appContext, R.drawable.ic_launcher_background)
-            }
+
+            TingShuSourceHandler.downloadCoverForNotification()
 
             //获取书本信息
 //            val bookInfos = book.getElementsByTag("span").map { it.text() }

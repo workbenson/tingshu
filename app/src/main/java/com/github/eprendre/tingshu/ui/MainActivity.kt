@@ -81,11 +81,19 @@ class MainActivity : AppCompatActivity() {
             return@setNavigationItemSelectedListener true
         }
 
+        fab.setOnClickListener {
+            if (mediaController.playbackState.state == PlaybackStateCompat.STATE_NONE) {
+                startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBookUrl)
+            } else {
+                startActivity<PlayerActivity>()
+            }
+        }
     }
 
     private fun updatePlayerInfo() {
         if (Prefs.currentBookUrl.isNullOrBlank()) {
             headerView.container.setOnClickListener(null)
+            fab.hide()
         } else {
             GlideApp.with(this).load(Prefs.currentCover).into(headerView.cover_image)
             headerView.book_name_text.text = Prefs.currentBookName
@@ -102,6 +110,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }, 250)
             }
+            fab.show()
         }
     }
 

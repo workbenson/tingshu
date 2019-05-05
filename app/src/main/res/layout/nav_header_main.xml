@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
         >
+
+    <TextView
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="上次播放："
+            android:textSize="16sp"
+            android:textColor="@color/primary_text"
+            android:textStyle="bold"
+            />
 
     <LinearLayout
             android:id="@+id/container"
@@ -87,4 +99,4 @@
             android:layout_height="0.5dp"
             android:background="@color/divider"
             />
-</FrameLayout>
+</LinearLayout>

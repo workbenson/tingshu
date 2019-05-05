@@ -1,11 +1,18 @@
 package com.github.eprendre.tingshu.sources
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.getBitmapFromVectorDrawable
+import com.github.eprendre.tingshu.sources.impl.M520TingShu
+import com.github.eprendre.tingshu.sources.impl.M56TingShu
+import com.github.eprendre.tingshu.sources.impl.TingShuGe
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.utils.Section
 import com.github.eprendre.tingshu.utils.SectionTab
+import com.github.eprendre.tingshu.widget.GlideApp
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
@@ -25,7 +32,8 @@ object TingShuSourceHandler {
         val array = App.appContext.resources.getStringArray(R.array.source_values)
         listOf(
             Pair(array[0], M56TingShu),
-            Pair(array[1], M520TingShu)
+            Pair(array[1], M520TingShu),
+            Pair(array[2], TingShuGe)
         )
     }
 
@@ -71,5 +79,26 @@ object TingShuSourceHandler {
         return sourceList
             .first { url.startsWith(it.first) }
             .second
+    }
+
+    /**
+     * 播放之前先调用这个方法确保当前通知所需要的封面已缓存
+     */
+    fun downloadCoverForNotification() {
+        //下载封面
+        val glideOptions = RequestOptions()
+            .error(R.drawable.ic_launcher_background)
+            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+        try {
+            App.coverBitmap = GlideApp.with(App.appContext)
+                .applyDefaultRequestOptions(glideOptions)
+                .asBitmap()
+                .load(Prefs.currentCover)
+                .submit(144, 144)
+                .get()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            App.coverBitmap = getBitmapFromVectorDrawable(App.appContext, R.drawable.ic_launcher_background)
+        }
     }
 }
