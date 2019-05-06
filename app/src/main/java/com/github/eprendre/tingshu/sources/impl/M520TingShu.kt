@@ -100,8 +100,7 @@ object M520TingShu : TingShu {
                 val (title, author, artist) = element.select("a .R1 p").let { row ->
                     Triple(row[0].text(), row[1].text(), row[2].text())
                 }
-                val intro = ""//520tingshu 没有简介
-                list.add(Book(coverUrl, bookUrl, title, author, artist, intro))
+                list.add(Book(coverUrl, bookUrl, title, author, artist))
             }
 
             return@fromCallable Section(list, currentPage, totalPage, url, nextUrl)
@@ -125,8 +124,7 @@ object M520TingShu : TingShu {
                 val (title, author, artist) = element.select("a .R1 p").let { row ->
                     Triple(row[0].text(), row[1].text(), row[2].text())
                 }
-                val intro = ""//520tingshu 没有简介
-                list.add(Book(coverUrl, bookUrl, title, author, artist, intro))
+                list.add(Book(coverUrl, bookUrl, title, author, artist))
             }
             return@fromCallable Pair(list, totalPage)
         }

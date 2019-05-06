@@ -1,4 +1,4 @@
-package com.github.eprendre.tingshu.ui
+package com.github.eprendre.tingshu.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.View

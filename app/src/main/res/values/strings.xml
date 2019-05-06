@@ -11,6 +11,7 @@
     <string name="notification_pause">Pause</string>
 
     <string name="title_activity_settings">设置</string>
+    <string name="title_activity_favorite">我的收藏</string>
 
     <string name="sources_header">选择源站点</string>
     <string name="source_title">当前站点</string>

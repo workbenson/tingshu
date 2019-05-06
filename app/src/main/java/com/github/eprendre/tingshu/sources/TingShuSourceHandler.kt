@@ -26,6 +26,7 @@ import io.reactivex.Single
 object TingShuSourceHandler {
     const val SOURCE_URL_56 = "http://m.ting56.com"
     const val SOURCE_URL_520 = "http://m.520tingshu.com"
+    const val SOURCE_URL_TINGSHUGE = "http://www.tingshuge.com"
 
     private lateinit var tingShu: TingShu
     private val sourceList by lazy {

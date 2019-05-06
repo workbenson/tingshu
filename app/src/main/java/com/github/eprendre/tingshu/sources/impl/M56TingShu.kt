@@ -106,7 +106,7 @@ object M56TingShu : TingShu {
                     Pair(element[0].text(), element[1].text())
                 }
                 val intro = ov.selectFirst(".nr").text()
-                list.add(Book(coverUrl, bookUrl, title, author, artist, intro))
+                list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
             }
 
             return@fromCallable Section(list, currentPage, totalPage, url, nextUrl)
@@ -135,7 +135,7 @@ object M56TingShu : TingShu {
                     Pair(element[0].text(), element[1].text())
                 }
                 val intro = ov.selectFirst(".nr").text()
-                list.add(Book(coverUrl, bookUrl, title, author, artist, intro))
+                list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
             }
             return@fromCallable Pair(list, totalPage)
         }

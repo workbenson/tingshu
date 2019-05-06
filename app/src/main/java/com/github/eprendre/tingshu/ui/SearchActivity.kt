@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
+import com.github.eprendre.tingshu.ui.adapters.SearchAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.EndlessRecyclerViewScrollListener
@@ -108,7 +109,6 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
             }
             .subscribeOn(AndroidSchedulers.mainThread())
             .observeOn(AndroidSchedulers.mainThread())
-            .retry(3)
             .subscribeBy(onSuccess = {
                 currentPage = page
                 totalPage = it.second

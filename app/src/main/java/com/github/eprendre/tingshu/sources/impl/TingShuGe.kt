@@ -39,8 +39,7 @@ object TingShuGe : TingShu {
                 val (title, author, artist) = element.select("p").let { row ->
                     Triple(row[0].text(), row[2].text(), row[3].text())
                 }
-                val intro = ""//没有简介
-                list.add(Book(coverUrl, bookUrl, title, author, artist, intro))
+                list.add(Book(coverUrl, bookUrl, title, author, artist))
             }
             return@fromCallable Pair(list, totalPage)
         }
@@ -134,8 +133,7 @@ object TingShuGe : TingShu {
                 val (title, author, artist) = element.select("p").let { row ->
                     Triple(row[0].text(), row[2].text(), row[3].text())
                 }
-                val intro = ""//没有简介
-                list.add(Book(coverUrl, bookUrl, title, author, artist, intro))
+                list.add(Book(coverUrl, bookUrl, title, author, artist))
             }
             return@fromCallable Section(list, currentPage, totalPage, url, nextUrl)
         }

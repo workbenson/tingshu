@@ -17,6 +17,10 @@
             android:usesCleartextTraffic="true"
             tools:ignore="GoogleAppIndexingWarning">
         <activity
+                android:name=".ui.FavoriteActivity"
+                android:label="@string/title_activity_favorite">
+        </activity>
+        <activity
                 android:name=".ui.SettingsActivity"
                 android:label="@string/title_activity_settings">
         </activity>
@@ -36,10 +40,10 @@
         </activity>
         <activity
                 android:name=".ui.PlayerActivity"
-                android:theme="@style/AppTheme.Player"
                 android:configChanges="keyboardHidden|orientation|screenSize"
                 android:launchMode="singleTask"
-                android:screenOrientation="portrait">
+                android:screenOrientation="portrait"
+                android:theme="@style/AppTheme.Player">
         </activity>
 
         <receiver android:name="androidx.media.session.MediaButtonReceiver">

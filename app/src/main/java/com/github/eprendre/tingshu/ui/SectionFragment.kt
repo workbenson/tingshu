@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
+import com.github.eprendre.tingshu.ui.adapters.SearchAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.EndlessRecyclerViewScrollListener
@@ -33,6 +34,7 @@ class SectionFragment : Fragment() {
 
     private val listAdapter by lazy {
         SearchAdapter {
+            //这里数据都一样的，可以共用SearchAdapter
             Prefs.currentCover = it.coverUrl
             Prefs.currentBookName = it.title
             Prefs.artist = it.artist
@@ -54,6 +56,10 @@ class SectionFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        state_layout.setErrorText("加载出错了，点击重试")
+        state_layout.setErrorListener {
+            fetch(sectionUrl)
+        }
         val linearLayoutManager = LinearLayoutManager(context)
         recycler_view.layoutManager = linearLayoutManager
         recycler_view.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
@@ -78,13 +84,13 @@ class SectionFragment : Fragment() {
             .subscribeOn(Schedulers.io())
             .doOnSubscribe {
                 if (sectionUrl == url && !swiperefresh_layout.isRefreshing) {
-                    swiperefresh_layout.isRefreshing = true
+                    state_layout.showLoading()
                 }
             }
             .subscribeOn(AndroidSchedulers.mainThread())
             .observeOn(AndroidSchedulers.mainThread())
-            .retry(3)
             .subscribeBy(onSuccess = {
+                state_layout.showContent()
                 swiperefresh_layout.isRefreshing = false
                 currentPage = it.currentPage
                 totalPage = it.totalPage
@@ -99,7 +105,11 @@ class SectionFragment : Fragment() {
             }, onError = {
                 it.printStackTrace()
                 swiperefresh_layout.isRefreshing = false
-                context?.toast("加载出错")
+                if (sectionUrl == url) {
+                    state_layout.showError()
+                } else {
+                    context?.toast("加载下一页出错啦")
+                }
             })
             .addTo(compositeDisposable)
     }

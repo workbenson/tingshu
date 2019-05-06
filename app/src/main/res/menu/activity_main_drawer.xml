@@ -17,6 +17,14 @@
             </group>
         </menu>
     </item>
+    <item android:title="收藏">
+        <menu>
+            <item
+                    android:id="@+id/nav_favorite"
+                    android:icon="@drawable/ic_favorite"
+                    android:title="@string/title_activity_favorite"/>
+        </menu>
+    </item>
     <item android:title="设置">
         <menu>
             <item

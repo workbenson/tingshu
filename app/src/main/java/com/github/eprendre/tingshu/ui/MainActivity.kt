@@ -18,6 +18,7 @@ import androidx.core.view.GravityCompat
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
+import com.github.eprendre.tingshu.ui.adapters.SectionsPagerAdapter
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.GlideApp
 import kotlinx.android.synthetic.main.activity_main.*
@@ -67,11 +68,21 @@ class MainActivity : AppCompatActivity() {
                     sectionsPagerAdapter.sections = TingShuSourceHandler.getMainSections()
                     sectionsPagerAdapter.notifyDataSetChanged()
                     view_pager.setCurrentItem(0, false)
+                    tabs.post {
+                        //得用post，直接调用会太早执行不起作用
+                        tabs.setScrollPosition(0, 0f, true)
+                    }
                 }
                 R.id.nav_other -> {
                     sectionsPagerAdapter.sections = TingShuSourceHandler.getOtherSections()
                     sectionsPagerAdapter.notifyDataSetChanged()
                     view_pager.setCurrentItem(0, false)
+                    tabs.post {
+                        tabs.setScrollPosition(0, 0f, true)
+                    }
+                }
+                R.id.nav_favorite -> {
+                    startActivity<FavoriteActivity>()
                 }
                 R.id.nav_settings -> {
                     startActivity<SettingsActivity>()
@@ -163,7 +174,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater = menuInflater
-        inflater.inflate(R.menu.player_menu, menu)
+        inflater.inflate(R.menu.main_menu, menu)
         return true
     }
 

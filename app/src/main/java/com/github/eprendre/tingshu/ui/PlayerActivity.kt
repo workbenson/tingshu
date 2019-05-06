@@ -8,7 +8,6 @@ import android.content.ServiceConnection
 import android.content.res.ColorStateList
 import android.graphics.Outline
 import android.graphics.PorterDuff
-import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
@@ -17,10 +16,7 @@ import android.os.IBinder
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
-import android.view.KeyEvent
-import android.view.View
-import android.view.ViewOutlineProvider
-import android.view.WindowManager
+import android.view.*
 import android.widget.AdapterView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -30,11 +26,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.room.EmptyResultSetException
 import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
+import com.github.eprendre.tingshu.db.AppDatabase
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
+import com.github.eprendre.tingshu.ui.adapters.EpisodeAdapter
+import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.GlideApp
 import com.github.eprendre.tingshu.widget.RxBus
@@ -46,6 +46,7 @@ import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.android.synthetic.main.activity_player.*
@@ -62,6 +63,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private lateinit var myService: TingShuService
     private var isBound = false
     private var bodyTextColor: Int? = null //spinner每次选择后需要重新染色
+    private var toolbarIconColor: Int? = null
+    //    private var isFavorite = false
+    private var favoriteBook: Book? = null
     private val dialog: BottomSheetDialog by lazy {
         BottomSheetDialog(this).apply {
             setContentView(dialogView)
@@ -158,10 +162,10 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {
             Prefs.currentBookUrl = bookurl
             playFromBookUrl(bookurl)
+            invalidateOptionsMenu()
         } else {
-            if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
-                //因为某些网站返回的播放地址会过期，当播放器暂停很久回来后会出现当前的播放地址失效的情况
-                //故检回到此Activity并且为暂停状态时主动去获取新的播放地址
+            if (myService.exoPlayer.playbackState == Player.STATE_IDLE) {
+                //此状态代表通知栏被关闭，导致播放器移除了当前播放曲目，需要重新加载链接
                 Prefs.currentBookUrl?.apply { playFromBookUrl(this) }
             } else {
                 artist_text.text = "${Prefs.artist}"
@@ -171,6 +175,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 updateState(mediaController.playbackState)
                 state_layout.showContent()
                 tintColor()
+                if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
+                    mediaController.transportControls.play()
+                }
             }
         }
     }
@@ -187,7 +194,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
                 state_layout.showContent()
                 tintColor()
-
 
                 //开始请求播放
                 var index = App.currentEpisodeIndex()
@@ -237,6 +243,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
                             }
+                            toolbarIconColor = swatch.bodyTextColor
+                            invalidateOptionsMenu()
                         }
                     }
                     artist_text.setTextColor(swatch.titleTextColor)
@@ -478,6 +486,88 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             else -> super.onKeyUp(keyCode, event)
         }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.player_menu, menu)
+        return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val favoriteItem = menu.findItem(R.id.favorite)
+        Prefs.currentBookUrl?.let {
+            AppDatabase.getInstance(this).bookDao().findByBookUrl(it)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(onSuccess = { book ->
+                    //如果已收藏设置图标为实心
+                    favoriteItem.setIcon(R.drawable.ic_favorite)
+                    toolbarIconColor?.let { color ->
+                        favoriteItem.icon.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+                    }
+                    favoriteBook = book
+                }, onError = { e ->
+                    //如果未收藏设置图标为空心
+                    if (e is EmptyResultSetException) {
+                        favoriteItem.setIcon(R.drawable.ic_favorite_border)
+                        toolbarIconColor?.let { color ->
+                            favoriteItem.icon.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+                        }
+                        favoriteBook = null
+                    }
+                    e.printStackTrace()
+                })
+                .addTo(compositeDisposable)
+        }
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.favorite -> {
+
+                if (favoriteBook != null) {
+                    //取消收藏
+                    AppDatabase.getInstance(this).bookDao()
+                        .deleteBooks(favoriteBook!!)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeBy(onSuccess = {
+                            invalidateOptionsMenu()
+                        }, onError = {
+                            it.printStackTrace()
+                        })
+                        .addTo(compositeDisposable)
+
+                } else {
+                    //添加收藏
+                    val book = Book(
+                        Prefs.currentCover!!,
+                        Prefs.currentBookUrl!!,
+                        Prefs.currentBookName!!,
+                        Prefs.author!!,
+                        Prefs.artist!!
+                    ).apply {
+                        this.currentEpisodeUrl = Prefs.currentEpisodeUrl
+                        this.currentEpisodeName = Prefs.currentEpisodeName
+                        this.currentEpisodePosition = Prefs.currentEpisodePosition
+                    }
+                    AppDatabase.getInstance(this).bookDao()
+                        .insertBooks(book)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeBy(onComplete = {
+                            invalidateOptionsMenu()
+                        }, onError = {
+                            it.printStackTrace()
+                        })
+                        .addTo(compositeDisposable)
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 
     companion object {
         const val ARG_BOOKURL = "bookurl"
