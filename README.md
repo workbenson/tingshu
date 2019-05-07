@@ -7,6 +7,7 @@
 
 * [http://m.520tingshu.com](http://m.520tingshu.com)
 * [http://m.ting56.com](http://m.ting56.com)
+* [http://www.tingshuge.com/](http://www.tingshuge.com/)
 
 ## 注意事项
 
