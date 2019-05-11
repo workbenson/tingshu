@@ -1,9 +1,12 @@
 package com.github.eprendre.tingshu.sources.impl
 
+import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.os.Handler
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.github.eprendre.tingshu.App
@@ -13,6 +16,8 @@ import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.*
+import com.github.eprendre.tingshu.widget.RxBus
+import com.github.eprendre.tingshu.widget.RxEvent
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
@@ -148,6 +153,8 @@ object M56TingShu : TingShu {
         private val webView by lazy { WebView(App.appContext) }
         private var isPageFinished = false
         private var isAudioGet = false
+        private var isError = false
+        private var currentUrl = ""
 
         init {
             //jsoup 只能解析静态页面，使用 webview 可以省不少力气
@@ -155,10 +162,29 @@ object M56TingShu : TingShu {
             webView.webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     //56听书的页面没 redirect 但是 onPageFinished 会被多次调用
-                    if (!isPageFinished) {
+                    if (currentUrl == url && !isPageFinished) {
                         isPageFinished = true
                         tryGetAudioSrc()
                     }
+                }
+
+                override fun onReceivedError(
+                    view: WebView?,
+                    errorCode: Int,
+                    description: String?,
+                    failingUrl: String?
+                ) {
+                    when (errorCode) {
+                        ERROR_TIMEOUT, ERROR_HOST_LOOKUP -> {
+                            isError = true
+                            RxBus.post(RxEvent.ParsingPlayUrlErrorEvent())
+                        }
+                    }
+                }
+
+                @SuppressLint("NewApi")
+                override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
+                    onReceivedError(view, error.errorCode, error.description.toString(), request.url.toString())
                 }
             }
         }
@@ -166,6 +192,8 @@ object M56TingShu : TingShu {
         override fun extract(url: String) {
             isAudioGet = false
             isPageFinished = false
+            isError = false
+            currentUrl = url
             webView.loadUrl(url)
         }
 
@@ -175,7 +203,7 @@ object M56TingShu : TingShu {
          */
         @Synchronized
         private fun tryGetAudioSrc() {
-            if (isAudioGet) {
+            if (isAudioGet || isError) {
                 return
             }
             //提取webview的html
@@ -225,6 +253,7 @@ object M56TingShu : TingShu {
                 if (Prefs.currentEpisodePosition > 0) {
                     exoPlayer.seekTo(Prefs.currentEpisodePosition)
                 }
+                webView.loadUrl("about:blank")
             }
         }
     }

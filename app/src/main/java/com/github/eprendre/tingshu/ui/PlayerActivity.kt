@@ -135,6 +135,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         when (state.state) {
             PlaybackStateCompat.STATE_ERROR -> {
                 play_progress.visibility = View.GONE
+                button_play.setImageResource(R.drawable.exo_controls_play)
                 toast("播放出错了(如果多次报错此地址可能已失效)")
             }
             PlaybackStateCompat.STATE_PLAYING -> {
@@ -349,6 +350,14 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 play_progress.visibility = View.VISIBLE
+            }
+            .addTo(compositeDisposable)
+        RxBus.toFlowable(RxEvent.ParsingPlayUrlErrorEvent::class.java)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                play_progress.visibility = View.GONE
+                button_play.setImageResource(R.drawable.exo_controls_play)
+                toast("播放地址解析出错了，请重试")
             }
             .addTo(compositeDisposable)
         //播放速度

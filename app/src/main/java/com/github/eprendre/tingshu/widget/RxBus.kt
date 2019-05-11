@@ -20,4 +20,5 @@ object RxBus {
 class RxEvent {
   data class TimerEvent(val msg: String)
   class ParsingPlayUrlEvent
+  class ParsingPlayUrlErrorEvent
 }
