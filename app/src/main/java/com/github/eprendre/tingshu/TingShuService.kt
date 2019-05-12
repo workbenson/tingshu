@@ -41,9 +41,11 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
 import java.util.concurrent.TimeUnit
 
-class TingShuService : Service() {
+class TingShuService : Service(), AnkoLogger {
     val myBinder = MyLocalBinder()
     private val compositeDisposable = CompositeDisposable()
 
@@ -172,8 +174,12 @@ class TingShuService : Service() {
                 return
             }
             updateNotification(state)
-            if (state.state == PlaybackStateCompat.STATE_PAUSED || state.state == PlaybackStateCompat.STATE_PLAYING) {
-                storeCurrentPosition()
+            when (state.state) {
+                PlaybackStateCompat.STATE_PLAYING,
+                PlaybackStateCompat.STATE_ERROR,
+                PlaybackStateCompat.STATE_PAUSED -> {
+                    storeCurrentPosition()
+                }
             }
         }
 
@@ -233,30 +239,28 @@ class TingShuService : Service() {
     }
 
     private fun storeCurrentPosition() {
-        if (exoPlayer.playbackState == Player.STATE_READY) {
-            Prefs.currentEpisodePosition = exoPlayer.currentPosition
-            AppDatabase.getInstance(this@TingShuService)
-                .bookDao()
-                .findByBookUrl(Prefs.currentBookUrl!!)
-                .subscribeOn(Schedulers.io())
-                .subscribeBy(onSuccess = { book ->
-                    book.currentEpisodePosition = Prefs.currentEpisodePosition
-                    book.currentEpisodeName = Prefs.currentEpisodeName
-                    book.currentEpisodeUrl = Prefs.currentEpisodeUrl
-                    AppDatabase.getInstance(this@TingShuService)
-                        .bookDao()
-                        .updateBooks(book)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeBy(onComplete = {}, onError = {})
-                }, onError = {
-                    if (it is EmptyResultSetException) {
-                        //数据库没有,忽略
-                    } else {
-                        it.printStackTrace()
-                    }
-                })
-        }
+        Prefs.currentEpisodePosition = exoPlayer.currentPosition
+        AppDatabase.getInstance(this@TingShuService)
+            .bookDao()
+            .findByBookUrl(Prefs.currentBookUrl!!)
+            .subscribeOn(Schedulers.io())
+            .subscribeBy(onSuccess = { book ->
+                book.currentEpisodePosition = Prefs.currentEpisodePosition
+                book.currentEpisodeName = Prefs.currentEpisodeName
+                book.currentEpisodeUrl = Prefs.currentEpisodeUrl
+                AppDatabase.getInstance(this@TingShuService)
+                    .bookDao()
+                    .updateBooks(book)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeBy(onComplete = {}, onError = {})
+            }, onError = {
+                if (it is EmptyResultSetException) {
+                    //数据库没有,忽略
+                } else {
+                    it.printStackTrace()
+                }
+            })
     }
 
     override fun onDestroy() {
