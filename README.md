@@ -15,6 +15,6 @@
 
 ## 截图
 
-![home](art/home.jpg)
-
-![play](art/play.jpg)
+主页 | 播放界面
+---------|---------
+![home](art/home.jpg) | ![play](art/play.jpg)
