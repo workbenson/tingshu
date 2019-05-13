@@ -181,16 +181,18 @@ class MainActivity : AppCompatActivity() {
                                     val body = data.getString("body")
                                     val downloadUrl =
                                         data.getJSONArray("assets").getJSONObject(0).getString("browser_download_url")
-                                    AlertDialog.Builder(this)
-                                        .setTitle("发现新版本: $tagName")
-                                        .setMessage(body)
-                                        .setPositiveButton("更新") { _, _ ->
-                                            val i = Intent(Intent.ACTION_VIEW)
-                                            i.data = Uri.parse(downloadUrl)
-                                            startActivity(i)
-                                        }
-                                        .setNegativeButton("取消", null)
-                                        .show()
+                                    runOnUiThread {
+                                        AlertDialog.Builder(this)
+                                            .setTitle("发现新版本: $tagName")
+                                            .setMessage(body)
+                                            .setPositiveButton("更新") { _, _ ->
+                                                val i = Intent(Intent.ACTION_VIEW)
+                                                i.data = Uri.parse(downloadUrl)
+                                                startActivity(i)
+                                            }
+                                            .setNegativeButton("取消", null)
+                                            .show()
+                                    }
                                 }
                             } catch (e: Exception) {
                                 e.printStackTrace()
