@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -13,17 +14,24 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import com.github.eprendre.tingshu.BuildConfig
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.adapters.SectionsPagerAdapter
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.GlideApp
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.json.responseJson
+import com.github.kittinunf.result.Result
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import org.jetbrains.anko.startActivity
+import java.util.concurrent.TimeUnit
+
 
 class MainActivity : AppCompatActivity() {
     var isBound = false
@@ -147,6 +155,49 @@ class MainActivity : AppCompatActivity() {
                     updateTitle()
                 }
             }
+        }
+        checkUpdate()
+    }
+
+    /**
+     * 检查是否有更新，小于10分钟不触发
+     */
+    private fun checkUpdate() {
+        if (System.currentTimeMillis() - Prefs.lastUpdate > TimeUnit.MILLISECONDS.convert(10L, TimeUnit.MINUTES)) {
+            Prefs.lastUpdate = System.currentTimeMillis()
+            Fuel.get("https://api.github.com/repos/eprendre/tingshu/releases/latest")
+                .responseJson { request, response, result ->
+                    when (result) {
+                        is Result.Failure -> {
+                            val ex = result.getException()
+                            ex.printStackTrace()
+                        }
+                        is Result.Success -> {
+                            try {
+                                val data = result.get().obj()
+                                val tagName = data.getString("tag_name")
+                                val versionName = "v${BuildConfig.VERSION_NAME}"
+                                if (tagName != versionName) {
+                                    val body = data.getString("body")
+                                    val downloadUrl =
+                                        data.getJSONArray("assets").getJSONObject(0).getString("browser_download_url")
+                                    AlertDialog.Builder(this)
+                                        .setTitle("发现新版本: $tagName")
+                                        .setMessage(body)
+                                        .setPositiveButton("更新") { _, _ ->
+                                            val i = Intent(Intent.ACTION_VIEW)
+                                            i.data = Uri.parse(downloadUrl)
+                                            startActivity(i)
+                                        }
+                                        .setNegativeButton("取消", null)
+                                        .show()
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
         }
     }
 

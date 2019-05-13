@@ -76,4 +76,11 @@ object Prefs {
     var source: String
         get() = prefs.getString("current_source", TingShuSourceHandler.SOURCE_URL_TINGSHUGE)!!
         set(value) = prefs.edit().putString("current_source", value).apply()
+
+    /**
+     * 记录上一次检查更新的时候，避免频繁调用
+     */
+    var lastUpdate: Long
+        get() = prefs.getLong("last_update", 0)
+        set(value) = prefs.edit().putLong("last_update", value).apply()
 }
