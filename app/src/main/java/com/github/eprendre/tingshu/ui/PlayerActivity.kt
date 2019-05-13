@@ -161,9 +161,13 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private fun handleIntent() {
         val bookurl = intent.getStringExtra(ARG_BOOKURL)
         if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {
-            Prefs.currentBookUrl = bookurl
-            playFromBookUrl(bookurl)
-            invalidateOptionsMenu()
+            if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
+                mediaController.transportControls.pause()//如果正在播放，先暂停触发保存位置。 然后回调 StorePositionEvent 播放
+            } else {
+                Prefs.currentBookUrl = bookurl
+                playFromBookUrl(bookurl)
+                invalidateOptionsMenu()
+            }
         } else {
             if (myService.exoPlayer.playbackState == Player.STATE_IDLE) {
                 //此状态代表通知栏被关闭，导致播放器移除了当前播放曲目，需要重新加载链接
@@ -219,7 +223,11 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private fun tintColor() {
         GlideApp.with(this)
             .load(Prefs.currentCover)
-            .error(R.drawable.ic_launcher_background)
+            .error(//不能直接往error里面扔resource id, 否则transformation就不会应用
+                GlideApp.with(this@PlayerActivity)
+                    .load(R.drawable.default_art)
+                    .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 3)))
+            )
             .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 3)))
             .into(cover_image)//背景封面太提前加载不好看，所以放到这里去加载。
         App.coverBitmap?.let { cover ->
@@ -280,7 +288,11 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private fun initViews() {
         GlideApp.with(this)
             .load(Prefs.currentCover)
-            .error(R.drawable.ic_launcher_background)
+            .error(
+                GlideApp.with(this@PlayerActivity)
+                    .load(R.drawable.default_art)
+                    .circleCrop()
+            )
             .circleCrop()
             .into(cover_round_image)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -345,19 +357,31 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             }
             .addTo(compositeDisposable)
 
-        //播放按钮的圈圈
+        //书籍页面解析成功 -> 开始解析播放地址
         RxBus.toFlowable(RxEvent.ParsingPlayUrlEvent::class.java)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 play_progress.visibility = View.VISIBLE
             }
             .addTo(compositeDisposable)
+        //播放地址解析失败
         RxBus.toFlowable(RxEvent.ParsingPlayUrlErrorEvent::class.java)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 play_progress.visibility = View.GONE
                 button_play.setImageResource(R.drawable.exo_controls_play)
                 toast("播放地址解析出错了，请重试")
+            }
+            .addTo(compositeDisposable)
+        RxBus.toFlowable(RxEvent.StorePositionEvent::class.java)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                val bookurl = intent.getStringExtra(ARG_BOOKURL)
+                if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {
+                    Prefs.currentBookUrl = bookurl
+                    playFromBookUrl(bookurl)
+                    invalidateOptionsMenu()
+                }
             }
             .addTo(compositeDisposable)
         //播放速度

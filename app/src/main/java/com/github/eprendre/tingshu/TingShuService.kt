@@ -42,7 +42,6 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
 import java.util.concurrent.TimeUnit
 
 class TingShuService : Service(), AnkoLogger {
@@ -254,7 +253,9 @@ class TingShuService : Service(), AnkoLogger {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(onComplete = {}, onError = {})
+                RxBus.post(RxEvent.StorePositionEvent())
             }, onError = {
+                RxBus.post(RxEvent.StorePositionEvent())
                 if (it is EmptyResultSetException) {
                     //数据库没有,忽略
                 } else {

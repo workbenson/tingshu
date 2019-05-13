@@ -1,10 +1,12 @@
 package com.github.eprendre.tingshu.sources
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
-import com.github.eprendre.tingshu.extensions.getBitmapFromVectorDrawable
 import com.github.eprendre.tingshu.sources.impl.M520TingShu
 import com.github.eprendre.tingshu.sources.impl.M56TingShu
 import com.github.eprendre.tingshu.sources.impl.TingShuGe
@@ -88,7 +90,7 @@ object TingShuSourceHandler {
     fun downloadCoverForNotification() {
         //下载封面
         val glideOptions = RequestOptions()
-            .error(R.drawable.ic_launcher_background)
+            .error(R.drawable.default_art)
             .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
         try {
             App.coverBitmap = GlideApp.with(App.appContext)
@@ -99,7 +101,39 @@ object TingShuSourceHandler {
                 .get()
         } catch (e: Exception) {
             e.printStackTrace()
-            App.coverBitmap = getBitmapFromVectorDrawable(App.appContext, R.drawable.ic_launcher_background)
+            App.coverBitmap = decodeCover()
         }
+    }
+
+    private fun decodeCover(): Bitmap {
+        val options = BitmapFactory.Options()
+        options.inJustDecodeBounds = true
+        BitmapFactory.decodeResource(App.appContext.resources, R.drawable.default_art, options)
+        val height = options.outHeight
+        val width = options.outWidth
+        var inSampleSize = 1
+
+        val picSize = Math.max(height, width)
+        var targetSize = 256
+        if (picSize > targetSize) {
+            val halfSize = picSize / 2
+            while (halfSize / inSampleSize > targetSize) {
+                inSampleSize *= 2
+            }
+        } else {
+            targetSize = picSize
+        }
+
+        options.inSampleSize = inSampleSize
+        options.inJustDecodeBounds = false
+
+        val bitmap = BitmapFactory.decodeResource(App.appContext.resources, R.drawable.default_art, options)
+        val matrix = Matrix()
+        val ratio = Math.min(
+            targetSize.toFloat() / bitmap.width,
+            targetSize.toFloat() / bitmap.height)
+        matrix.postScale(ratio, ratio)
+
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 }
