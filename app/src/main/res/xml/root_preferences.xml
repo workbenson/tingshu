@@ -25,7 +25,7 @@
                 app:title="@string/source_title"
                 app:entries="@array/source_entries"
                 app:entryValues="@array/source_values"
-                app:defaultValue="http://www.tingshuge.com"
+                app:defaultValue="http://m.ting56.com"
                 app:useSimpleSummaryProvider="true"/>
 
     </PreferenceCategory>
