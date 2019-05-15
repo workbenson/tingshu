@@ -11,8 +11,12 @@ import android.os.Handler
 import android.os.IBinder
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.text.SpannableString
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -94,6 +98,17 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_settings -> {
                     startActivity<SettingsActivity>()
+                }
+                R.id.nav_about -> {
+                    val message = "当前版本: ${BuildConfig.VERSION_NAME}\n\n源码: https://github.com/eprendre/tingshu"
+                    val s = SpannableString(message)
+                    Linkify.addLinks(s, Linkify.ALL)
+                    val dialog = AlertDialog.Builder(this)
+                        .setTitle("关于")
+                        .setMessage(s)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                    dialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
                 }
             }
             drawer_layout.closeDrawer(GravityCompat.START)
