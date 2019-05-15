@@ -20,10 +20,12 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_section.*
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 
-class SectionFragment : Fragment() {
+class SectionFragment : Fragment(), AnkoLogger {
     var sectionUrl = ""
     private val compositeDisposable = CompositeDisposable()
     private var currentPage = 1

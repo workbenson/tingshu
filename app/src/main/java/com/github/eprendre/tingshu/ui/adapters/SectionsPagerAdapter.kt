@@ -8,7 +8,7 @@ import androidx.viewpager.widget.PagerAdapter
 import com.github.eprendre.tingshu.ui.SectionFragment
 import com.github.eprendre.tingshu.utils.SectionTab
 
-class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
+class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     var sections = emptyList<SectionTab>()
 
     override fun getItem(position: Int): Fragment {

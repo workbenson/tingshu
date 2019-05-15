@@ -5,12 +5,14 @@ import android.graphics.Bitmap
 import androidx.multidex.MultiDexApplication
 import com.github.eprendre.tingshu.utils.Episode
 import com.github.eprendre.tingshu.utils.Prefs
+import io.reactivex.plugins.RxJavaPlugins
 
 class App : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         appContext = this
         Prefs.init()
+        RxJavaPlugins.setErrorHandler { }
     }
 
     companion object {
