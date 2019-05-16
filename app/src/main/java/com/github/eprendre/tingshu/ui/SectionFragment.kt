@@ -75,6 +75,7 @@ class SectionFragment : Fragment(), AnkoLogger {
             }
         }
         recycler_view.addOnScrollListener(scrollListener)
+        swiperefresh_layout.setColorSchemeResources(R.color.colorAccent)
         swiperefresh_layout.setOnRefreshListener {
             fetch(sectionUrl)
         }

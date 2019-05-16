@@ -27,6 +27,7 @@ import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.adapters.SectionsPagerAdapter
 import com.github.eprendre.tingshu.utils.Prefs
+import com.github.eprendre.tingshu.utils.SectionTab
 import com.github.eprendre.tingshu.widget.GlideApp
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.json.responseJson
@@ -42,12 +43,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var myService: TingShuService
     private val headerView by lazy { nav_view.getHeaderView(0) }
-    private val sectionsPagerAdapter by lazy {
-        SectionsPagerAdapter(
-            this,
-            supportFragmentManager
-        )
-    }
+    private lateinit var sectionsPagerAdapter: SectionsPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,8 +61,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initViews() {
         nav_view.setCheckedItem(R.id.nav_home)
-        sectionsPagerAdapter.sections = TingShuSourceHandler.getMainSections()
-        view_pager.adapter = sectionsPagerAdapter
+        initSectionAdapter(TingShuSourceHandler.getMainSections())
         tabs.setupWithViewPager(view_pager)
 
         val toggle = ActionBarDrawerToggle(
@@ -77,21 +72,10 @@ class MainActivity : AppCompatActivity() {
         nav_view.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_home -> {
-                    sectionsPagerAdapter.sections = TingShuSourceHandler.getMainSections()
-                    sectionsPagerAdapter.notifyDataSetChanged()
-                    view_pager.setCurrentItem(0, false)
-                    tabs.post {
-                        //得用post，直接调用会太早执行不起作用
-                        tabs.setScrollPosition(0, 0f, true)
-                    }
+                    initSectionAdapter(TingShuSourceHandler.getMainSections())
                 }
                 R.id.nav_other -> {
-                    sectionsPagerAdapter.sections = TingShuSourceHandler.getOtherSections()
-                    sectionsPagerAdapter.notifyDataSetChanged()
-                    view_pager.setCurrentItem(0, false)
-                    tabs.post {
-                        tabs.setScrollPosition(0, 0f, true)
-                    }
+                    initSectionAdapter(TingShuSourceHandler.getOtherSections())
                 }
                 R.id.nav_favorite -> {
                     startActivity<FavoriteActivity>()
@@ -108,7 +92,8 @@ class MainActivity : AppCompatActivity() {
                         .setMessage(s)
                         .setPositiveButton(android.R.string.ok, null)
                         .show()
-                    dialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
+                    dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
+                        LinkMovementMethod.getInstance()
                 }
             }
             drawer_layout.closeDrawer(GravityCompat.START)
@@ -156,22 +141,24 @@ class MainActivity : AppCompatActivity() {
         when (nav_view.checkedItem!!.itemId) {
             R.id.nav_home -> {
                 if (sectionsPagerAdapter.sections != TingShuSourceHandler.getMainSections()) {
-                    sectionsPagerAdapter.sections = TingShuSourceHandler.getMainSections()
-                    sectionsPagerAdapter.notifyDataSetChanged()
-                    view_pager.setCurrentItem(0, false)
+                    initSectionAdapter(TingShuSourceHandler.getMainSections())
                     updateTitle()
                 }
             }
             R.id.nav_other -> {
                 if (sectionsPagerAdapter.sections != TingShuSourceHandler.getOtherSections()) {
-                    sectionsPagerAdapter.sections = TingShuSourceHandler.getOtherSections()
-                    sectionsPagerAdapter.notifyDataSetChanged()
-                    view_pager.setCurrentItem(0, false)
+                    initSectionAdapter(TingShuSourceHandler.getOtherSections())
                     updateTitle()
                 }
             }
         }
         checkUpdate()
+    }
+
+    private fun initSectionAdapter(sections: List<SectionTab>) {
+        sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
+        sectionsPagerAdapter.sections = sections
+        view_pager.adapter = sectionsPagerAdapter
     }
 
     /**
