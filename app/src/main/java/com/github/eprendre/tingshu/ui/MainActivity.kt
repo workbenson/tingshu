@@ -35,6 +35,7 @@ import com.github.kittinunf.result.Result
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
 
 
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, TingShuService::class.java)
         startService(intent)
         bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
+        checkUpdate()
     }
 
     private fun initViews() {
@@ -82,6 +84,16 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_settings -> {
                     startActivity<SettingsActivity>()
+                }
+                R.id.nav_update -> {
+                    if (System.currentTimeMillis() - Prefs.lastUpdate <
+                        TimeUnit.MILLISECONDS.convert(1L, TimeUnit.MINUTES)
+                    ) {
+                        toast("检查更新不能太频繁")
+                        return@setNavigationItemSelectedListener true
+                    }
+                    Prefs.lastUpdate = System.currentTimeMillis()
+                    checkUpdate()
                 }
                 R.id.nav_about -> {
                     val message = "当前版本: ${BuildConfig.VERSION_NAME}\n\n源码: https://github.com/eprendre/tingshu"
@@ -152,7 +164,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        checkUpdate()
     }
 
     private fun initSectionAdapter(sections: List<SectionTab>) {
@@ -162,13 +173,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 检查是否有更新，小于10分钟不触发
+     * 检查是否有更新
      */
     private fun checkUpdate() {
-        if (System.currentTimeMillis() - Prefs.lastUpdate > TimeUnit.MILLISECONDS.convert(10L, TimeUnit.MINUTES)) {
-            Prefs.lastUpdate = System.currentTimeMillis()
-            Fuel.get("https://api.github.com/repos/eprendre/tingshu/releases/latest")
-                .responseJson { request, response, result ->
+        Fuel.get("https://api.github.com/repos/eprendre/tingshu/releases/latest")
+            .responseJson { request, response, result ->
+                runOnUiThread {
+                    val limit = response.header("X-RateLimit-Remaining").first().toInt()
+                    if (limit == 0) {
+                        toast("请求更新太频繁了，请稍后再试")
+                        return@runOnUiThread
+                    }
                     when (result) {
                         is Result.Failure -> {
                             val ex = result.getException()
@@ -183,26 +198,33 @@ class MainActivity : AppCompatActivity() {
                                     val body = data.getString("body")
                                     val downloadUrl =
                                         data.getJSONArray("assets").getJSONObject(0).getString("browser_download_url")
-                                    runOnUiThread {
-                                        AlertDialog.Builder(this)
-                                            .setTitle("发现新版本: $tagName")
-                                            .setMessage(body)
-                                            .setPositiveButton("更新") { _, _ ->
-                                                val i = Intent(Intent.ACTION_VIEW)
-                                                i.data = Uri.parse(downloadUrl)
-                                                startActivity(i)
-                                            }
-                                            .setNegativeButton("取消", null)
-                                            .show()
-                                    }
+                                    AlertDialog.Builder(this)
+                                        .setTitle("发现新版本: $tagName")
+                                        .setMessage(body)
+                                        .setPositiveButton("github 更新[国内较慢]") { _, _ ->
+                                            val i = Intent(Intent.ACTION_VIEW)
+                                            i.data = Uri.parse(downloadUrl)
+                                            startActivity(i)
+                                        }
+                                        .setNegativeButton("百度网盘更新") { _, _ ->
+                                            toast("提取码: dj51")
+                                            val i = Intent(Intent.ACTION_VIEW)
+                                            i.data = Uri.parse("https://pan.baidu.com/s/1v9IRgVDEFQ17rAf3aWS9Gw")
+                                            startActivity(i)
+                                        }
+                                        .setNeutralButton("取消", null)
+                                        .show()
+                                } else {
+                                    toast("没有更新")
                                 }
                             } catch (e: Exception) {
+                                toast("检查更新出错")
                                 e.printStackTrace()
                             }
                         }
                     }
                 }
-        }
+            }
     }
 
     private fun updateTitle() {
