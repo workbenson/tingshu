@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                         return@setNavigationItemSelectedListener true
                     }
                     Prefs.lastUpdate = System.currentTimeMillis()
-                    checkUpdate()
+                    checkUpdate(true)
                 }
                 R.id.nav_about -> {
                     val message = "当前版本: ${BuildConfig.VERSION_NAME}\n\n源码: https://github.com/eprendre/tingshu"
@@ -175,12 +175,12 @@ class MainActivity : AppCompatActivity() {
     /**
      * 检查是否有更新
      */
-    private fun checkUpdate() {
+    private fun checkUpdate(showResult: Boolean = false) {
         Fuel.get("https://api.github.com/repos/eprendre/tingshu/releases/latest")
             .responseJson { request, response, result ->
                 runOnUiThread {
                     val limit = response.header("X-RateLimit-Remaining").first().toInt()
-                    if (limit == 0) {
+                    if (limit == 0 && showResult) {
                         toast("请求更新太频繁了，请稍后再试")
                         return@runOnUiThread
                     }
@@ -215,10 +215,14 @@ class MainActivity : AppCompatActivity() {
                                         .setNeutralButton("取消", null)
                                         .show()
                                 } else {
-                                    toast("没有更新")
+                                    if (showResult) {
+                                        toast("没有更新")
+                                    }
                                 }
                             } catch (e: Exception) {
-                                toast("检查更新出错")
+                                if (showResult) {
+                                    toast("检查更新出错")
+                                }
                                 e.printStackTrace()
                             }
                         }
