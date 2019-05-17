@@ -92,7 +92,8 @@ class TingShuService : Service(), AnkoLogger {
             val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, "tingshu"))
 
             val playbackPrepare = MyPlaybackPreparer(exoPlayer, dataSourceFactory)
-            it.setPlayer(exoPlayer, playbackPrepare)
+            it.setPlayer(exoPlayer)
+            it.setPlaybackPreparer(playbackPrepare)
             it.setQueueNavigator(MyQueueNavigator(mediaSession))
         }
         exoPlayer.addListener(object : Player.EventListener {

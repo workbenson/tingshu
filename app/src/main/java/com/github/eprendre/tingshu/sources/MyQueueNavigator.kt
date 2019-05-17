@@ -6,6 +6,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.utils.Prefs
+import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
@@ -40,7 +41,7 @@ class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
     /**
      * 处理跳转上一首的逻辑
      */
-    override fun onSkipToPrevious(player: Player) {
+    override fun onSkipToPrevious(player: Player, controlDispatcher: ControlDispatcher) {
         Prefs.currentEpisodePosition = 0
         if (App.currentEpisodeIndex() < 1) {
             player.seekTo(0)
@@ -55,7 +56,7 @@ class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
     /**
      * 处理跳转下一首的逻辑, 不必担心越界 getSupportedQueueNavigatorActions 里面已经检查了
      */
-    override fun onSkipToNext(player: Player) {
+    override fun onSkipToNext(player: Player, controlDispatcher: ControlDispatcher) {
         Prefs.currentEpisodePosition = 0
         mediaSessionCompat.controller.transportControls.playFromUri(
             Uri.parse(App.playList[App.currentEpisodeIndex() + 1].url),
