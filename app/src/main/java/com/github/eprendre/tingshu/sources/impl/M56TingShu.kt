@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
-import org.apache.commons.lang3.StringEscapeUtils
+import org.apache.commons.text.StringEscapeUtils
 import org.jsoup.Jsoup
 import java.net.URLEncoder
 
@@ -34,7 +34,7 @@ object M56TingShu : TingShu {
             SectionTab("玄幻武侠", "http://m.ting56.com/paihangbang/1-1.html"),
             SectionTab("都市言情", "http://m.ting56.com/paihangbang/2-2.html"),
             SectionTab("恐怖悬疑", "http://m.ting56.com/paihangbang/3-3.html"),
-            SectionTab("网友竞技", "http://m.ting56.com/paihangbang/4-4.html"),
+            SectionTab("网游竞技", "http://m.ting56.com/paihangbang/4-4.html"),
             SectionTab("军事历史", "http://m.ting56.com/paihangbang/6-6.html"),
             SectionTab("刑侦推理", "http://m.ting56.com/paihangbang/41-41.html")
         )

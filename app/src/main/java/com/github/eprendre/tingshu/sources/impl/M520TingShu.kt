@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
-import org.apache.commons.lang3.StringEscapeUtils
+import org.apache.commons.text.StringEscapeUtils
 import org.jsoup.Jsoup
 import java.net.URLEncoder
 

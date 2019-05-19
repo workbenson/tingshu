@@ -34,12 +34,13 @@ import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
+import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AnkoLogger {
     var isBound = false
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var myService: TingShuService
@@ -179,18 +180,18 @@ class MainActivity : AppCompatActivity() {
         Fuel.get("https://api.github.com/repos/eprendre/tingshu/releases/latest")
             .responseJson { request, response, result ->
                 runOnUiThread {
-                    val limit = response.header("X-RateLimit-Remaining").first().toInt()
-                    if (limit == 0 && showResult) {
-                        toast("请求更新太频繁了，请稍后再试")
-                        return@runOnUiThread
-                    }
-                    when (result) {
-                        is Result.Failure -> {
-                            val ex = result.getException()
-                            ex.printStackTrace()
+                    try {
+                        val limit = response.header("X-RateLimit-Remaining").first().toInt()//有些设备会报错
+                        if (limit == 0 && showResult) {
+                            toast("请求更新太频繁了，请稍后再试")
+                            return@runOnUiThread
                         }
-                        is Result.Success -> {
-                            try {
+                        when (result) {
+                            is Result.Failure -> {
+                                val ex = result.getException()
+                                ex.printStackTrace()
+                            }
+                            is Result.Success -> {
                                 val data = result.get().obj()
                                 val tagName = data.getString("tag_name")
                                 val versionName = "v${BuildConfig.VERSION_NAME}"
@@ -219,13 +220,13 @@ class MainActivity : AppCompatActivity() {
                                         toast("没有更新")
                                     }
                                 }
-                            } catch (e: Exception) {
-                                if (showResult) {
-                                    toast("检查更新出错")
-                                }
-                                e.printStackTrace()
                             }
                         }
+                    } catch (e: Exception) {
+                        if (showResult) {
+                            toast("检查更新出错")
+                        }
+                        e.printStackTrace()
                     }
                 }
             }
