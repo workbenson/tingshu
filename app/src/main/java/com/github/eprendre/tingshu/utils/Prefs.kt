@@ -74,7 +74,7 @@ object Prefs {
         set(value) = prefs.edit().putString("current_cover", value).apply()
 
     var source: String
-        get() = prefs.getString("current_source", TingShuSourceHandler.SOURCE_URL_56)!!
+        get() = prefs.getString("current_source", TingShuSourceHandler.SOURCE_URL_HUANTINGWANG)!!
         set(value) = prefs.edit().putString("current_source", value).apply()
 
     /**

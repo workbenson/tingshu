@@ -7,6 +7,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.sources.impl.HuanTingWang
 import com.github.eprendre.tingshu.sources.impl.M520TingShu
 import com.github.eprendre.tingshu.sources.impl.M56TingShu
 import com.github.eprendre.tingshu.sources.impl.TingShuGe
@@ -29,6 +30,7 @@ object TingShuSourceHandler {
     const val SOURCE_URL_56 = "http://m.ting56.com"
     const val SOURCE_URL_520 = "http://m.520tingshu.com"
     const val SOURCE_URL_TINGSHUGE = "http://www.tingshuge.com"
+    const val SOURCE_URL_HUANTINGWANG = "http://m.ting89.com"
 
     private lateinit var tingShu: TingShu
     private val sourceList by lazy {
@@ -36,7 +38,8 @@ object TingShuSourceHandler {
         listOf(
             Pair(array[0], M56TingShu),
             Pair(array[1], M520TingShu),
-            Pair(array[2], TingShuGe)
+            Pair(array[2], TingShuGe),
+            Pair(array[3], HuanTingWang)
         )
     }
 
@@ -131,7 +134,8 @@ object TingShuSourceHandler {
         val matrix = Matrix()
         val ratio = Math.min(
             targetSize.toFloat() / bitmap.width,
-            targetSize.toFloat() / bitmap.height)
+            targetSize.toFloat() / bitmap.height
+        )
         matrix.postScale(ratio, ratio)
 
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)

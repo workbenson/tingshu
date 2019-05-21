@@ -1,5 +1,8 @@
 package com.github.eprendre.tingshu.ui.adapters
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context.CLIPBOARD_SERVICE
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +13,7 @@ import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.widget.GlideApp
 import kotlinx.android.synthetic.main.item_search.view.*
 import org.jetbrains.anko.toast
+
 
 class SearchAdapter(private val itemClickListener: (Book) -> Unit) :
     ListAdapter<Book, SearchViewHolder>(Book.diffCallback) {
@@ -37,7 +41,10 @@ class SearchViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycler
         }
         view.setOnLongClickListener {
             item?.let {
-                view.context.toast(it.bookUrl)
+                val clipboard = view.context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText(it.title, it.bookUrl)
+                clipboard.primaryClip = clip
+                view.context.toast("${it.bookUrl} 已复制到剪切板")
             }
             return@setOnLongClickListener true
         }

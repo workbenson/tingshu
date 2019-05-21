@@ -527,6 +527,10 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val linkItem = menu.findItem(R.id.link)
+        toolbarIconColor?.let { color ->
+            linkItem.icon.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+        }
         val favoriteItem = menu.findItem(R.id.favorite)
         Prefs.currentBookUrl?.let {
             AppDatabase.getInstance(this).bookDao().findByBookUrl(it)
@@ -557,8 +561,12 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.link -> {
+                val i = Intent(Intent.ACTION_VIEW)
+                i.data = Uri.parse(Prefs.currentBookUrl)
+                startActivity(i)
+            }
             R.id.favorite -> {
-
                 if (favoriteBook != null) {
                     //取消收藏
                     AppDatabase.getInstance(this).bookDao()
