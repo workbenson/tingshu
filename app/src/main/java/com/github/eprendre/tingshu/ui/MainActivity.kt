@@ -97,7 +97,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     checkUpdate(true)
                 }
                 R.id.nav_about -> {
-                    val message = "当前版本: ${BuildConfig.VERSION_NAME}\n\n源码: https://github.com/eprendre/tingshu"
+                    val message = "当前版本: ${BuildConfig.VERSION_NAME}\n\n" +
+                            "部分资源来自:\nhttps://unsplash.com\n\n" +
+                            "查看源码:\nhttps://github.com/eprendre/tingshu"
                     val s = SpannableString(message)
                     Linkify.addLinks(s, Linkify.ALL)
                     val dialog = AlertDialog.Builder(this)
