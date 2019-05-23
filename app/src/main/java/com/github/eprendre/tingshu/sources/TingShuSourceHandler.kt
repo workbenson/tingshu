@@ -10,7 +10,6 @@ import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.impl.HuanTingWang
 import com.github.eprendre.tingshu.sources.impl.M520TingShu
 import com.github.eprendre.tingshu.sources.impl.M56TingShu
-import com.github.eprendre.tingshu.sources.impl.TingShuGe
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.utils.Section
@@ -34,13 +33,14 @@ object TingShuSourceHandler {
 
     private lateinit var tingShu: TingShu
     private val sourceList by lazy {
-        val array = App.appContext.resources.getStringArray(R.array.source_values)
-        listOf(
-            Pair(array[0], M56TingShu),
-            Pair(array[1], M520TingShu),
-            Pair(array[2], TingShuGe),
-            Pair(array[3], HuanTingWang)
+        val keyArray = App.appContext.resources.getStringArray(R.array.source_values)
+        val valueArray = listOf(//这里面的顺序要和 R.array.source_values 里面的对应上
+            M56TingShu,
+            M520TingShu,
+//            TingShuGe,
+            HuanTingWang
         )
+        keyArray.zip(valueArray)
     }
 
     init {
