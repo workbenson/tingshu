@@ -5,10 +5,7 @@ import android.graphics.BitmapFactory
 import android.os.Handler
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import androidx.core.text.isDigitsOnly
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
@@ -23,9 +20,13 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import org.apache.commons.text.StringEscapeUtils
 import org.jsoup.Jsoup
 import java.net.URLEncoder
+import java.util.concurrent.TimeUnit
 
 object M520TingShu : TingShu {
     private lateinit var extractor: M520AudioUrlExtractor
@@ -139,21 +140,31 @@ object M520TingShu : TingShu {
         private val exoPlayer: ExoPlayer,
         private val dataSourceFactory: DataSource.Factory
     ) : AudioUrlExtractor {
+        private val compositeDisposable by lazy { CompositeDisposable() }
         private val webView by lazy { WebView(App.appContext) }
         private var isPageFinished = false
         private var isAudioGet = false
         private var isError = false
-        private var currentUrl = ""
 
         init {
             //jsoup 只能解析静态页面，使用 webview 可以省不少力气
             webView.settings.javaScriptEnabled = true
-            webView.webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    if (currentUrl == url && !isPageFinished) {
+            webView.webChromeClient = object : WebChromeClient() {
+                override fun onProgressChanged(view: WebView, newProgress: Int) {
+                    //有时候页面某些元素卡加载进度 onPageFinished 永远也不会调用便超时了
+                    //但这个时候实际播放地址早就出来了，所以获取播放地址的方法放到这边
+                    if (newProgress > 60 && !isPageFinished) {
                         isPageFinished = true
                         tryGetAudioSrc()
                     }
+                }
+            }
+            webView.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+//                    if (currentUrl == url && !isPageFinished) {
+//                        isPageFinished = true
+//                        tryGetAudioSrc()
+//                    }
                 }
 
                 override fun onReceivedError(
@@ -164,8 +175,8 @@ object M520TingShu : TingShu {
                 ) {
                     when (errorCode) {
                         ERROR_TIMEOUT, ERROR_HOST_LOOKUP -> {
-                            isError = true
-                            RxBus.post(RxEvent.ParsingPlayUrlErrorEvent())
+                            compositeDisposable.clear()
+                            postError()
                         }
                     }
                 }
@@ -177,12 +188,25 @@ object M520TingShu : TingShu {
             }
         }
 
+        private fun postError() {
+            if (!isAudioGet) {
+                isError = true
+                RxBus.post(RxEvent.ParsingPlayUrlErrorEvent())
+                webView.loadUrl("about:blank")
+            }
+        }
+
         override fun extract(url: String) {
+            compositeDisposable.clear()
             isAudioGet = false
             isPageFinished = false
             isError = false
-            currentUrl = url
             webView.loadUrl(url)
+            Completable.timer(12, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
+                .subscribe {
+                    postError()
+                }
+                .addTo(compositeDisposable)
         }
 
         /**
@@ -214,6 +238,7 @@ object M520TingShu : TingShu {
                 if (isAudioGet) {
                     return@evaluateJavascript
                 }
+                compositeDisposable.clear()
                 isAudioGet = true
                 val bookname = Prefs.currentEpisodeName + " - " + Prefs.currentBookName
 
