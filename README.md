@@ -6,6 +6,11 @@
 
 目前核心的播放功能已完成，UI方面不是强项，有兴趣的朋友欢迎帮忙 PR 改进。
 
+## 下载
+
+* [Release](https://github.com/eprendre/tingshu/releases)
+* [Play Store](https://play.google.com/store/apps/details?id=com.github.eprendre.tingshu)
+
 ## 已支持的站点
 
 * [http://m.ting89.com](http://m.ting89.com)
