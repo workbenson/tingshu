@@ -108,7 +108,7 @@ object HuanTingWang : TingShu {
     override fun getSectionDetail(url: String): Single<Section> {
         return Single.fromCallable {
             val doc = Jsoup.connect(url).get()
-            val nextUrl = doc.select(".page a").first { it.text().contains("下页") }.attr("abs:href")
+            val nextUrl = doc.select(".page a").firstOrNull { it.text().contains("下页") }?.attr("abs:href") ?: ""
             val pages = doc.selectFirst(".page").ownText().let { text ->
                 Regex("(\\d+)/(\\d+)").find(text)!!.groupValues
             }

@@ -64,7 +64,7 @@ class HuanTingUnitTest {
                 Pair(it[0], it[1])
             }
             val intro = bookInfo.selectFirst(".intro_line").text()
-            list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro})
+            list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
         }
         list.forEach { println(it) }
         assertThat(list.size).isGreaterThan(0)
@@ -91,7 +91,7 @@ class HuanTingUnitTest {
     @Test
     fun category() {
         val doc = Jsoup.connect("http://m.ting89.com/booklist/?2-2.html").get()
-        val nextUrl = doc.select(".page a").first { it.text().contains("下页") }.attr("abs:href")
+        val nextUrl = doc.select(".page a").firstOrNull { it.text().contains("下页") }?.attr("abs:href") ?: ""
         val pages = doc.selectFirst(".page").ownText().let { text ->
             Regex("(\\d+)/(\\d+)").find(text)!!.groupValues
         }
@@ -112,7 +112,7 @@ class HuanTingUnitTest {
                 Pair(it[0], it[1])
             }
             val intro = bookInfo.selectFirst(".intro_line").text()
-            list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro})
+            list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
         }
         list.take(5).forEach { println(it) }
         assertThat(list.size).isGreaterThan(0)

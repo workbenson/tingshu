@@ -209,8 +209,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                                             i.data = Uri.parse(downloadUrl)
                                             startActivity(i)
                                         }
-                                        .setNegativeButton("百度网盘更新") { _, _ ->
-                                            toast("提取码: dj51")
+                                        .setNegativeButton("百度网盘更新[提取码: dj51]") { _, _ ->
                                             val i = Intent(Intent.ACTION_VIEW)
                                             i.data = Uri.parse("https://pan.baidu.com/s/1v9IRgVDEFQ17rAf3aWS9Gw")
                                             startActivity(i)
