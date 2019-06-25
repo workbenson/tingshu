@@ -1,9 +1,12 @@
 package com.github.eprendre.tingshu.sources
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.os.PowerManager
 import android.os.ResultReceiver
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.core.content.ContextCompat.getSystemService
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.RxBus
@@ -50,7 +53,14 @@ class MyPlaybackPreparer(
         Prefs.currentEpisodeName = App.currentEpisode().title
         RxBus.post(RxEvent.ParsingPlayUrlEvent())
 
+        val wakeLock: PowerManager.WakeLock =
+            (App.appContext.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+                    acquire(30000)
+                }
+            }
         TingShuSourceHandler.getAudioUrlExtractor(url, exoPlayer, dataSourceFactory).extract(url)
+        wakeLock.release()
     }
 
     override fun onPrepare() {

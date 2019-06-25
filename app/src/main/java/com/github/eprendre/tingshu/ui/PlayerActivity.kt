@@ -563,7 +563,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         when (item.itemId) {
             R.id.link -> {
                 val i = Intent(Intent.ACTION_VIEW)
-                i.data = Uri.parse(Prefs.currentBookUrl)
+                i.data = Uri.parse(Prefs.currentEpisodeUrl)
                 startActivity(i)
             }
             R.id.favorite -> {
