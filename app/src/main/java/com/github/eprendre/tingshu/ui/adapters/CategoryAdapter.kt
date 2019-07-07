@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.item_search.view.*
 import org.jetbrains.anko.toast
 
 
-class SearchAdapter(private val itemClickListener: (Book) -> Unit) :
+class CategoryAdapter(private val itemClickListener: (Book) -> Unit) :
     ListAdapter<Book, SearchViewHolder>(Book.diffCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_search, parent, false)

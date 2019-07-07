@@ -5,20 +5,20 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.PagerAdapter
-import com.github.eprendre.tingshu.ui.SectionFragment
-import com.github.eprendre.tingshu.utils.SectionTab
+import com.github.eprendre.tingshu.ui.CategoryFragment
+import com.github.eprendre.tingshu.utils.CategoryTab
 
-class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-    var sections = emptyList<SectionTab>()
+class CategoryPagerAdapter(private val context: Context, fm: FragmentManager) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    var categories = emptyList<CategoryTab>()
 
     override fun getItem(position: Int): Fragment {
-        return SectionFragment.newInstance(sections[position].url)
+        return CategoryFragment.newInstance(categories[position].url)
     }
 
     override fun getItemPosition(item: Any): Int {
-        //SectionFragment的 sectionUrl 就是 SectionTab 传进来的链接，以此可以判断当前Fragment是位于第几页。
+        //CategoryFragment的 categoryUrl 就是 CategoryTab 传进来的链接，以此可以判断当前Fragment是位于第几页。
         //如果不存在代表已经切换源了，返回POSITION_NONE可以让它自动刷新ViewPager
-        val index = sections.indexOfFirst { it.url == (item as SectionFragment).sectionUrl }
+        val index = categories.indexOfFirst { it.url == (item as CategoryFragment).categoryUrl }
         return if (index > 0) {
             index
         } else {
@@ -27,10 +27,10 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) : 
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
-        return sections[position].title
+        return categories[position].title
     }
 
     override fun getCount(): Int {
-        return sections.size
+        return categories.size
     }
 }

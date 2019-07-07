@@ -25,9 +25,9 @@ import com.github.eprendre.tingshu.BuildConfig
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
-import com.github.eprendre.tingshu.ui.adapters.SectionsPagerAdapter
+import com.github.eprendre.tingshu.ui.adapters.CategoryPagerAdapter
 import com.github.eprendre.tingshu.utils.Prefs
-import com.github.eprendre.tingshu.utils.SectionTab
+import com.github.eprendre.tingshu.utils.CategoryTab
 import com.github.eprendre.tingshu.widget.GlideApp
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.json.responseJson
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var myService: TingShuService
     private val headerView by lazy { nav_view.getHeaderView(0) }
-    private lateinit var sectionsPagerAdapter: SectionsPagerAdapter
+    private lateinit var categoryPagerAdapter: CategoryPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private fun initViews() {
         nav_view.setCheckedItem(R.id.nav_home)
-        initSectionAdapter(TingShuSourceHandler.getMainSections())
+        initCategoryAdapter(TingShuSourceHandler.getMainCategories())
         tabs.setupWithViewPager(view_pager)
 
         val toggle = ActionBarDrawerToggle(
@@ -75,10 +75,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         nav_view.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_home -> {
-                    initSectionAdapter(TingShuSourceHandler.getMainSections())
+                    initCategoryAdapter(TingShuSourceHandler.getMainCategories())
                 }
                 R.id.nav_other -> {
-                    initSectionAdapter(TingShuSourceHandler.getOtherSections())
+                    initCategoryAdapter(TingShuSourceHandler.getOtherCategories())
                 }
                 R.id.nav_favorite -> {
                     startActivity<FavoriteActivity>()
@@ -155,24 +155,24 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         }
         when (nav_view.checkedItem!!.itemId) {
             R.id.nav_home -> {
-                if (sectionsPagerAdapter.sections != TingShuSourceHandler.getMainSections()) {
-                    initSectionAdapter(TingShuSourceHandler.getMainSections())
+                if (categoryPagerAdapter.categories != TingShuSourceHandler.getMainCategories()) {
+                    initCategoryAdapter(TingShuSourceHandler.getMainCategories())
                     updateTitle()
                 }
             }
             R.id.nav_other -> {
-                if (sectionsPagerAdapter.sections != TingShuSourceHandler.getOtherSections()) {
-                    initSectionAdapter(TingShuSourceHandler.getOtherSections())
+                if (categoryPagerAdapter.categories != TingShuSourceHandler.getOtherCategories()) {
+                    initCategoryAdapter(TingShuSourceHandler.getOtherCategories())
                     updateTitle()
                 }
             }
         }
     }
 
-    private fun initSectionAdapter(sections: List<SectionTab>) {
-        sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
-        sectionsPagerAdapter.sections = sections
-        view_pager.adapter = sectionsPagerAdapter
+    private fun initCategoryAdapter(categories: List<CategoryTab>) {
+        categoryPagerAdapter = CategoryPagerAdapter(this, supportFragmentManager)
+        categoryPagerAdapter.categories = categories
+        view_pager.adapter = categoryPagerAdapter
     }
 
     /**

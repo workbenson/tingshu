@@ -75,53 +75,53 @@ object TingShuGe : TingShu {
         return extractor
     }
 
-    override fun getMainSectionTabs(): List<SectionTab> {
+    override fun getMainCategoryTabs(): List<CategoryTab> {
         return listOf(
-            SectionTab("玄幻", "http://www.tingshuge.com/List/4.html"),
-            SectionTab("武侠", "http://www.tingshuge.com/List/5.html"),
-            SectionTab("仙侠", "http://www.tingshuge.com/List/73.html"),
-            SectionTab("网游", "http://www.tingshuge.com/List/16.html"),
-            SectionTab("科幻", "http://www.tingshuge.com/List/6.html"),
-            SectionTab("推理", "http://www.tingshuge.com/List/7.html"),
-            SectionTab("悬疑", "http://www.tingshuge.com/List/71.html"),
-            SectionTab("恐怖", "http://www.tingshuge.com/List/8.html"),
-            SectionTab("灵异", "http://www.tingshuge.com/List/9.html"),
-            SectionTab("都市", "http://www.tingshuge.com/List/10.html"),
-            SectionTab("穿越", "http://www.tingshuge.com/List/15.html"),
-            SectionTab("言情", "http://www.tingshuge.com/List/11.html"),
-            SectionTab("校园", "http://www.tingshuge.com/List/12.html")
+            CategoryTab("玄幻", "http://www.tingshuge.com/List/4.html"),
+            CategoryTab("武侠", "http://www.tingshuge.com/List/5.html"),
+            CategoryTab("仙侠", "http://www.tingshuge.com/List/73.html"),
+            CategoryTab("网游", "http://www.tingshuge.com/List/16.html"),
+            CategoryTab("科幻", "http://www.tingshuge.com/List/6.html"),
+            CategoryTab("推理", "http://www.tingshuge.com/List/7.html"),
+            CategoryTab("悬疑", "http://www.tingshuge.com/List/71.html"),
+            CategoryTab("恐怖", "http://www.tingshuge.com/List/8.html"),
+            CategoryTab("灵异", "http://www.tingshuge.com/List/9.html"),
+            CategoryTab("都市", "http://www.tingshuge.com/List/10.html"),
+            CategoryTab("穿越", "http://www.tingshuge.com/List/15.html"),
+            CategoryTab("言情", "http://www.tingshuge.com/List/11.html"),
+            CategoryTab("校园", "http://www.tingshuge.com/List/12.html")
         )
     }
 
-    override fun getOtherSectionTabs(): List<SectionTab> {
+    override fun getOtherCategoryTabs(): List<CategoryTab> {
         return listOf(
-            SectionTab("历史", "http://www.tingshuge.com/List/13.html"),
-            SectionTab("军事", "http://www.tingshuge.com/List/14.html"),
-            SectionTab("官场", "http://www.tingshuge.com/List/17.html"),
-            SectionTab("商战", "http://www.tingshuge.com/List/18.html"),
-            SectionTab("儿童", "http://www.tingshuge.com/List/22.html"),
-            SectionTab("戏曲", "http://www.tingshuge.com/List/25.html"),
-            SectionTab("百家讲坛", "http://www.tingshuge.com/List/30.html"),
-            SectionTab("人文", "http://www.tingshuge.com/List/21.html"),
-            SectionTab("诗歌", "http://www.tingshuge.com/List/69.html"),
-            SectionTab("相声", "http://www.tingshuge.com/List/24.html"),
-            SectionTab("小品", "http://www.tingshuge.com/List/66.html"),
-            SectionTab("励志", "http://www.tingshuge.com/List/28.html"),
-            SectionTab("婚姻", "http://www.tingshuge.com/List/72.html"),
-            SectionTab("养生", "http://www.tingshuge.com/List/29.html"),
-            SectionTab("英语", "http://www.tingshuge.com/List/27.html"),
-            SectionTab("教育", "http://www.tingshuge.com/List/70.html"),
-            SectionTab("儿歌", "http://www.tingshuge.com/List/67.html"),
-            SectionTab("笑话", "http://www.tingshuge.com/List/23.html"),
-            SectionTab("佛学", "http://www.tingshuge.com/List/74.html"),
-            SectionTab("广播剧", "http://www.tingshuge.com/List/68.html"),
-            SectionTab("国学", "http://www.tingshuge.com/List/19.html"),
-            SectionTab("名著", "http://www.tingshuge.com/List/20.html"),
-            SectionTab("评书大全", "http://www.tingshuge.com/List/26.html")
+            CategoryTab("历史", "http://www.tingshuge.com/List/13.html"),
+            CategoryTab("军事", "http://www.tingshuge.com/List/14.html"),
+            CategoryTab("官场", "http://www.tingshuge.com/List/17.html"),
+            CategoryTab("商战", "http://www.tingshuge.com/List/18.html"),
+            CategoryTab("儿童", "http://www.tingshuge.com/List/22.html"),
+            CategoryTab("戏曲", "http://www.tingshuge.com/List/25.html"),
+            CategoryTab("百家讲坛", "http://www.tingshuge.com/List/30.html"),
+            CategoryTab("人文", "http://www.tingshuge.com/List/21.html"),
+            CategoryTab("诗歌", "http://www.tingshuge.com/List/69.html"),
+            CategoryTab("相声", "http://www.tingshuge.com/List/24.html"),
+            CategoryTab("小品", "http://www.tingshuge.com/List/66.html"),
+            CategoryTab("励志", "http://www.tingshuge.com/List/28.html"),
+            CategoryTab("婚姻", "http://www.tingshuge.com/List/72.html"),
+            CategoryTab("养生", "http://www.tingshuge.com/List/29.html"),
+            CategoryTab("英语", "http://www.tingshuge.com/List/27.html"),
+            CategoryTab("教育", "http://www.tingshuge.com/List/70.html"),
+            CategoryTab("儿歌", "http://www.tingshuge.com/List/67.html"),
+            CategoryTab("笑话", "http://www.tingshuge.com/List/23.html"),
+            CategoryTab("佛学", "http://www.tingshuge.com/List/74.html"),
+            CategoryTab("广播剧", "http://www.tingshuge.com/List/68.html"),
+            CategoryTab("国学", "http://www.tingshuge.com/List/19.html"),
+            CategoryTab("名著", "http://www.tingshuge.com/List/20.html"),
+            CategoryTab("评书大全", "http://www.tingshuge.com/List/26.html")
         )
     }
 
-    override fun getSectionDetail(url: String): Single<Section> {
+    override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
             val list = ArrayList<Book>()
             val doc = Jsoup.connect(url).get()
@@ -140,7 +140,7 @@ object TingShuGe : TingShu {
                 }
                 list.add(Book(coverUrl, bookUrl, title, author, artist))
             }
-            return@fromCallable Section(list, currentPage, totalPage, url, nextUrl)
+            return@fromCallable Category(list, currentPage, totalPage, url, nextUrl)
         }
     }
 

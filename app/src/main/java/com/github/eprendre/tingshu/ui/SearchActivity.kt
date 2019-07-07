@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
-import com.github.eprendre.tingshu.ui.adapters.SearchAdapter
+import com.github.eprendre.tingshu.ui.adapters.CategoryAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.EndlessRecyclerViewScrollListener
@@ -31,7 +31,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     private lateinit var scrollListener: EndlessRecyclerViewScrollListener
 
     private val listAdapter by lazy {
-        SearchAdapter {
+        CategoryAdapter {
             //        Prefs.currentBookUrl = it.bookUrl//这个不能在这里赋值，在PlayerActivity检测后再赋值避免不必要的bug
             Prefs.currentCover = it.coverUrl
             Prefs.currentBookName = it.title

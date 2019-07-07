@@ -58,13 +58,13 @@ data class Book(
 }
 
 @Keep
-data class SectionTab(
+data class CategoryTab(
     val title: String,
     val url: String
 )
 
 @Keep
-data class Section(
+data class Category(
     val list: List<Book>,
     val currentPage: Int,
     val totalPage: Int,

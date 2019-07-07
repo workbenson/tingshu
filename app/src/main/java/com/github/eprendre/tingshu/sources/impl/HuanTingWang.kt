@@ -77,35 +77,35 @@ object HuanTingWang : TingShu {
         return extractor
     }
 
-    override fun getMainSectionTabs(): List<SectionTab> {
+    override fun getMainCategoryTabs(): List<CategoryTab> {
         return listOf(
-            SectionTab("玄幻玄幻", "http://m.ting89.com/booklist/?1.html"),
-            SectionTab("武侠仙侠", "http://m.ting89.com/booklist/?2.html"),
-            SectionTab("科幻世界", "http://m.ting89.com/booklist/?5.html"),
-            SectionTab("网络游戏", "http://m.ting89.com/booklist/?11.html"),
-            SectionTab("现代都市", "http://m.ting89.com/booklist/?3.html"),
-            SectionTab("女生言情", "http://m.ting89.com/booklist/?4.html"),
-            SectionTab("女生穿越", "http://m.ting89.com/booklist/?38.html"),
-            SectionTab("推理悬念", "http://m.ting89.com/booklist/?6.html"),
-            SectionTab("恐怖故事", "http://m.ting89.com/booklist/?7.html"),
-            SectionTab("悬疑惊悚", "http://m.ting89.com/booklist/?8.html")
+            CategoryTab("玄幻玄幻", "http://m.ting89.com/booklist/?1.html"),
+            CategoryTab("武侠仙侠", "http://m.ting89.com/booklist/?2.html"),
+            CategoryTab("科幻世界", "http://m.ting89.com/booklist/?5.html"),
+            CategoryTab("网络游戏", "http://m.ting89.com/booklist/?11.html"),
+            CategoryTab("现代都市", "http://m.ting89.com/booklist/?3.html"),
+            CategoryTab("女生言情", "http://m.ting89.com/booklist/?4.html"),
+            CategoryTab("女生穿越", "http://m.ting89.com/booklist/?38.html"),
+            CategoryTab("推理悬念", "http://m.ting89.com/booklist/?6.html"),
+            CategoryTab("恐怖故事", "http://m.ting89.com/booklist/?7.html"),
+            CategoryTab("悬疑惊悚", "http://m.ting89.com/booklist/?8.html")
         )
     }
 
-    override fun getOtherSectionTabs(): List<SectionTab> {
+    override fun getOtherCategoryTabs(): List<CategoryTab> {
         return listOf(
-            SectionTab("历史传记", "http://m.ting89.com/booklist/?9.html"),
-            SectionTab("铁血军魂", "http://m.ting89.com/booklist/?10.html"),
-            SectionTab("经典传记", "http://m.ting89.com/booklist/?35.html"),
-            SectionTab("百家讲坛", "http://m.ting89.com/booklist/?36.html"),
-            SectionTab("粤语", "http://m.ting89.com/booklist/?40.html"),
-            SectionTab("儿童故事", "http://m.ting89.com/booklist/?16.html"),
-            SectionTab("相声", "http://m.ting89.com/booklist/?34.html"),
-            SectionTab("评书", "http://m.ting89.com/booklist/?13.html")
+            CategoryTab("历史传记", "http://m.ting89.com/booklist/?9.html"),
+            CategoryTab("铁血军魂", "http://m.ting89.com/booklist/?10.html"),
+            CategoryTab("经典传记", "http://m.ting89.com/booklist/?35.html"),
+            CategoryTab("百家讲坛", "http://m.ting89.com/booklist/?36.html"),
+            CategoryTab("粤语", "http://m.ting89.com/booklist/?40.html"),
+            CategoryTab("儿童故事", "http://m.ting89.com/booklist/?16.html"),
+            CategoryTab("相声", "http://m.ting89.com/booklist/?34.html"),
+            CategoryTab("评书", "http://m.ting89.com/booklist/?13.html")
         )
     }
 
-    override fun getSectionDetail(url: String): Single<Section> {
+    override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
             val doc = Jsoup.connect(url).get()
             val nextUrl = doc.select(".page a").firstOrNull { it.text().contains("下页") }?.attr("abs:href") ?: ""
@@ -129,7 +129,7 @@ object HuanTingWang : TingShu {
                 list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro})
             }
 
-            return@fromCallable Section(list, currentPage, totalPage, url, nextUrl)
+            return@fromCallable Category(list, currentPage, totalPage, url, nextUrl)
         }
     }
 

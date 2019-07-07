@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
-import com.github.eprendre.tingshu.ui.adapters.SearchAdapter
+import com.github.eprendre.tingshu.ui.adapters.CategoryAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.EndlessRecyclerViewScrollListener
@@ -19,14 +19,13 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_section.*
+import kotlinx.android.synthetic.main.fragment_category.*
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 
-class SectionFragment : Fragment(), AnkoLogger {
-    var sectionUrl = ""
+class CategoryFragment : Fragment(), AnkoLogger {
+    var categoryUrl = ""
     private val compositeDisposable = CompositeDisposable()
     private var currentPage = 1
     private var totalPage = 1
@@ -35,7 +34,7 @@ class SectionFragment : Fragment(), AnkoLogger {
     private lateinit var scrollListener: EndlessRecyclerViewScrollListener
 
     private val listAdapter by lazy {
-        SearchAdapter {
+        CategoryAdapter {
             //这里数据都一样的，可以共用SearchAdapter
             Prefs.currentCover = it.coverUrl
             Prefs.currentBookName = it.title
@@ -48,11 +47,11 @@ class SectionFragment : Fragment(), AnkoLogger {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sectionUrl = arguments?.getString(ARG_SECTION_URL) ?: ""
+        categoryUrl = arguments?.getString(ARG_CATEGORY_URL) ?: ""
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val root = inflater.inflate(R.layout.fragment_section, container, false)
+        val root = inflater.inflate(R.layout.fragment_category, container, false)
         return root
     }
 
@@ -60,7 +59,7 @@ class SectionFragment : Fragment(), AnkoLogger {
         super.onActivityCreated(savedInstanceState)
         state_layout.setErrorText("加载出错了，点击重试")
         state_layout.setErrorListener {
-            fetch(sectionUrl)
+            fetch(categoryUrl)
         }
         val linearLayoutManager = LinearLayoutManager(context)
         recycler_view.layoutManager = linearLayoutManager
@@ -77,16 +76,16 @@ class SectionFragment : Fragment(), AnkoLogger {
         recycler_view.addOnScrollListener(scrollListener)
         swiperefresh_layout.setColorSchemeResources(R.color.colorAccent)
         swiperefresh_layout.setOnRefreshListener {
-            fetch(sectionUrl)
+            fetch(categoryUrl)
         }
-        fetch(sectionUrl)
+        fetch(categoryUrl)
     }
 
     private fun fetch(url: String) {
-        TingShuSourceHandler.getSectionDetail(url)
+        TingShuSourceHandler.getCategoryDetail(url)
             .subscribeOn(Schedulers.io())
             .doOnSubscribe {
-                if (sectionUrl == url && !swiperefresh_layout.isRefreshing) {
+                if (categoryUrl == url && !swiperefresh_layout.isRefreshing) {
                     state_layout.showLoading()
                 }
             }
@@ -99,7 +98,7 @@ class SectionFragment : Fragment(), AnkoLogger {
                 totalPage = it.totalPage
                 nextUrl = it.nextUrl
                 val newList = ArrayList<Book>()
-                if (it.currentUrl != sectionUrl) {//如果不是刷新则先添加老数据
+                if (it.currentUrl != categoryUrl) {//如果不是刷新则先添加老数据
                     newList.addAll(oldList)
                 }
                 newList.addAll(it.list)
@@ -108,7 +107,7 @@ class SectionFragment : Fragment(), AnkoLogger {
             }, onError = {
                 it.printStackTrace()
                 swiperefresh_layout.isRefreshing = false
-                if (sectionUrl == url) {
+                if (categoryUrl == url) {
                     state_layout.showError()
                 } else {
                     context?.toast("加载下一页出错啦")
@@ -123,13 +122,13 @@ class SectionFragment : Fragment(), AnkoLogger {
     }
 
     companion object {
-        private const val ARG_SECTION_URL = "section_url"
+        private const val ARG_CATEGORY_URL = "category_url"
 
         @JvmStatic
-        fun newInstance(sectionUrl: String): SectionFragment {
-            return SectionFragment().apply {
+        fun newInstance(categoryUrl: String): CategoryFragment {
+            return CategoryFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_SECTION_URL, sectionUrl)
+                    putString(ARG_CATEGORY_URL, categoryUrl)
                 }
             }
         }

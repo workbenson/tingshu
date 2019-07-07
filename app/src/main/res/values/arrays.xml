@@ -4,6 +4,7 @@
         <item>520听书网</item>
         <!--<item>听书阁</item>-->
         <item>幻听网</item>
+        <item>静听网</item>
     </string-array>
 
     <string-array name="source_values">
@@ -11,6 +12,7 @@
         <item>http://m.520tingshu.com</item>
         <!--<item>http://www.tingshuge.com</item>-->
         <item>http://m.ting89.com</item>
+        <item>http://m.audio699.com</item>
     </string-array>
 
     <string-array name="play_speed">

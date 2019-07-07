@@ -30,25 +30,25 @@ import java.util.concurrent.TimeUnit
 object M56TingShu : TingShu {
     private lateinit var extractor: M56AudioUrlExtractor
 
-    override fun getMainSectionTabs(): List<SectionTab> {
+    override fun getMainCategoryTabs(): List<CategoryTab> {
         return listOf(
-            SectionTab("玄幻武侠", "http://m.ting56.com/paihangbang/1-1.html"),
-            SectionTab("都市言情", "http://m.ting56.com/paihangbang/2-2.html"),
-            SectionTab("恐怖悬疑", "http://m.ting56.com/paihangbang/3-3.html"),
-            SectionTab("网游竞技", "http://m.ting56.com/paihangbang/4-4.html"),
-            SectionTab("军事历史", "http://m.ting56.com/paihangbang/6-6.html"),
-            SectionTab("刑侦推理", "http://m.ting56.com/paihangbang/41-41.html")
+            CategoryTab("玄幻武侠", "http://m.ting56.com/paihangbang/1-1.html"),
+            CategoryTab("都市言情", "http://m.ting56.com/paihangbang/2-2.html"),
+            CategoryTab("恐怖悬疑", "http://m.ting56.com/paihangbang/3-3.html"),
+            CategoryTab("网游竞技", "http://m.ting56.com/paihangbang/4-4.html"),
+            CategoryTab("军事历史", "http://m.ting56.com/paihangbang/6-6.html"),
+            CategoryTab("刑侦推理", "http://m.ting56.com/paihangbang/41-41.html")
         )
     }
 
-    override fun getOtherSectionTabs(): List<SectionTab> {
+    override fun getOtherCategoryTabs(): List<CategoryTab> {
         return listOf(
-            SectionTab("职场商战", "http://m.ting56.com/paihangbang/7-7.html"),
-            SectionTab("百家讲坛", "http://m.ting56.com/paihangbang/10-10.html"),
-            SectionTab("广播剧", "http://m.ting56.com/paihangbang/40-40.html"),
-            SectionTab("幽默笑话", "http://m.ting56.com/paihangbang/44-44.html"),
-            SectionTab("相声", "http://m.ting56.com/book/43.html"),
-            SectionTab("儿童读物", "http://m.ting56.com/paihangbang/11-11.html")
+            CategoryTab("职场商战", "http://m.ting56.com/paihangbang/7-7.html"),
+            CategoryTab("百家讲坛", "http://m.ting56.com/paihangbang/10-10.html"),
+            CategoryTab("广播剧", "http://m.ting56.com/paihangbang/40-40.html"),
+            CategoryTab("幽默笑话", "http://m.ting56.com/paihangbang/44-44.html"),
+            CategoryTab("相声", "http://m.ting56.com/book/43.html"),
+            CategoryTab("儿童读物", "http://m.ting56.com/paihangbang/11-11.html")
         )
     }
 
@@ -85,7 +85,7 @@ object M56TingShu : TingShu {
         }
     }
 
-    override fun getSectionDetail(url: String): Single<Section> {
+    override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
             var currentPage: Int
             var totalPage: Int
@@ -115,7 +115,7 @@ object M56TingShu : TingShu {
                 list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
             }
 
-            return@fromCallable Section(list, currentPage, totalPage, url, nextUrl)
+            return@fromCallable Category(list, currentPage, totalPage, url, nextUrl)
         }
     }
 

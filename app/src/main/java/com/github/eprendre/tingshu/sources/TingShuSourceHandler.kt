@@ -8,12 +8,13 @@ import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.impl.HuanTingWang
+import com.github.eprendre.tingshu.sources.impl.JingTingWang
 import com.github.eprendre.tingshu.sources.impl.M520TingShu
 import com.github.eprendre.tingshu.sources.impl.M56TingShu
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
-import com.github.eprendre.tingshu.utils.Section
-import com.github.eprendre.tingshu.utils.SectionTab
+import com.github.eprendre.tingshu.utils.Category
+import com.github.eprendre.tingshu.utils.CategoryTab
 import com.github.eprendre.tingshu.widget.GlideApp
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
@@ -30,6 +31,7 @@ object TingShuSourceHandler {
     const val SOURCE_URL_520 = "http://m.520tingshu.com"
     const val SOURCE_URL_TINGSHUGE = "http://www.tingshuge.com"
     const val SOURCE_URL_HUANTINGWANG = "http://m.ting89.com"
+    const val SOURCE_URL_JINGTINGWANG = "http://m.audio699.com"
 
     private lateinit var tingShu: TingShu
     private val sourceList by lazy {
@@ -38,7 +40,8 @@ object TingShuSourceHandler {
             M56TingShu,
             M520TingShu,
 //            TingShuGe,
-            HuanTingWang
+            HuanTingWang,
+            JingTingWang
         )
         keyArray.zip(valueArray)
     }
@@ -56,17 +59,17 @@ object TingShuSourceHandler {
         return tingShu.search(keywords, page)
     }
 
-    fun getMainSections(): List<SectionTab> {
-        return tingShu.getMainSectionTabs()
+    fun getMainCategories(): List<CategoryTab> {
+        return tingShu.getMainCategoryTabs()
     }
 
-    fun getOtherSections(): List<SectionTab> {
-        return tingShu.getOtherSectionTabs()
+    fun getOtherCategories(): List<CategoryTab> {
+        return tingShu.getOtherCategoryTabs()
     }
 
     //以下的方法需要根据传入的url判断用哪个站点解析
-    fun getSectionDetail(url: String): Single<Section> {
-        return findSource(url).getSectionDetail(url)
+    fun getCategoryDetail(url: String): Single<Category> {
+        return findSource(url).getCategoryDetail(url)
     }
 
     fun getAudioUrlExtractor(
