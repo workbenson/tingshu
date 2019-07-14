@@ -1,5 +1,6 @@
 package com.github.eprendre.tingshu
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -238,6 +239,7 @@ class TingShuService : Service(), AnkoLogger {
         }
     }
 
+    @SuppressLint("CheckResult")
     private fun storeCurrentPosition() {
         Prefs.currentEpisodePosition = exoPlayer.currentPosition
         AppDatabase.getInstance(this@TingShuService)

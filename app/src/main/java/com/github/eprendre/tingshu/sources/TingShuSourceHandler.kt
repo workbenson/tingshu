@@ -7,10 +7,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
-import com.github.eprendre.tingshu.sources.impl.HuanTingWang
-import com.github.eprendre.tingshu.sources.impl.JingTingWang
-import com.github.eprendre.tingshu.sources.impl.M520TingShu
-import com.github.eprendre.tingshu.sources.impl.M56TingShu
+import com.github.eprendre.tingshu.sources.impl.*
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.utils.Category
@@ -32,6 +29,7 @@ object TingShuSourceHandler {
     const val SOURCE_URL_TINGSHUGE = "http://www.tingshuge.com"
     const val SOURCE_URL_HUANTINGWANG = "http://m.ting89.com"
     const val SOURCE_URL_JINGTINGWANG = "http://m.audio699.com"
+    const val SOURCE_URL_TINGSHUBAO = "https://www.tingshubao.com"
 
     private lateinit var tingShu: TingShu
     private val sourceList by lazy {
@@ -41,7 +39,8 @@ object TingShuSourceHandler {
             M520TingShu,
 //            TingShuGe,
             HuanTingWang,
-            JingTingWang
+            JingTingWang,
+            TingShuBao
         )
         keyArray.zip(valueArray)
     }
@@ -84,6 +83,9 @@ object TingShuSourceHandler {
         return findSource(bookUrl).playFromBookUrl(bookUrl)
     }
 
+    /**
+     * 判断请求时的 url， 选择对应的解析
+     */
     private fun findSource(url: String): TingShu {
         return sourceList
             .first { url.startsWith(it.first) }
