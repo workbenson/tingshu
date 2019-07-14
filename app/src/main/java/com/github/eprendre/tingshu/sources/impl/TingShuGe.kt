@@ -1,33 +1,22 @@
 package com.github.eprendre.tingshu.sources.impl
 
-import android.annotation.SuppressLint
-import android.graphics.BitmapFactory
-import android.os.Handler
-import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaMetadataCompat
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import com.github.eprendre.tingshu.App
-import com.github.eprendre.tingshu.R
-import com.github.eprendre.tingshu.extensions.*
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
+import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
-import com.github.eprendre.tingshu.utils.*
-import com.github.eprendre.tingshu.widget.RxBus
-import com.github.eprendre.tingshu.widget.RxEvent
+import com.github.eprendre.tingshu.utils.Book
+import com.github.eprendre.tingshu.utils.Category
+import com.github.eprendre.tingshu.utils.CategoryTab
+import com.github.eprendre.tingshu.utils.Episode
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
-import org.apache.commons.text.StringEscapeUtils
 import org.jsoup.Jsoup
 import java.net.URLEncoder
 
 object TingShuGe : TingShu {
-    private lateinit var extractor: TingShuGeAudioUrlExtractor
 
     override fun search(keywords: String, page: Int): Single<Pair<List<Book>, Int>> {
         return Single.fromCallable {
@@ -65,14 +54,11 @@ object TingShuGe : TingShu {
     }
 
     override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {
-        if (!TingShuGe::extractor.isInitialized) {
-            extractor =
-                TingShuGeAudioUrlExtractor(
-                    exoPlayer,
-                    dataSourceFactory
-                )
+        AudioUrlWebViewExtractor.setUp(exoPlayer, dataSourceFactory) { doc ->
+            val audioElement = doc.getElementById("jp_audio_0")
+            return@setUp audioElement?.attr("src")
         }
-        return extractor
+        return AudioUrlWebViewExtractor
     }
 
     override fun getMainCategoryTabs(): List<CategoryTab> {
@@ -141,113 +127,6 @@ object TingShuGe : TingShu {
                 list.add(Book(coverUrl, bookUrl, title, author, artist))
             }
             return@fromCallable Category(list, currentPage, totalPage, url, nextUrl)
-        }
-    }
-
-    private class TingShuGeAudioUrlExtractor(
-        private val exoPlayer: ExoPlayer,
-        private val dataSourceFactory: DataSource.Factory
-    ) : AudioUrlExtractor {
-        private val webView by lazy { WebView(App.appContext) }
-        private var isPageFinished = false
-        private var isAudioGet = false
-        private var isError = false
-        private var currentUrl = ""
-
-        init {
-            //jsoup 只能解析静态页面，使用 webview 可以省不少力气
-            webView.settings.javaScriptEnabled = true
-            webView.webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    if (currentUrl == url && !isPageFinished) {
-                        isPageFinished = true
-                        tryGetAudioSrc()
-                    }
-                }
-
-                override fun onReceivedError(
-                    view: WebView?,
-                    errorCode: Int,
-                    description: String?,
-                    failingUrl: String?
-                ) {
-                    when (errorCode) {
-                        ERROR_TIMEOUT, ERROR_HOST_LOOKUP -> {
-                            isError = true
-                            RxBus.post(RxEvent.ParsingPlayUrlErrorEvent())
-                        }
-                    }
-                }
-
-                @SuppressLint("NewApi")
-                override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
-                    onReceivedError(view, error.errorCode, error.description.toString(), request.url.toString())
-                }
-            }
-        }
-
-        override fun extract(url: String) {
-            isAudioGet = false
-            isPageFinished = false
-            isError = false
-            currentUrl = url
-            webView.loadUrl(url)
-        }
-
-        @Synchronized
-        private fun tryGetAudioSrc() {
-            if (isAudioGet || isError) {
-                return
-            }
-            //提取webview的html
-            webView.evaluateJavascript(
-                "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();"
-            ) { html ->
-                val unescapedHtml = StringEscapeUtils.unescapeJava(html)//提取出来的html需要unescape
-
-                //使用Jsoup解析html文本
-                val doc = Jsoup.parse(unescapedHtml)
-
-                val audioElement = doc.getElementById("jp_audio_0")
-                val audioUrl = audioElement?.attr("src")
-                if (audioUrl.isNullOrBlank()) {
-                    Handler().postDelayed({
-                        tryGetAudioSrc()
-                    }, 500)
-                    return@evaluateJavascript
-                }
-                if (isAudioGet) {
-                    return@evaluateJavascript
-                }
-                isAudioGet = true
-
-                var art = App.coverBitmap
-                if (art == null) {
-                    art = BitmapFactory.decodeResource(App.appContext.resources, R.drawable.ic_notification)
-                }
-
-                val bookname = Prefs.currentEpisodeName + " - " + Prefs.currentBookName
-
-                val metadata = MediaMetadataCompat.Builder()
-                    .apply {
-                        title = bookname
-                        artist = Prefs.artist
-                        mediaUri = audioUrl
-
-                        displayTitle = bookname
-                        displaySubtitle = Prefs.artist
-                        downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
-                        albumArt = art
-                    }
-                    .build()
-
-                val source = metadata.toMediaSource(dataSourceFactory)
-                exoPlayer.prepare(source)
-                if (Prefs.currentEpisodePosition > 0) {
-                    exoPlayer.seekTo(Prefs.currentEpisodePosition)
-                }
-                webView.loadUrl("about:blank")
-            }
         }
     }
 }
