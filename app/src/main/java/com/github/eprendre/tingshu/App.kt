@@ -19,6 +19,7 @@ class App : MultiDexApplication() {
         lateinit var appContext: Context
         var playList: List<Episode> = emptyList()
         var coverBitmap: Bitmap? = null
+        var isRetry = true
         fun currentEpisodeIndex() = playList.indexOfFirst { it.url == Prefs.currentEpisodeUrl }
         fun currentEpisode() = playList.first { it.url == Prefs.currentEpisodeUrl }
     }

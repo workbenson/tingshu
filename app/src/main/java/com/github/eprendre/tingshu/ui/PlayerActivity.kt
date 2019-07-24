@@ -494,10 +494,16 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
+        App.isRetry = false
         //当通知被划掉并且当前页面仍然存活时需要重新播放
         if (::myService.isInitialized && isBound && myService.exoPlayer.playbackState == Player.STATE_IDLE) {
             handleIntent()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        App.isRetry = true
     }
 
     override fun onDestroy() {
