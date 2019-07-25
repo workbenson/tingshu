@@ -32,6 +32,7 @@ import android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY
 import android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_NEXT
 import android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
 import android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP
+import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.extensions.isPlayEnabled
 import com.github.eprendre.tingshu.extensions.isPlaying
@@ -103,7 +104,7 @@ class NotificationBuilder(private val context: Context) {
                 .setContentText(description.subtitle)
                 .setContentTitle(description.title)
                 .setDeleteIntent(stopPendingIntent)
-                .setLargeIcon(description.iconBitmap)
+                .setLargeIcon(App.coverBitmap)
                 .setOnlyAlertOnce(true)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setStyle(mediaStyle)

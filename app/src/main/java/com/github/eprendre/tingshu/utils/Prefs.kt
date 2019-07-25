@@ -83,4 +83,8 @@ object Prefs {
     var lastUpdate: Long
         get() = prefs.getLong("last_update", 0)
         set(value) = prefs.edit().putLong("last_update", value).apply()
+
+    var showAlbumInLockScreen: Boolean
+        get() = prefs.getBoolean("show_album_art", false)
+        set(value) = prefs.edit().putBoolean("show_album_art", value).apply()
 }

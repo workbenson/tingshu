@@ -43,10 +43,6 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = { audioUrl ->
-                var art = App.coverBitmap
-                if (art == null) {
-                    art = BitmapFactory.decodeResource(App.appContext.resources, R.drawable.ic_notification)
-                }
 
                 val bookname = Prefs.currentEpisodeName + " - " + Prefs.currentBookName
 
@@ -59,7 +55,14 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
                         displayTitle = bookname
                         displaySubtitle = Prefs.artist
                         downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
-                        albumArt = art
+
+                        if (Prefs.showAlbumInLockScreen) {
+                            var art = App.coverBitmap
+                            if (art == null) {
+                                art = BitmapFactory.decodeResource(App.appContext.resources, R.drawable.ic_notification)
+                            }
+                            albumArt = art
+                        }
                     }
                     .build()
 

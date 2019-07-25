@@ -29,5 +29,12 @@
                 app:useSimpleSummaryProvider="true"/>
 
     </PreferenceCategory>
+    <PreferenceCategory
+            app:title="其它设置">
+        <SwitchPreference
+                app:key="show_album_art"
+                app:title="在锁屏显示封面背景 (仅部分系统可用，重启或者换书生效)"
+                app:defaultValue="false"/>
+    </PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>

@@ -133,11 +133,6 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
             compositeDisposable.clear()
             isAudioGet = true
 
-            var art = App.coverBitmap
-            if (art == null) {
-                art = BitmapFactory.decodeResource(App.appContext.resources, R.drawable.ic_notification)
-            }
-
             val bookname = Prefs.currentEpisodeName + " - " + Prefs.currentBookName
 
             val metadata = MediaMetadataCompat.Builder()
@@ -149,7 +144,13 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
                     displayTitle = bookname
                     displaySubtitle = Prefs.artist
                     downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
-                    albumArt = art
+                    if (Prefs.showAlbumInLockScreen) {
+                        var art = App.coverBitmap
+                        if (art == null) {
+                            art = BitmapFactory.decodeResource(App.appContext.resources, R.drawable.ic_notification)
+                        }
+                        albumArt = art
+                    }
                 }
                 .build()
 
