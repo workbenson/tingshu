@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
-import com.github.eprendre.tingshu.ui.adapters.CategoryAdapter
+import com.github.eprendre.tingshu.ui.adapters.SearchAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.EndlessRecyclerViewScrollListener
@@ -21,6 +21,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_search.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 
 class SearchActivity : AppCompatActivity(), AnkoLogger {
     private val compositeDisposable = CompositeDisposable()
@@ -31,8 +32,12 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     private lateinit var scrollListener: EndlessRecyclerViewScrollListener
 
     private val listAdapter by lazy {
-        CategoryAdapter {
+        SearchAdapter {
             //        Prefs.currentBookUrl = it.bookUrl//这个不能在这里赋值，在PlayerActivity检测后再赋值避免不必要的bug
+            if (it.coverUrl.isBlank()) {
+                toast("本条目加载中，请稍后...")
+                return@SearchAdapter
+            }
             Prefs.currentCover = it.coverUrl
             Prefs.currentBookName = it.title
             Prefs.artist = it.artist
@@ -136,5 +141,6 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     override fun onDestroy() {
         super.onDestroy()
         compositeDisposable.clear()
+        listAdapter.clear()
     }
 }

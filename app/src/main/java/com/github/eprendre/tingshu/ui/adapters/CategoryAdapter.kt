@@ -16,18 +16,18 @@ import org.jetbrains.anko.toast
 
 
 class CategoryAdapter(private val itemClickListener: (Book) -> Unit) :
-    ListAdapter<Book, SearchViewHolder>(Book.diffCallback) {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
+    ListAdapter<Book, CategoryViewHolder>(Book.diffCallback) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_search, parent, false)
-        return SearchViewHolder(view, itemClickListener)
+        return CategoryViewHolder(view, itemClickListener)
     }
 
-    override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 }
 
-class SearchViewHolder(view: View, itemClickListener: (Book) -> Unit) : RecyclerView.ViewHolder(view) {
+class CategoryViewHolder(view: View, itemClickListener: (Book) -> Unit) : RecyclerView.ViewHolder(view) {
     private val titleView = view.title_text
     private val authorView = view.author_text
     private val artistView = view.artist_text

@@ -24,9 +24,9 @@ import org.jsoup.nodes.Document
 import java.util.concurrent.TimeUnit
 
 /**
- * 某些网站的音频地址是异步加载的, Jsoup 搞不定，需要使用此类。
+ * TingChina 的 iframe 不能用通用的方法提取出来，先这样偷懒复制一下，以后有机会优化。
  */
-object AudioUrlWebViewExtractor : AudioUrlExtractor {
+object TingChinaAudioUrlWebViewExtractor : AudioUrlExtractor {
     private val compositeDisposable by lazy { CompositeDisposable() }
     private val webView by lazy { WebView(App.appContext) }
     private var isPageFinished = false
@@ -35,7 +35,7 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
     private var userAgent = "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.4) Gecko/20100101 Firefox/4.0"
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var dataSourceFactory: DataSource.Factory
-    private lateinit var parse: (Document) -> String?
+    private lateinit var parse: (String) -> String?
 
     init {
         //jsoup 只能解析静态页面，使用 webview 可以省不少力气
@@ -52,11 +52,6 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
         }
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
-                //56听书的页面没 redirect 但是 onPageFinished 会被多次调用
-//                    if (currentUrl == url && !isPageFinished) {
-//                        isPageFinished = true
-//                        tryGetAudioSrc()
-//                    }
             }
 
             override fun onReceivedError(
@@ -80,7 +75,7 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
         }
     }
 
-    fun setUp(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory, isDeskTop: Boolean = false, parse: (Document) -> String?) {
+    fun setUp(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory, isDeskTop: Boolean = false, parse: (String) -> String?) {
         this.exoPlayer = exoPlayer
         this.dataSourceFactory = dataSourceFactory
         this.parse = parse
@@ -123,10 +118,10 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
         }
         //提取webview的html
         webView.evaluateJavascript(
-            "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();"
+            "(function() { return ('<html>'+document.getElementById(\"playmedia\").contentDocument.documentElement.innerHTML+'</html>'); })();"
         ) { html ->
             val unescapedHtml = StringEscapeUtils.unescapeJava(html)//提取出来的html需要unescape
-            val audioUrl = parse(Jsoup.parse(unescapedHtml))
+            val audioUrl = parse(unescapedHtml)
             if (audioUrl.isNullOrBlank()) {
                 Handler().postDelayed({
                     tryGetAudioSrc()

@@ -30,6 +30,7 @@ object TingShuSourceHandler {
     const val SOURCE_URL_HUANTINGWANG = "http://m.ting89.com"
     const val SOURCE_URL_JINGTINGWANG = "http://m.audio699.com"
     const val SOURCE_URL_TINGSHUBAO = "https://www.tingshubao.com"
+    const val SOURCE_URL_TINGCHINA = "http://www.tingchina.com"
 
     private lateinit var tingShu: TingShu
     private val sourceList by lazy {
@@ -40,7 +41,8 @@ object TingShuSourceHandler {
 //            TingShuGe,
             HuanTingWang,
             JingTingWang,
-            TingShuBao
+            TingShuBao,
+            TingChina
         )
         keyArray.zip(valueArray)
     }

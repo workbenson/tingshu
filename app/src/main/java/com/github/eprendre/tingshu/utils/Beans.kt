@@ -27,12 +27,12 @@ data class Episode(val title: String, val url: String) {
 @Entity(tableName = "my_books", indices = [Index(value = ["book_url"], unique = true)])
 data class Book(
     @ColumnInfo(name = "cover_url")
-    val coverUrl: String,
+    var coverUrl: String,
     @ColumnInfo(name = "book_url")
     val bookUrl: String,
     val title: String,
-    val author: String,
-    val artist: String
+    var author: String,
+    var artist: String
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null
