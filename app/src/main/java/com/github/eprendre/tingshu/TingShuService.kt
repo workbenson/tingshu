@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -39,6 +40,7 @@ import com.google.android.exoplayer2.util.Util
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
@@ -48,6 +50,8 @@ import java.util.concurrent.TimeUnit
 class TingShuService : Service(), AnkoLogger {
     val myBinder = MyLocalBinder()
     private val compositeDisposable = CompositeDisposable()
+    private lateinit var disposable: Disposable
+    private var retryCount = 0
 
     lateinit var mediaSession: MediaSessionCompat
     private lateinit var mediaController: MediaControllerCompat
@@ -101,9 +105,18 @@ class TingShuService : Service(), AnkoLogger {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 when (playbackState) {
                     Player.STATE_ENDED -> mediaController.transportControls.skipToNext()
+                    Player.STATE_READY -> retryCount = 0
                 }
             }
         })
+        disposable = RxBus.toFlowable(RxEvent.ParsingPlayUrlErrorEvent::class.java)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                if (App.isRetry && retryCount < 3) {
+                    mediaController.transportControls.playFromUri(Uri.parse(Prefs.currentEpisodeUrl), null)
+                    retryCount.inc()
+                }
+            }
     }
 
     override fun onBind(intent: Intent): IBinder? {
