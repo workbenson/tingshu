@@ -18,6 +18,7 @@
 * [http://m.ting56.com](http://m.ting56.com)
 * [http://m.audio699.com](http://m.audio699.com)
 * [https://www.tingshubao.com](https://www.tingshubao.com)
+* [http://www.tingchina.com](http://www.tingchina.com)
 * [http://www.tingshuge.com](http://www.tingshuge.com)(现在挂了，不知道啥时候能好。)
 
 ## 注意事项
