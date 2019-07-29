@@ -5,10 +5,7 @@ import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
-import com.github.eprendre.tingshu.utils.Book
-import com.github.eprendre.tingshu.utils.Category
-import com.github.eprendre.tingshu.utils.CategoryTab
-import com.github.eprendre.tingshu.utils.Episode
+import com.github.eprendre.tingshu.utils.*
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
@@ -56,6 +53,7 @@ object TingShuBao : TingShu {
                 Episode(it.text(), it.attr("abs:href"))
             }
             App.playList = episodes
+            Prefs.currentIntro = doc.selectFirst(".book-des").ownText()
             return@fromCallable null
         }
     }

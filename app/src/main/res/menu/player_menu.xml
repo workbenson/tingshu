@@ -9,6 +9,12 @@
             app:showAsAction="always"
             />
     <item
+            android:id="@+id/desc"
+            android:icon="@drawable/ic_description_white_24dp"
+            android:title="description"
+            app:showAsAction="always"
+            />
+    <item
             android:id="@+id/favorite"
             android:icon="@drawable/ic_favorite_border"
             android:title="favorite"

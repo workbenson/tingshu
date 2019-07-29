@@ -197,6 +197,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             .subscribe({
                 artist_text.text = "${Prefs.artist}"
                 episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
+                invalidateOptionsMenu()
                 state_layout.showContent()
                 tintColor()
 
@@ -562,6 +563,12 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 })
                 .addTo(compositeDisposable)
         }
+        val descItem = menu.findItem(R.id.desc)
+        toolbarIconColor?.let { color ->
+            descItem.icon.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+        }
+        descItem.isVisible = !Prefs.currentIntro.isNullOrBlank()
+
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -609,6 +616,14 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                             it.printStackTrace()
                         })
                         .addTo(compositeDisposable)
+                }
+            }
+            R.id.desc -> {
+                Prefs.currentIntro?.let {
+                    AlertDialog.Builder(this)
+                        .setMessage(it)
+                        .setCancelable(true)
+                        .show()
                 }
             }
         }

@@ -73,6 +73,13 @@ object Prefs {
         get() = prefs.getString("current_cover", "")
         set(value) = prefs.edit().putString("current_cover", value).apply()
 
+    /**
+     * 当前简介
+     */
+    var currentIntro: String?
+        get() = prefs.getString("current_intro", "")
+        set(value) = prefs.edit().putString("current_intro", value).apply()
+
     var source: String
         get() = prefs.getString("current_source", TingShuSourceHandler.SOURCE_URL_HUANTINGWANG)!!
         set(value) = prefs.edit().putString("current_source", value).apply()

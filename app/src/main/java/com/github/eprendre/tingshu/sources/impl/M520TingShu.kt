@@ -72,6 +72,7 @@ object M520TingShu : TingShu {
             }
 
             App.playList = episodes
+            Prefs.currentIntro = doc.getElementById("voddetail").ownText()
             return@fromCallable null
         }
     }

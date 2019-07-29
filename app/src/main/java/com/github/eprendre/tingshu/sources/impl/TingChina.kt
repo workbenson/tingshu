@@ -2,10 +2,7 @@ package com.github.eprendre.tingshu.sources.impl
 
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.sources.*
-import com.github.eprendre.tingshu.utils.Book
-import com.github.eprendre.tingshu.utils.Category
-import com.github.eprendre.tingshu.utils.CategoryTab
-import com.github.eprendre.tingshu.utils.Episode
+import com.github.eprendre.tingshu.utils.*
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
@@ -43,6 +40,7 @@ object TingChina : TingShu {
                 Episode(it.text(), it.attr("abs:href"))
             }
             App.playList = episodes
+            Prefs.currentIntro = doc.selectFirst(".main03 .book02").ownText()
             return@fromCallable null
         }
     }
