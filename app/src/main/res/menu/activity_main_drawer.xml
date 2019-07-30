@@ -32,6 +32,10 @@
                     android:icon="@drawable/ic_settings_applications"
                     android:title="@string/title_activity_settings"/>
             <item
+                    android:id="@+id/nav_clear_history"
+                    android:icon="@drawable/ic_clear_all_white_24dp"
+                    android:title="清除搜索记录"/>
+            <item
                     android:id="@+id/nav_update"
                     android:icon="@drawable/ic_system_update_black_24dp"
                     android:title="检查更新"/>

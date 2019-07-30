@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
+import android.provider.SearchRecentSuggestions
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.SpannableString
@@ -29,6 +30,7 @@ import com.github.eprendre.tingshu.ui.adapters.CategoryPagerAdapter
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.utils.CategoryTab
 import com.github.eprendre.tingshu.widget.GlideApp
+import com.github.eprendre.tingshu.widget.MySuggestionProvider
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
@@ -85,6 +87,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 }
                 R.id.nav_settings -> {
                     startActivity<SettingsActivity>()
+                }
+                R.id.nav_clear_history -> {
+                    SearchRecentSuggestions(this, MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE)
+                        .clearHistory()
                 }
                 R.id.nav_update -> {
                     if (System.currentTimeMillis() - Prefs.lastUpdate <

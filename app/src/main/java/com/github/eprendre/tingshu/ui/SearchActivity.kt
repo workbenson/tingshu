@@ -1,6 +1,10 @@
 package com.github.eprendre.tingshu.ui
 
+import android.app.SearchManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.provider.SearchRecentSuggestions
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -13,6 +17,7 @@ import com.github.eprendre.tingshu.ui.adapters.SearchAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.EndlessRecyclerViewScrollListener
+import com.github.eprendre.tingshu.widget.MySuggestionProvider
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -53,6 +58,22 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
         initViews()
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent == null) {
+            return
+        }
+        if (Intent.ACTION_SEARCH == intent.action) {
+            intent.getStringExtra(SearchManager.QUERY)?.also { query ->
+                SearchRecentSuggestions(this, MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE)
+                    .saveRecentQuery(query, null)
+                keywords = query
+                supportActionBar?.title = keywords
+                search()
+            }
+        }
+    }
+
     private fun initViews() {
         state_layout.setErrorText("搜索出错啦")
         state_layout.setEmptyText("暂无搜索结果")
@@ -80,26 +101,31 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_menu, menu)
 
+        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         val searchView = menu.findItem(R.id.search).actionView as SearchView
-        searchView.isIconified = false
-        searchView.queryHint = "搜索"
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null && query.isNotBlank()) {
-                    keywords = query
-                    supportActionBar?.title = keywords
-                    search()
-                    searchView.setQuery("", false)
-                    searchView.clearFocus()
-                    searchView.isIconified = true
-                }
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return true
-            }
-        })
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        searchView.setIconifiedByDefault(false) // Do not iconify the widget; expand it by default
+        searchView.isSubmitButtonEnabled = true
+        searchView.isQueryRefinementEnabled = true
+//        searchView.isIconified = false
+//        searchView.queryHint = "搜索"
+//        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(query: String?): Boolean {
+//                if (query != null && query.isNotBlank()) {
+//                    keywords = query
+//                    supportActionBar?.title = keywords
+//                    search()
+//                    searchView.setQuery("", false)
+//                    searchView.clearFocus()
+//                    searchView.isIconified = true
+//                }
+//                return true
+//            }
+//
+//            override fun onQueryTextChange(newText: String?): Boolean {
+//                return true
+//            }
+//        })
         return true
     }
 
