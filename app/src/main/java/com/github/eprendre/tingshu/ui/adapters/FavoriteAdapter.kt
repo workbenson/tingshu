@@ -10,13 +10,12 @@ import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.widget.GlideApp
 import kotlinx.android.synthetic.main.item_favorite.view.*
-import org.jetbrains.anko.toast
 
-class FavoriteAdapter(private val itemClickListener: (Book) -> Unit) :
+class FavoriteAdapter(private val itemClickListener: (Book) -> Unit, private val itemLongClickListener: (Book) -> Unit) :
     ListAdapter<Book, FavoriteViewHolder>(Book.diffCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoriteViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_favorite, parent, false)
-        return FavoriteViewHolder(view, itemClickListener)
+        return FavoriteViewHolder(view, itemClickListener, itemLongClickListener)
     }
 
     override fun onBindViewHolder(holder: FavoriteViewHolder, position: Int) {
@@ -25,7 +24,7 @@ class FavoriteAdapter(private val itemClickListener: (Book) -> Unit) :
 
 }
 
-class FavoriteViewHolder(view: View, itemClickListener: (Book) -> Unit) : RecyclerView.ViewHolder(view) {
+class FavoriteViewHolder(view: View, itemClickListener: (Book) -> Unit, itemLongClickListener: (Book) -> Unit) : RecyclerView.ViewHolder(view) {
     private val titleView = view.title_text
     private val authorView = view.author_text
     private val artistView = view.artist_text
@@ -38,9 +37,7 @@ class FavoriteViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycl
             item?.let(itemClickListener)
         }
         view.setOnLongClickListener {
-            item?.let {
-                view.context.toast(it.bookUrl)
-            }
+            item?.let(itemLongClickListener)
             return@setOnLongClickListener true
         }
     }

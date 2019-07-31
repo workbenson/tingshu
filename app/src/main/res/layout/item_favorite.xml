@@ -58,9 +58,10 @@
                 android:id="@+id/episode_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textColor="@color/secondary_text"
                 android:ellipsize="end"
+                android:maxLines="2"
                 tools:text="第100章"
                 />
     </LinearLayout>
