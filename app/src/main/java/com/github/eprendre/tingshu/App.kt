@@ -2,9 +2,11 @@ package com.github.eprendre.tingshu
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.multidex.MultiDex
 import androidx.multidex.MultiDexApplication
 import com.github.eprendre.tingshu.utils.Episode
 import com.github.eprendre.tingshu.utils.Prefs
+import com.tencent.bugly.crashreport.CrashReport
 import io.reactivex.plugins.RxJavaPlugins
 
 class App : MultiDexApplication() {
@@ -13,6 +15,12 @@ class App : MultiDexApplication() {
         appContext = this
         Prefs.init()
         RxJavaPlugins.setErrorHandler { }
+        CrashReport.initCrashReport(applicationContext, "1103deea28", true)
+    }
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        MultiDex.install(this)
     }
 
     companion object {

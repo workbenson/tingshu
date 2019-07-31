@@ -75,6 +75,7 @@ dependencies {
     implementation "androidx.room:room-rxjava2:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation 'org.apache.commons:commons-text:1.6'
+    implementation 'com.tencent.bugly:crashreport:3.0.0'
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.willowtreeapps.assertk:assertk-jvm:0.16'
     androidTestImplementation 'androidx.test:core:1.1.0'
