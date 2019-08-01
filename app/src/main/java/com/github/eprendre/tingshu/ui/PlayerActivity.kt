@@ -12,6 +12,7 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -93,9 +94,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         state_layout.showLoading()
 
-        val intent = Intent(this, TingShuService::class.java)
-        startService(intent)
-        bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
+        startAndBindService()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -150,7 +149,17 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         super.onNewIntent(intent)
         setIntent(intent)
         state_layout.showLoading()
-        handleIntent()
+        if (!::myService.isInitialized) {
+            startAndBindService()
+        } else {
+            handleIntent()
+        }
+    }
+
+    private fun startAndBindService() {
+        val intent = Intent(this, TingShuService::class.java)
+        startService(intent)
+        bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
     }
 
     /**
@@ -498,7 +507,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         App.isRetry = false
         //当通知被划掉并且当前页面仍然存活时需要重新播放
         if (::myService.isInitialized && isBound && myService.exoPlayer.playbackState == Player.STATE_IDLE) {
-            handleIntent()
+            Handler().postDelayed({//https://stackoverflow.com/questions/52013545/android-9-0-not-allowed-to-start-service-app-is-in-background-after-onresume
+                handleIntent()
+            }, 300)
         }
     }
 
