@@ -53,7 +53,7 @@ object TingShuBao : TingShu {
                 Episode(it.text(), it.attr("abs:href"))
             }
             App.playList = episodes
-            Prefs.currentIntro = doc.selectFirst(".book-des").ownText()
+            Prefs.currentIntro = doc.selectFirst(".book-des").text()
             return@fromCallable null
         }
     }

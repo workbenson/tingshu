@@ -38,7 +38,7 @@ class TingShuBaoUnitTest {
             val (author, artist) = element.select(".list-book-cs .book-author").let {
                 Pair(it[0].ownText(), it[1].ownText())
             }
-            val intro = element.selectFirst(".list-book-des").ownText()
+            val intro = element.selectFirst(".list-book-des").text()
             list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
         }
         list.forEach { println(it) }
