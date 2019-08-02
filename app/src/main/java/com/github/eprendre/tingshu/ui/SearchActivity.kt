@@ -55,6 +55,10 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onStart() {
+        super.onStart()
         initViews()
     }
 
@@ -164,8 +168,8 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
             .addTo(compositeDisposable)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         compositeDisposable.clear()
         listAdapter.clear()
     }

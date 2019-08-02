@@ -54,7 +54,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         volumeControlStream = AudioManager.STREAM_MUSIC
+    }
 
+    override fun onStart() {
+        super.onStart()
         updateTitle()
         initViews()
 
@@ -276,8 +279,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         unbindService(myConnection)
     }
 }

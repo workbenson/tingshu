@@ -51,6 +51,7 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.android.synthetic.main.activity_player.*
+import kotlinx.android.synthetic.main.dialog_countdown.view.*
 import kotlinx.android.synthetic.main.dialog_episodes.view.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.dip
@@ -67,7 +68,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private var toolbarIconColor: Int? = null
     //    private var isFavorite = false
     private var favoriteBook: Book? = null
-    private val dialog: BottomSheetDialog by lazy {
+    private val dialogEpisodes: BottomSheetDialog by lazy {
         BottomSheetDialog(this).apply {
             setContentView(dialogView)
         }
@@ -81,7 +82,53 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private val listAdapter = EpisodeAdapter {
         Prefs.currentEpisodePosition = 0
         mediaController.transportControls.playFromUri(Uri.parse(it.url), null)
-        dialog.dismiss()
+        dialogEpisodes.dismiss()
+    }
+    private val dialogCountDown: BottomSheetDialog by lazy {
+        BottomSheetDialog(this).apply {
+            setContentView(countDownView)
+        }
+    }
+    private val countDownView by lazy {
+        layoutInflater.inflate(R.layout.dialog_countdown, null).apply {
+            button_ten.setOnClickListener { updateCountDown(10) }
+            button_twenty.setOnClickListener { updateCountDown(20) }
+            button_thirty.setOnClickListener { updateCountDown(30) }
+            button_countdown_cancel.setOnClickListener {
+                timer_button.text = "定时关闭"
+                myService.resetTimer()
+                dialogCountDown.dismiss()
+            }
+            button_countdown_ok.setOnClickListener {
+                myService.resetTimer()
+                myService.setTimerSeconds(seekbar_countdown.progress.toLong() * 60)
+                dialogCountDown.dismiss()
+            }
+            seekbar_countdown.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        var stepProgress = progress
+                        stepProgress /= 10
+                        stepProgress *= 10
+                        if (stepProgress != progress) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                seekBar.setProgress(stepProgress, true)
+                            } else {
+                                seekBar.progress = stepProgress
+                            }
+                        }
+                        updateCountDown(stepProgress)
+                    }
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    updateCountDown(seekBar.progress)
+                }
+            })
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -90,10 +137,12 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         setContentView(R.layout.activity_player)
         setSupportActionBar(toolbar)
         volumeControlStream = AudioManager.STREAM_MUSIC
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        state_layout.showLoading()
+    }
 
+    override fun onStart() {
+        super.onStart()
+        state_layout.showLoading()
         startAndBindService()
     }
 
@@ -337,26 +386,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
         //定时关闭
         timer_button.setOnClickListener {
-            val list = arrayOf(
-                "取消定时",
-                "10分钟",
-                "20分钟",
-                "30分钟",
-                "10秒钟(测试用)"
-            )
-            AlertDialog.Builder(this)
-                .setItems(list) { _, which ->
-                    myService.resetTimer()
-                    when (which) {
-                        0 -> timer_button.text = "定时关闭"
-                        1 -> myService.setTimerSeconds(10 * 60)
-                        2 -> myService.setTimerSeconds(20 * 60)
-                        3 -> myService.setTimerSeconds(30 * 60)
-                        4 -> myService.setTimerSeconds(10)
-                    }
-                }
-                .create()
-                .show()
+            dialogCountDown.show()
         }
 
         //监听倒计时, 更新按钮的剩余时间
@@ -499,7 +529,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
     private fun openEpisodesDialog() {
         dialogView.recycler_view.scrollToPosition(App.currentEpisodeIndex())
-        dialog.show()
+        dialogEpisodes.show()
     }
 
     override fun onResume() {
@@ -507,7 +537,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         App.isRetry = false
         //当通知被划掉并且当前页面仍然存活时需要重新播放
         if (::myService.isInitialized && isBound && myService.exoPlayer.playbackState == Player.STATE_IDLE) {
-            Handler().postDelayed({//https://stackoverflow.com/questions/52013545/android-9-0-not-allowed-to-start-service-app-is-in-background-after-onresume
+            Handler().postDelayed({
+                //https://stackoverflow.com/questions/52013545/android-9-0-not-allowed-to-start-service-app-is-in-background-after-onresume
                 handleIntent()
             }, 300)
         }
@@ -518,8 +549,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         App.isRetry = true
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         compositeDisposable.clear()
         unbindService(myConnection)
     }
@@ -641,6 +672,18 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         return super.onOptionsItemSelected(item)
     }
 
+    private fun updateCountDown(minutes: Int) {
+        var actualMinutes = minutes
+        if (actualMinutes > 240) {
+            actualMinutes = 240
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            countDownView.seekbar_countdown.setProgress(actualMinutes, true)
+        } else {
+            countDownView.seekbar_countdown.progress = actualMinutes
+        }
+        countDownView.text_countdown.text = "定时关闭：$actualMinutes 分钟"
+    }
 
     companion object {
         const val ARG_BOOKURL = "bookurl"

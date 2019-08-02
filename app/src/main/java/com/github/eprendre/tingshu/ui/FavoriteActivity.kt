@@ -57,6 +57,10 @@ class FavoriteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_favorite)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onStart() {
+        super.onStart()
         initViews()
         AppDatabase.getInstance(this)
             .bookDao()
@@ -95,8 +99,8 @@ class FavoriteActivity : AppCompatActivity() {
         return true
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         compositeDisposable.clear()
     }
 }

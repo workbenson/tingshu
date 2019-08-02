@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        >
+
+    <TextView
+            android:id="@+id/text_countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primary_text"
+            android:text="定时关闭:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            />
+
+    <LinearLayout
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+        <Button
+                android:id="@+id/button_ten"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="10 分钟"
+                style="@style/Widget.AppCompat.Button.Colored"
+                />
+
+        <Button
+                android:id="@+id/button_twenty"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="20 分钟"
+                style="@style/Widget.AppCompat.Button.Colored"
+                />
+
+        <Button
+                android:id="@+id/button_thirty"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="30 分钟"
+                style="@style/Widget.AppCompat.Button.Colored"
+                />
+    </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/seekbar_countdown"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="241"
+            />
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            >
+
+        <Button
+                android:id="@+id/button_countdown_cancel"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="取消"
+                style="@style/Widget.AppCompat.Button.Colored"
+                />
+
+        <Button
+                android:id="@+id/button_countdown_ok"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="确定"
+                style="@style/Widget.AppCompat.Button.Colored"
+                />
+    </LinearLayout>
+</LinearLayout>
