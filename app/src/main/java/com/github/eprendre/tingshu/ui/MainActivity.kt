@@ -215,9 +215,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                                             i.data = Uri.parse(downloadUrl)
                                             startActivity(i)
                                         }
-                                        .setNegativeButton("百度网盘更新[提取码: dj51]") { _, _ ->
+                                        .setNegativeButton("蓝奏云") { _, _ ->
                                             val i = Intent(Intent.ACTION_VIEW)
-                                            i.data = Uri.parse("https://pan.baidu.com/s/1v9IRgVDEFQ17rAf3aWS9Gw")
+                                            i.data = Uri.parse("https://www.lanzous.com/b873905")
                                             startActivity(i)
                                         }
                                         .setNeutralButton("取消", null)
