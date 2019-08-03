@@ -27,11 +27,7 @@ import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE
-import android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY
-import android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-import android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-import android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP
+import android.support.v4.media.session.PlaybackStateCompat.*
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.extensions.isPlayEnabled
@@ -65,6 +61,15 @@ class NotificationBuilder(private val context: Context) {
             R.drawable.exo_controls_next,
             context.getString(R.string.notification_skip_to_next),
             MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT))
+    private val rewindAction = NotificationCompat.Action(
+        R.drawable.exo_controls_rewind,
+        context.getString(R.string.notification_rewind),
+        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_REWIND))
+    private val fastForwardAction = NotificationCompat.Action(
+        R.drawable.exo_controls_fastforward,
+        context.getString(R.string.notification_fast_forward),
+        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_FAST_FORWARD))
+
     private val stopPendingIntent =
             MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
 
@@ -85,11 +90,14 @@ class NotificationBuilder(private val context: Context) {
             builder.addAction(skipToPreviousAction)
             ++playPauseIndex
         }
+        builder.addAction(rewindAction)
+        ++playPauseIndex
         if (playbackState.isPlaying) {
             builder.addAction(pauseAction)
         } else if (playbackState.isPlayEnabled) {
             builder.addAction(playAction)
         }
+        builder.addAction(fastForwardAction)
         if (playbackState.isSkipToNextEnabled) {
             builder.addAction(skipToNextAction)
         }
