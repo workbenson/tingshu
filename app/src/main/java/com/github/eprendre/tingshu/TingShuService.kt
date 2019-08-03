@@ -236,9 +236,9 @@ class TingShuService : Service(), AnkoLogger {
                         isForegroundService = false
 
                         // If playback has ended, also stop the service.
-                        if (updatedState == PlaybackStateCompat.STATE_NONE) {
-                            stopSelf()
-                        }
+//                        if (updatedState == PlaybackStateCompat.STATE_NONE) {
+//                            stopSelf()
+//                        }
 
                         if (notification != null) {
                             notificationManager.notify(NOW_PLAYING_NOTIFICATION, notification)
