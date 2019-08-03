@@ -21,44 +21,28 @@
             android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="horizontal"
             >
 
-        <Button
-                android:id="@+id/button_ten"
+        <NumberPicker
+                android:descendantFocusability="blocksDescendants"
+                android:layout_marginRight="8dp"
+                android:id="@+id/np_hour"
+                android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="10 分钟"
-                style="@style/Widget.AppCompat.Button.Colored"
                 />
 
-        <Button
-                android:id="@+id/button_twenty"
+        <NumberPicker
+                android:descendantFocusability="blocksDescendants"
+                android:layout_marginLeft="8dp"
+                android:id="@+id/np_minute"
+                android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="20 分钟"
-                style="@style/Widget.AppCompat.Button.Colored"
-                />
-
-        <Button
-                android:id="@+id/button_thirty"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="30 分钟"
-                style="@style/Widget.AppCompat.Button.Colored"
                 />
     </LinearLayout>
-
-    <androidx.appcompat.widget.AppCompatSeekBar
-            android:id="@+id/seekbar_countdown"
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="241"
-            />
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -72,7 +56,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="取消"
+                android:text="取消/停止计时"
                 style="@style/Widget.AppCompat.Button.Colored"
                 />
 

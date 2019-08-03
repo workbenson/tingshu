@@ -91,9 +91,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     }
     private val countDownView by lazy {
         layoutInflater.inflate(R.layout.dialog_countdown, null).apply {
-            button_ten.setOnClickListener { updateCountDown(10) }
-            button_twenty.setOnClickListener { updateCountDown(20) }
-            button_thirty.setOnClickListener { updateCountDown(30) }
             button_countdown_cancel.setOnClickListener {
                 timer_button.text = "定时关闭"
                 myService.resetTimer()
@@ -101,33 +98,21 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             }
             button_countdown_ok.setOnClickListener {
                 myService.resetTimer()
-                myService.setTimerSeconds(seekbar_countdown.progress.toLong() * 60)
+                val hours = np_hour.value
+                val minutesIndex = np_minute.value
+                val seconds = hours * 60 * 60 + minutesIndex * 5 * 60
+                myService.setTimerSeconds(seconds.toLong())
                 dialogCountDown.dismiss()
             }
-            seekbar_countdown.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    if (fromUser) {
-                        var stepProgress = progress
-                        stepProgress /= 10
-                        stepProgress *= 10
-                        if (stepProgress != progress) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                seekBar.setProgress(stepProgress, true)
-                            } else {
-                                seekBar.progress = stepProgress
-                            }
-                        }
-                        updateCountDown(stepProgress)
-                    }
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar) {
-                }
-
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    updateCountDown(seekBar.progress)
-                }
-            })
+            //formatter 默认值有 bug，于是采用 displayedValues
+            np_hour.minValue = 0
+            np_hour.maxValue = 23
+            np_hour.displayedValues = (0..23).map { "$it 小时" }.toTypedArray()
+            val minuteArray = (0..59).filter { it % 5 == 0 }.map { "$it 分钟" }.toTypedArray()
+            np_minute.minValue = 0
+            np_minute.maxValue = 11
+            np_minute.displayedValues = minuteArray
+            np_minute.value = 4
         }
     }
 
@@ -670,19 +655,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun updateCountDown(minutes: Int) {
-        var actualMinutes = minutes
-        if (actualMinutes > 240) {
-            actualMinutes = 240
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            countDownView.seekbar_countdown.setProgress(actualMinutes, true)
-        } else {
-            countDownView.seekbar_countdown.progress = actualMinutes
-        }
-        countDownView.text_countdown.text = "定时关闭：$actualMinutes 分钟"
     }
 
     companion object {
