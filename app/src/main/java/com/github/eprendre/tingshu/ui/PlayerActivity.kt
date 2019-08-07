@@ -520,6 +520,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     override fun onResume() {
         super.onResume()
         App.isRetry = false
+        timer_button.text = "定时关闭"//如果计时器在此页面切为后台时结束了，按钮文字需要重置一下。
         //当通知被划掉并且当前页面仍然存活时需要重新播放
         if (::myService.isInitialized && isBound && myService.exoPlayer.playbackState == Player.STATE_IDLE) {
             Handler().postDelayed({
