@@ -8,6 +8,7 @@ import android.content.ServiceConnection
 import android.content.res.ColorStateList
 import android.graphics.Outline
 import android.graphics.PorterDuff
+import android.graphics.drawable.RippleDrawable
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
@@ -313,13 +314,23 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     seekbar.progressDrawable.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
                     seekbar.thumb.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
                     text_duration.setTextColor(swatch.bodyTextColor)
-                    button_previous.setColorFilter(swatch.bodyTextColor)
-                    button_rewind.setColorFilter(swatch.bodyTextColor)
-                    button_play.setColorFilter(swatch.bodyTextColor)
-                    button_fastforward.setColorFilter(swatch.bodyTextColor)
-                    button_next.setColorFilter(swatch.bodyTextColor)
                     play_progress.indeterminateDrawable.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
                     bodyTextColor = swatch.bodyTextColor
+                    listOf(button_fastforward, button_play, button_rewind, button_previous, button_next)
+                        .forEach {
+                            it.setColorFilter(swatch.bodyTextColor)
+                            val background = it.background
+                            if (background is RippleDrawable) {
+                                background.setColor(
+                                    ColorStateList.valueOf(
+                                        ColorUtils.setAlphaComponent(
+                                            swatch.bodyTextColor,
+                                            50
+                                        )
+                                    )
+                                )
+                            }
+                        }
                 }
             }
         }
