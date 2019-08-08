@@ -7,6 +7,7 @@
         <item>静听网(限制较多)</item>
         <item>听书宝</item>
         <item>TingChina</item>
+        <item>天天评书网</item>
     </string-array>
 
     <string-array name="source_values">
@@ -17,6 +18,7 @@
         <item>http://m.audio699.com</item>
         <item>https://www.tingshubao.com</item>
         <item>http://www.tingchina.com</item>
+        <item>https://www.pingshu365.com</item>
     </string-array>
 
     <string-array name="play_speed">
