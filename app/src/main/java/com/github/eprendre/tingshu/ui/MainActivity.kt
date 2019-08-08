@@ -27,6 +27,7 @@ import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.adapters.CategoryPagerAdapter
+import com.github.eprendre.tingshu.utils.CategoryMenu
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.utils.CategoryTab
 import com.github.eprendre.tingshu.widget.GlideApp
@@ -48,28 +49,46 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private lateinit var myService: TingShuService
     private val headerView by lazy { nav_view.getHeaderView(0) }
     private lateinit var categoryPagerAdapter: CategoryPagerAdapter
+    private lateinit var currentCategoryMenus: List<CategoryMenu>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         volumeControlStream = AudioManager.STREAM_MUSIC
+        currentCategoryMenus = TingShuSourceHandler.getCategoryMenus()
+        refreshMenus(true)
+        checkUpdate()
     }
 
     override fun onStart() {
         super.onStart()
         updateTitle()
+        refreshMenus()
         initViews()
 
         val intent = Intent(this, TingShuService::class.java)
         startService(intent)
         bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
-        checkUpdate()
+    }
+
+    private fun refreshMenus(force: Boolean = false) {
+        if (force || currentCategoryMenus != TingShuSourceHandler.getCategoryMenus()) {
+            currentCategoryMenus = TingShuSourceHandler.getCategoryMenus()
+            val menuItem = nav_view.menu.getItem(0)
+            menuItem.subMenu.clear()
+            currentCategoryMenus.forEach { categoryMenu ->
+                menuItem.subMenu
+                    .add(R.id.group_category, categoryMenu.id, Menu.NONE, categoryMenu.title)
+                    .setIcon(categoryMenu.icon)
+            }
+            menuItem.subMenu.setGroupCheckable(R.id.group_category, true, true)
+            nav_view.setCheckedItem(currentCategoryMenus.first().id)
+            initCategoryAdapter(currentCategoryMenus[0].tabs)
+        }
     }
 
     private fun initViews() {
-        nav_view.setCheckedItem(R.id.nav_home)
-        initCategoryAdapter(TingShuSourceHandler.getMainCategories())
         tabs.setupWithViewPager(view_pager)
 
         val toggle = ActionBarDrawerToggle(
@@ -77,13 +96,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-        nav_view.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.nav_home -> {
-                    initCategoryAdapter(TingShuSourceHandler.getMainCategories())
-                }
-                R.id.nav_other -> {
-                    initCategoryAdapter(TingShuSourceHandler.getOtherCategories())
+        nav_view.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                in currentCategoryMenus.map { it.id } -> {
+                    initCategoryAdapter(currentCategoryMenus.first { it.id == item.itemId }.tabs)
                 }
                 R.id.nav_favorite -> {
                     startActivity<FavoriteActivity>()
@@ -154,27 +170,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 }, 250)
             }
             fab.show()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (isBound) {
-            updatePlayerInfo()
-        }
-        when (nav_view.checkedItem!!.itemId) {
-            R.id.nav_home -> {
-                if (categoryPagerAdapter.categories != TingShuSourceHandler.getMainCategories()) {
-                    initCategoryAdapter(TingShuSourceHandler.getMainCategories())
-                    updateTitle()
-                }
-            }
-            R.id.nav_other -> {
-                if (categoryPagerAdapter.categories != TingShuSourceHandler.getOtherCategories()) {
-                    initCategoryAdapter(TingShuSourceHandler.getOtherCategories())
-                    updateTitle()
-                }
-            }
         }
     }
 

@@ -1,7 +1,9 @@
 package com.github.eprendre.tingshu.sources.impl
 
+import android.view.View
 import androidx.core.text.isDigitsOnly
 import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
@@ -15,33 +17,35 @@ import org.jsoup.Jsoup
 import java.net.URLEncoder
 
 object M520TingShu : TingShu {
-
-    override fun getMainCategoryTabs(): List<CategoryTab> {
-        return listOf(
-            CategoryTab("玄幻奇幻", "http://m.520tingshu.com/list/?1.html"),
-            CategoryTab("修真武侠", "http://m.520tingshu.com/list/?2.html"),
-            CategoryTab("恐怖灵异", "http://m.520tingshu.com/list/?3.html"),
-            CategoryTab("都市言情", "http://m.520tingshu.com/list/?4.html"),
-            CategoryTab("穿越有声", "http://m.520tingshu.com/list/?43.html"),
-            CategoryTab("网游小说", "http://m.520tingshu.com/list/?6.html")
+    override fun getCategoryMenus(): List<CategoryMenu> {
+        val menu1 = CategoryMenu(
+            "小说", R.drawable.ic_library_books, View.generateViewId(), listOf(
+                CategoryTab("玄幻奇幻", "http://m.520tingshu.com/list/?1.html"),
+                CategoryTab("修真武侠", "http://m.520tingshu.com/list/?2.html"),
+                CategoryTab("恐怖灵异", "http://m.520tingshu.com/list/?3.html"),
+                CategoryTab("都市言情", "http://m.520tingshu.com/list/?4.html"),
+                CategoryTab("穿越有声", "http://m.520tingshu.com/list/?43.html"),
+                CategoryTab("网游小说", "http://m.520tingshu.com/list/?6.html")
+            )
         )
-    }
 
-    override fun getOtherCategoryTabs(): List<CategoryTab> {
-        return listOf(
-            CategoryTab("评书大全", "http://m.520tingshu.com/list/?8.html"),
-            CategoryTab("粤语古仔", "http://m.520tingshu.com/list/?5.html"),
-            CategoryTab("百家讲坛", "http://m.520tingshu.com/list/?9.html"),
-            CategoryTab("历史纪实", "http://m.520tingshu.com/list/?11.html"),
-            CategoryTab("军事", "http://m.520tingshu.com/list/?13.html"),
-            CategoryTab("推理", "http://m.520tingshu.com/list/?46.html"),
-            CategoryTab("儿童", "http://m.520tingshu.com/list/?29.html"),
-            CategoryTab("广播剧", "http://m.520tingshu.com/list/?10.html"),
-            CategoryTab("官场商战", "http://m.520tingshu.com/list/?47.html"),
-            CategoryTab("相声小说", "http://m.520tingshu.com/list/?44.html"),
-            CategoryTab("ebc5系列", "http://m.520tingshu.com/list/?48.html"),
-            CategoryTab("通俗文学", "http://m.520tingshu.com/list/?12.html")
+        val menu2 = CategoryMenu(
+            "其它", R.drawable.ic_more_horiz, View.generateViewId(), listOf(
+                CategoryTab("评书大全", "http://m.520tingshu.com/list/?8.html"),
+                CategoryTab("粤语古仔", "http://m.520tingshu.com/list/?5.html"),
+                CategoryTab("百家讲坛", "http://m.520tingshu.com/list/?9.html"),
+                CategoryTab("历史纪实", "http://m.520tingshu.com/list/?11.html"),
+                CategoryTab("军事", "http://m.520tingshu.com/list/?13.html"),
+                CategoryTab("推理", "http://m.520tingshu.com/list/?46.html"),
+                CategoryTab("儿童", "http://m.520tingshu.com/list/?29.html"),
+                CategoryTab("广播剧", "http://m.520tingshu.com/list/?10.html"),
+                CategoryTab("官场商战", "http://m.520tingshu.com/list/?47.html"),
+                CategoryTab("相声小说", "http://m.520tingshu.com/list/?44.html"),
+                CategoryTab("ebc5系列", "http://m.520tingshu.com/list/?48.html"),
+                CategoryTab("通俗文学", "http://m.520tingshu.com/list/?12.html")
+            )
         )
+        return listOf(menu1, menu2)
     }
 
     override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {

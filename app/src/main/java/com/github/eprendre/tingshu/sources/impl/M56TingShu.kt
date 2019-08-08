@@ -1,6 +1,8 @@
 package com.github.eprendre.tingshu.sources.impl
 
+import android.view.View
 import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
@@ -14,27 +16,28 @@ import org.jsoup.Jsoup
 import java.net.URLEncoder
 
 object M56TingShu : TingShu {
-
-    override fun getMainCategoryTabs(): List<CategoryTab> {
-        return listOf(
-            CategoryTab("玄幻武侠", "http://m.ting56.com/paihangbang/1-1.html"),
-            CategoryTab("都市言情", "http://m.ting56.com/paihangbang/2-2.html"),
-            CategoryTab("恐怖悬疑", "http://m.ting56.com/paihangbang/3-3.html"),
-            CategoryTab("网游竞技", "http://m.ting56.com/paihangbang/4-4.html"),
-            CategoryTab("军事历史", "http://m.ting56.com/paihangbang/6-6.html"),
-            CategoryTab("刑侦推理", "http://m.ting56.com/paihangbang/41-41.html")
+    override fun getCategoryMenus(): List<CategoryMenu> {
+        val menu1 = CategoryMenu(
+            "小说", R.drawable.ic_library_books, View.generateViewId(), listOf(
+                CategoryTab("玄幻武侠", "http://m.ting56.com/paihangbang/1-1.html"),
+                CategoryTab("都市言情", "http://m.ting56.com/paihangbang/2-2.html"),
+                CategoryTab("恐怖悬疑", "http://m.ting56.com/paihangbang/3-3.html"),
+                CategoryTab("网游竞技", "http://m.ting56.com/paihangbang/4-4.html"),
+                CategoryTab("军事历史", "http://m.ting56.com/paihangbang/6-6.html"),
+                CategoryTab("刑侦推理", "http://m.ting56.com/paihangbang/41-41.html")
+            )
         )
-    }
-
-    override fun getOtherCategoryTabs(): List<CategoryTab> {
-        return listOf(
-            CategoryTab("职场商战", "http://m.ting56.com/paihangbang/7-7.html"),
-            CategoryTab("百家讲坛", "http://m.ting56.com/paihangbang/10-10.html"),
-            CategoryTab("广播剧", "http://m.ting56.com/paihangbang/40-40.html"),
-            CategoryTab("幽默笑话", "http://m.ting56.com/paihangbang/44-44.html"),
-            CategoryTab("相声", "http://m.ting56.com/book/43.html"),
-            CategoryTab("儿童读物", "http://m.ting56.com/paihangbang/11-11.html")
+        val menu2 = CategoryMenu(
+            "其它", R.drawable.ic_more_horiz, View.generateViewId(), listOf(
+                CategoryTab("职场商战", "http://m.ting56.com/paihangbang/7-7.html"),
+                CategoryTab("百家讲坛", "http://m.ting56.com/paihangbang/10-10.html"),
+                CategoryTab("广播剧", "http://m.ting56.com/paihangbang/40-40.html"),
+                CategoryTab("幽默笑话", "http://m.ting56.com/paihangbang/44-44.html"),
+                CategoryTab("相声", "http://m.ting56.com/book/43.html"),
+                CategoryTab("儿童读物", "http://m.ting56.com/paihangbang/11-11.html")
+            )
         )
+        return listOf(menu1, menu2)
     }
 
     override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {

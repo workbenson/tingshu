@@ -1,6 +1,8 @@
 package com.github.eprendre.tingshu.sources.impl
 
+import android.view.View
 import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.AudioUrlCommonExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.TingShu
@@ -75,32 +77,35 @@ object HuanTingWang : TingShu {
         return AudioUrlCommonExtractor
     }
 
-    override fun getMainCategoryTabs(): List<CategoryTab> {
-        return listOf(
-            CategoryTab("玄幻玄幻", "http://m.ting89.com/booklist/?1.html"),
-            CategoryTab("武侠仙侠", "http://m.ting89.com/booklist/?2.html"),
-            CategoryTab("科幻世界", "http://m.ting89.com/booklist/?5.html"),
-            CategoryTab("网络游戏", "http://m.ting89.com/booklist/?11.html"),
-            CategoryTab("现代都市", "http://m.ting89.com/booklist/?3.html"),
-            CategoryTab("女生言情", "http://m.ting89.com/booklist/?4.html"),
-            CategoryTab("女生穿越", "http://m.ting89.com/booklist/?38.html"),
-            CategoryTab("推理悬念", "http://m.ting89.com/booklist/?6.html"),
-            CategoryTab("恐怖故事", "http://m.ting89.com/booklist/?7.html"),
-            CategoryTab("悬疑惊悚", "http://m.ting89.com/booklist/?8.html")
+    override fun getCategoryMenus(): List<CategoryMenu> {
+        val menu1 = CategoryMenu(
+            "小说", R.drawable.ic_library_books, View.generateViewId(), listOf(
+                CategoryTab("玄幻玄幻", "http://m.ting89.com/booklist/?1.html"),
+                CategoryTab("武侠仙侠", "http://m.ting89.com/booklist/?2.html"),
+                CategoryTab("科幻世界", "http://m.ting89.com/booklist/?5.html"),
+                CategoryTab("网络游戏", "http://m.ting89.com/booklist/?11.html"),
+                CategoryTab("现代都市", "http://m.ting89.com/booklist/?3.html"),
+                CategoryTab("女生言情", "http://m.ting89.com/booklist/?4.html"),
+                CategoryTab("女生穿越", "http://m.ting89.com/booklist/?38.html"),
+                CategoryTab("推理悬念", "http://m.ting89.com/booklist/?6.html"),
+                CategoryTab("恐怖故事", "http://m.ting89.com/booklist/?7.html"),
+                CategoryTab("悬疑惊悚", "http://m.ting89.com/booklist/?8.html")
+            )
         )
-    }
 
-    override fun getOtherCategoryTabs(): List<CategoryTab> {
-        return listOf(
-            CategoryTab("历史传记", "http://m.ting89.com/booklist/?9.html"),
-            CategoryTab("铁血军魂", "http://m.ting89.com/booklist/?10.html"),
-            CategoryTab("经典传记", "http://m.ting89.com/booklist/?35.html"),
-            CategoryTab("百家讲坛", "http://m.ting89.com/booklist/?36.html"),
-            CategoryTab("粤语", "http://m.ting89.com/booklist/?40.html"),
-            CategoryTab("儿童故事", "http://m.ting89.com/booklist/?16.html"),
-            CategoryTab("相声", "http://m.ting89.com/booklist/?34.html"),
-            CategoryTab("评书", "http://m.ting89.com/booklist/?13.html")
+        val menu2 = CategoryMenu(
+            "其它", R.drawable.ic_more_horiz, View.generateViewId(), listOf(
+                CategoryTab("历史传记", "http://m.ting89.com/booklist/?9.html"),
+                CategoryTab("铁血军魂", "http://m.ting89.com/booklist/?10.html"),
+                CategoryTab("经典传记", "http://m.ting89.com/booklist/?35.html"),
+                CategoryTab("百家讲坛", "http://m.ting89.com/booklist/?36.html"),
+                CategoryTab("粤语", "http://m.ting89.com/booklist/?40.html"),
+                CategoryTab("儿童故事", "http://m.ting89.com/booklist/?16.html"),
+                CategoryTab("相声", "http://m.ting89.com/booklist/?34.html"),
+                CategoryTab("评书", "http://m.ting89.com/booklist/?13.html")
+            )
         )
+        return listOf(menu1, menu2)
     }
 
     override fun getCategoryDetail(url: String): Single<Category> {

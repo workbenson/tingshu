@@ -2,7 +2,7 @@ package com.github.eprendre.tingshu.sources
 
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Category
-import com.github.eprendre.tingshu.utils.CategoryTab
+import com.github.eprendre.tingshu.utils.CategoryMenu
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
@@ -18,9 +18,7 @@ interface TingShu {
 
     fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor
 
-    fun getMainCategoryTabs(): List<CategoryTab>
-
-    fun getOtherCategoryTabs(): List<CategoryTab>
+    fun getCategoryMenus(): List<CategoryMenu>
 
     fun getCategoryDetail(url: String): Single<Category>
 }

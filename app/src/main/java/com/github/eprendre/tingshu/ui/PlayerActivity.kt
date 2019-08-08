@@ -1,6 +1,5 @@
 package com.github.eprendre.tingshu.ui
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -117,18 +116,18 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         }
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
         setSupportActionBar(toolbar)
         volumeControlStream = AudioManager.STREAM_MUSIC
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        state_layout.showLoading()
     }
 
     override fun onStart() {
         super.onStart()
-        state_layout.showLoading()
+        timer_button.text = "定时关闭"
         startAndBindService()
     }
 
@@ -192,9 +191,12 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun startAndBindService() {
-        val intent = Intent(this, TingShuService::class.java)
-        startService(intent)
-        bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
+        Handler().postDelayed({
+            //https://stackoverflow.com/questions/52013545/android-9-0-not-allowed-to-start-service-app-is-in-background-after-onresume
+            val intent = Intent(this, TingShuService::class.java)
+            startService(intent)
+            bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
+        }, 300)
     }
 
     /**
@@ -204,7 +206,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
      */
     private fun handleIntent() {
         val bookurl = intent.getStringExtra(ARG_BOOKURL)
-        if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {
+        if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {//需要换书
             if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
                 mediaController.transportControls.pause()//如果正在播放，先暂停触发保存位置。 然后回调 StorePositionEvent 播放
             } else {
@@ -212,11 +214,11 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 playFromBookUrl(bookurl)
                 invalidateOptionsMenu()
             }
-        } else {
+        } else {//不需要换书
             if (myService.exoPlayer.playbackState == Player.STATE_IDLE) {
                 //此状态代表通知栏被关闭，导致播放器移除了当前播放曲目，需要重新加载链接
                 Prefs.currentBookUrl?.apply { playFromBookUrl(this) }
-            } else {
+            } else {//继续播放
                 artist_text.text = "${Prefs.artist}"
                 episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
                 supportActionBar?.title = Prefs.currentBookName
@@ -531,14 +533,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     override fun onResume() {
         super.onResume()
         App.isRetry = false
-        timer_button.text = "定时关闭"//如果计时器在此页面切为后台时结束了，按钮文字需要重置一下。
-        //当通知被划掉并且当前页面仍然存活时需要重新播放
-        if (::myService.isInitialized && isBound && myService.exoPlayer.playbackState == Player.STATE_IDLE) {
-            Handler().postDelayed({
-                //https://stackoverflow.com/questions/52013545/android-9-0-not-allowed-to-start-service-app-is-in-background-after-onresume
-                handleIntent()
-            }, 300)
-        }
     }
 
     override fun onPause() {

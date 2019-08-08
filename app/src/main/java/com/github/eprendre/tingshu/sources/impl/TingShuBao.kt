@@ -1,6 +1,8 @@
 package com.github.eprendre.tingshu.sources.impl
 
+import android.view.View
 import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
@@ -14,6 +16,26 @@ import org.jsoup.Jsoup
 import java.net.URLEncoder
 
 object TingShuBao : TingShu {
+    override fun getCategoryMenus(): List<CategoryMenu> {
+        val menu1 = CategoryMenu(
+            "小说", R.drawable.ic_library_books, View.generateViewId(), listOf(
+                CategoryTab("玄幻武侠", "https://www.tingshubao.com/list/27.html"),
+                CategoryTab("都市小说", "https://www.tingshubao.com/list/28.html"),
+                CategoryTab("网游科幻", "https://www.tingshubao.com/list/33.html"),
+                CategoryTab("惊悚悬疑", "https://www.tingshubao.com/list/31.html")
+            )
+        )
+
+        val menu2 = CategoryMenu(
+            "其它", R.drawable.ic_more_horiz, View.generateViewId(), listOf(
+                CategoryTab("言情小说", "https://www.tingshubao.com/list/29.html"),
+                CategoryTab("历史军事", "https://www.tingshubao.com/list/32.html"),
+                CategoryTab("评书", "https://www.tingshubao.com/list/2.html")
+            )
+        )
+        return listOf(menu1, menu2)
+    }
+
     override fun search(keywords: String, page: Int): Single<Pair<List<Book>, Int>> {
         return Single.fromCallable {
             val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
@@ -64,23 +86,6 @@ object TingShuBao : TingShu {
             return@setUp audioElement?.attr("src")
         }
         return AudioUrlWebViewExtractor
-    }
-
-    override fun getMainCategoryTabs(): List<CategoryTab> {
-        return listOf(
-            CategoryTab("玄幻武侠", "https://www.tingshubao.com/list/27.html"),
-            CategoryTab("都市小说", "https://www.tingshubao.com/list/28.html"),
-            CategoryTab("网游科幻", "https://www.tingshubao.com/list/33.html"),
-            CategoryTab("惊悚悬疑", "https://www.tingshubao.com/list/31.html")
-        )
-    }
-
-    override fun getOtherCategoryTabs(): List<CategoryTab> {
-        return listOf(
-            CategoryTab("言情小说", "https://www.tingshubao.com/list/29.html"),
-            CategoryTab("历史军事", "https://www.tingshubao.com/list/32.html"),
-            CategoryTab("评书", "https://www.tingshubao.com/list/2.html")
-        )
     }
 
     override fun getCategoryDetail(url: String): Single<Category> {

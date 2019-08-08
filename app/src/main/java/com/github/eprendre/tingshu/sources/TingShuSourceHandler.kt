@@ -8,10 +8,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.impl.*
-import com.github.eprendre.tingshu.utils.Book
-import com.github.eprendre.tingshu.utils.Prefs
-import com.github.eprendre.tingshu.utils.Category
-import com.github.eprendre.tingshu.utils.CategoryTab
+import com.github.eprendre.tingshu.utils.*
 import com.github.eprendre.tingshu.widget.GlideApp
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.upstream.DataSource
@@ -60,12 +57,8 @@ object TingShuSourceHandler {
         return tingShu.search(keywords, page)
     }
 
-    fun getMainCategories(): List<CategoryTab> {
-        return tingShu.getMainCategoryTabs()
-    }
-
-    fun getOtherCategories(): List<CategoryTab> {
-        return tingShu.getOtherCategoryTabs()
+    fun getCategoryMenus(): List<CategoryMenu> {
+        return tingShu.getCategoryMenus()
     }
 
     //以下的方法需要根据传入的url判断用哪个站点解析

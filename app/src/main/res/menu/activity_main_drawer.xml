@@ -5,16 +5,17 @@
 
     <item android:title="听书">
         <menu>
-            <group android:checkableBehavior="single">
-                <item
-                        android:id="@+id/nav_home"
-                        android:icon="@drawable/ic_library_books"
-                        android:title="小说"/>
-                <item
-                        android:id="@+id/nav_other"
-                        android:icon="@drawable/ic_more_horiz"
-                        android:title="其它"/>
-            </group>
+            <!--<group android:checkableBehavior="single"-->
+                    <!--android:id="@id/group_category">-->
+                <!--<item-->
+                        <!--android:id="@+id/nav_home"-->
+                        <!--android:icon="@drawable/ic_library_books"-->
+                        <!--android:title="小说"/>-->
+                <!--<item-->
+                        <!--android:id="@+id/nav_other"-->
+                        <!--android:icon="@drawable/ic_more_horiz"-->
+                        <!--android:title="其它"/>-->
+            <!--</group>-->
         </menu>
     </item>
     <item android:title="收藏">

@@ -1,6 +1,8 @@
 package com.github.eprendre.tingshu.sources.impl
 
+import android.view.View
 import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.AudioUrlCommonExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.TingShu
@@ -60,19 +62,21 @@ object JingTingWang : TingShu {
         return AudioUrlCommonExtractor
     }
 
-    override fun getMainCategoryTabs(): List<CategoryTab> {
-        return listOf(
-            CategoryTab("科幻玄幻", "http://m.audio699.com/list/2_1.html"),
-            CategoryTab("灵异推理", "http://m.audio699.com/list/1_1.html")
+    override fun getCategoryMenus(): List<CategoryMenu> {
+        val menu1 = CategoryMenu(
+            "小说", R.drawable.ic_library_books, View.generateViewId(), listOf(
+                CategoryTab("科幻玄幻", "http://m.audio699.com/list/2_1.html"),
+                CategoryTab("灵异推理", "http://m.audio699.com/list/1_1.html")
+            )
         )
-    }
-
-    override fun getOtherCategoryTabs(): List<CategoryTab> {
-        return listOf(
-            CategoryTab("都市言情", "http://m.audio699.com/list/3_1.html"),
-            CategoryTab("穿越历史", "http://m.audio699.com/list/4_1.html"),
-            CategoryTab("其他类型", "http://m.audio699.com/list/5_1.html")
+        val menu2 = CategoryMenu(
+            "其它", R.drawable.ic_more_horiz, View.generateViewId(), listOf(
+                CategoryTab("都市言情", "http://m.audio699.com/list/3_1.html"),
+                CategoryTab("穿越历史", "http://m.audio699.com/list/4_1.html"),
+                CategoryTab("其他类型", "http://m.audio699.com/list/5_1.html")
+            )
         )
+        return listOf(menu1, menu2)
     }
 
     override fun getCategoryDetail(url: String): Single<Category> {

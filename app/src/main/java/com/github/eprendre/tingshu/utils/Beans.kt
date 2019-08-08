@@ -1,5 +1,7 @@
 package com.github.eprendre.tingshu.utils
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.IdRes
 import androidx.annotation.Keep
 import androidx.recyclerview.widget.DiffUtil
 import androidx.room.ColumnInfo
@@ -62,6 +64,33 @@ data class CategoryTab(
     val title: String,
     val url: String
 )
+
+@Keep
+data class CategoryMenu(
+    val title: String,
+    @DrawableRes val icon: Int,
+    @IdRes val id: Int,
+    val tabs: List<CategoryTab>
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is CategoryMenu) {
+            return false
+        }
+
+        return tabs == other.tabs
+    }
+
+    override fun hashCode(): Int {
+        var result = title.hashCode()
+        result = 31 * result + icon
+        result = 31 * result + id
+        result = 31 * result + tabs.hashCode()
+        return result
+    }
+}
 
 @Keep
 data class Category(
