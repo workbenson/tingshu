@@ -108,7 +108,7 @@ function getCookie(name){var arr = document.cookie.match(new RegExp("(^| )"+name
 
     @Test
     fun category() {
-        val url = "http://www.tingchina.com/yousheng/leip_135_10.htm"
+        val url = "http://www.tingchina.com/pingshu/leip_136_1.htm"
         val doc = Jsoup.connect(url).get()
         val pages = doc.selectFirst(".yema span").children()
         val currentPage = Regex(".+leip_\\d+_(\\d+)\\.htm").find(url)!!.groupValues[1].toInt()
@@ -131,9 +131,10 @@ function getCookie(name){var arr = document.cookie.match(new RegExp("(^| )"+name
             val titleElement = element.selectFirst("dd .title a")
             val bookUrl =  titleElement.absUrl("href")
             val (title, author, artist) = titleElement.text().split(" ").let {
-                Triple(it[0].replace("《", "").replace("》", ""),
-                    it[1],
-                    it[2].split("　")[0])
+                val i = it[0].replace("《", "").replace("》", "")
+                val j = if (it.size > 2) it[1] else ""
+                val k = if (it.size > 2) it[2].split("　")[0] else ""
+                Triple(i, j, k)
             }
             val intro = element.selectFirst("dd .info").ownText()
             list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })

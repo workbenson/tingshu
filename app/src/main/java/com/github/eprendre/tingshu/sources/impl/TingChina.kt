@@ -15,24 +15,34 @@ import java.net.URLEncoder
 object TingChina : TingShu {
     override fun getCategoryMenus(): List<CategoryMenu> {
         val menu1 = CategoryMenu(
-            "小说", R.drawable.ic_library_books, View.generateViewId(), listOf(
+            "有声小说", R.drawable.ic_library_books, View.generateViewId(), listOf(
                 CategoryTab("玄幻奇幻", "http://www.tingchina.com/yousheng/leip_135_1.htm"),
                 CategoryTab("网络热门", "http://www.tingchina.com/yousheng/leip_146_1.htm"),
                 CategoryTab("科幻有声", "http://www.tingchina.com/yousheng/leip_128_1.htm"),
                 CategoryTab("武侠小说", "http://www.tingchina.com/yousheng/leip_133_1.htm"),
                 CategoryTab("都市言情", "http://www.tingchina.com/yousheng/leip_125_1.htm"),
-                CategoryTab("鬼故事", "http://www.tingchina.com/yousheng/leip_129_1.htm")
-            )
-        )
-
-        val menu2 = CategoryMenu(
-            "其它", R.drawable.ic_more_horiz, View.generateViewId(), listOf(
+                CategoryTab("鬼故事", "http://www.tingchina.com/yousheng/leip_129_1.htm"),
                 CategoryTab("历史军事", "http://www.tingchina.com/yousheng/leip_130_1.htm"),
                 CategoryTab("官场商战", "http://www.tingchina.com/yousheng/leip_126_1.htm"),
                 CategoryTab("刑侦推理", "http://www.tingchina.com/yousheng/leip_134_1.htm"),
                 CategoryTab("经典纪实", "http://www.tingchina.com/yousheng/leip_127_1.htm"),
                 CategoryTab("通俗文学", "http://www.tingchina.com/yousheng/leip_132_1.htm"),
                 CategoryTab("人物传记", "http://www.tingchina.com/yousheng/leip_131_1.htm")
+            )
+        )
+
+        val menu2 = CategoryMenu(
+            "评书大全", R.drawable.ic_radio_black_24dp, View.generateViewId(), listOf(
+                CategoryTab("单田芳", "http://www.tingchina.com/pingshu/leip_136_1.htm"),
+                CategoryTab("田连元", "http://www.tingchina.com/pingshu/leip_141_1.htm"),
+                CategoryTab("袁阔成", "http://www.tingchina.com/pingshu/leip_143_1.htm"),
+                CategoryTab("连丽如", "http://www.tingchina.com/pingshu/leip_137_1.htm"),
+                CategoryTab("张少佐", "http://www.tingchina.com/pingshu/leip_145_1.htm"),
+                CategoryTab("孙一", "http://www.tingchina.com/pingshu/leip_140_1.htm"),
+                CategoryTab("田战义", "http://www.tingchina.com/pingshu/leip_142_1.htm"),
+                CategoryTab("粤语评书", "http://www.tingchina.com/pingshu/leip_144_1.htm"),
+                CategoryTab("其他评书", "http://www.tingchina.com/pingshu/leip_139_1.htm")
+
             )
         )
         return listOf(menu1, menu2)
@@ -110,11 +120,10 @@ object TingChina : TingShu {
                 val titleElement = element.selectFirst("dd .title a")
                 val bookUrl = titleElement.absUrl("href")
                 val (title, author, artist) = titleElement.text().split(" ").let {
-                    Triple(
-                        it[0].replace("《", "").replace("》", ""),
-                        it[1],
-                        it[2].split("　")[0]
-                    )
+                    val i = it[0].replace("《", "").replace("》", "")
+                    val j = if (it.size > 2) it[1] else "" //大于2代表是评书
+                    val k = if (it.size > 2) it[2].split("　")[0] else ""
+                    Triple(i, j, k)
                 }
                 val intro = element.selectFirst("dd .info").ownText()
                 list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
