@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:padding="16dp"
+              android:gravity="center_vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+        >
+
+    <TextView
+            android:id="@+id/text_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/primary_text"
+            android:text="播放速度：1.0x"
+            />
+
+    <LinearLayout
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            >
+
+        <ImageButton
+                android:id="@+id/button_speed_down"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_chevron_left_black_48dp"
+                android:tint="@color/colorAccent"
+                android:background="?selectableItemBackground"
+                />
+
+        <SeekBar
+                android:id="@+id/seekbar_speed"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:max="19"
+                />
+
+        <ImageButton
+                android:id="@+id/button_speed_up"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_chevron_right_black_48dp"
+                android:tint="@color/colorAccent"
+                android:background="?selectableItemBackground"
+                />
+    </LinearLayout>
+
+</LinearLayout>

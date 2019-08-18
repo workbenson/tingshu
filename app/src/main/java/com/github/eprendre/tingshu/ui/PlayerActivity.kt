@@ -19,6 +19,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
 import android.view.*
 import android.widget.AdapterView
+import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -55,6 +56,7 @@ import kotlinx.android.synthetic.main.dialog_countdown.view.*
 import kotlinx.android.synthetic.main.dialog_episodes.view.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.dip
+import org.jetbrains.anko.find
 import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
 
@@ -310,8 +312,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     control_panel.setBackgroundColor(bgColor)
                     timer_button.setTextColor(swatch.bodyTextColor)
                     playlist_button.setColorFilter(swatch.bodyTextColor)
-                    (speed_spinner.selectedView as TextView).setTextColor(swatch.bodyTextColor)
-                    speed_spinner.supportBackgroundTintList = ColorStateList.valueOf(swatch.bodyTextColor)
+                    speed_button.setTextColor(swatch.bodyTextColor)
                     text_current.setTextColor(swatch.bodyTextColor)
                     seekbar.progressDrawable.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
                     seekbar.thumb.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
@@ -372,15 +373,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         }
         state_layout.setErrorText("当前网址解析出错了, 点击重试(有时候需要多试几次才能成功）")
 
-        myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
-        when (Prefs.speed) {
-            0.75f -> speed_spinner.setSelection(0, true)
-            1f -> speed_spinner.setSelection(1, true)
-            1.25f -> speed_spinner.setSelection(2, true)
-            1.5f -> speed_spinner.setSelection(3, true)
-            2f -> speed_spinner.setSelection(4, true)
-            else -> speed_spinner.setSelection(1, true)
-        }
 
         //定时关闭
         timer_button.setOnClickListener {
@@ -423,23 +415,37 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             }
             .addTo(compositeDisposable)
         //播放速度
-        speed_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-            }
+        myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)//初始化播放器的速度
+        speed_button.text = "${Prefs.speed}x"
+        speed_button.setOnClickListener {
+            val dialog = AlertDialog.Builder(this)
+                .setView(R.layout.speed_dialog)
+                .show()
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
-                bodyTextColor?.let { (view as TextView).setTextColor(it) }//给spinner染色
-                val params = when (position) {
-                    0 -> PlaybackParameters(0.75f)
-                    1 -> PlaybackParameters(1f)
-                    2 -> PlaybackParameters(1.25f)
-                    3 -> PlaybackParameters(1.5f)
-                    4 -> PlaybackParameters(2f)
-                    else -> PlaybackParameters(1f)
+            dialog.setCanceledOnTouchOutside(true)
+            val seekBar = dialog.find<SeekBar>(R.id.seekbar_speed)
+            val speedText = dialog.find<TextView>(R.id.text_speed)
+            val speedDownButton = dialog.find<ImageButton>(R.id.button_speed_down)
+            val speedUpButton = dialog.find<ImageButton>(R.id.button_speed_up)
+            seekBar.progress = (Prefs.speed * 4 - 1).toInt()
+            speedText.text = "播放速度: ${Prefs.speed}x"
+            seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    val speed = (progress + 1) / 4f
+                    speedText.text = "播放速度: ${speed}x"
+                    Prefs.speed = speed
+                    myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
+                    speed_button.text = "${Prefs.speed}x"
                 }
-                myService.exoPlayer.playbackParameters = params
-                Prefs.speed = params.speed
-            }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                }
+            })
+            speedDownButton.setOnClickListener { seekBar.progress = seekBar.progress - 1 }
+            speedUpButton.setOnClickListener { seekBar.progress = seekBar.progress + 1 }
         }
         //进度条
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
