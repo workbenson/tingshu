@@ -543,7 +543,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     override fun onStop() {
         super.onStop()
         compositeDisposable.clear()
-        unbindService(myConnection)
+        if (isBound) {
+            unbindService(myConnection)
+        }
     }
 
     /**

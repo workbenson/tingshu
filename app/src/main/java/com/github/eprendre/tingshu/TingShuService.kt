@@ -45,6 +45,7 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.AnkoLogger
+import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class TingShuService : Service(), AnkoLogger {
@@ -309,7 +310,10 @@ private class BecomingNoisyReceiver(
 
     fun unregister() {
         if (registered) {
-            context.unregisterReceiver(this)
+            try {
+                context.unregisterReceiver(this)
+            } catch (e: Exception) {
+            }
             registered = false
         }
     }
