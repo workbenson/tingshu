@@ -416,7 +416,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             .addTo(compositeDisposable)
         //播放速度
         myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)//初始化播放器的速度
-        speed_button.text = "${Prefs.speed}x"
+        speed_button.text = "${Prefs.speed} x"
         speed_button.setOnClickListener {
             val dialog = AlertDialog.Builder(this)
                 .setView(R.layout.speed_dialog)
@@ -427,15 +427,15 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             val speedText = dialog.find<TextView>(R.id.text_speed)
             val speedDownButton = dialog.find<ImageButton>(R.id.button_speed_down)
             val speedUpButton = dialog.find<ImageButton>(R.id.button_speed_up)
-            seekBar.progress = (Prefs.speed * 4 - 1).toInt()
-            speedText.text = "播放速度: ${Prefs.speed}x"
+            seekBar.progress = (Prefs.speed * 10 - 1).toInt()
+            speedText.text = "播放速度: ${Prefs.speed} x"
             seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    val speed = (progress + 1) / 4f
-                    speedText.text = "播放速度: ${speed}x"
+                    val speed = (progress + 1) / 10f
+                    speedText.text = "播放速度: ${speed} x"
                     Prefs.speed = speed
                     myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
-                    speed_button.text = "${Prefs.speed}x"
+                    speed_button.text = "${Prefs.speed} x"
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
