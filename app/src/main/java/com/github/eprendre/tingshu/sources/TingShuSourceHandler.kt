@@ -31,7 +31,7 @@ object TingShuSourceHandler {
     const val SOURCE_URL_TIANTIANPINGSHU = "https://www.pingshu365.com"
 
     private lateinit var tingShu: TingShu
-    private val sourceList by lazy {
+    val sourceList by lazy {
         val keyArray = App.appContext.resources.getStringArray(R.array.source_values)
         val valueArray = listOf(//这里面的顺序要和 R.array.source_values 里面的对应上
             M56TingShu,
