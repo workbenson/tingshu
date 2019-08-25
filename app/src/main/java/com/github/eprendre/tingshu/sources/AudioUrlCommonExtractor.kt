@@ -71,8 +71,10 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
                 if (Prefs.currentEpisodePosition > 0) {
                     exoPlayer.seekTo(Prefs.currentEpisodePosition)
                 }
+                RxBus.post(RxEvent.ReleaseWakeLockEvent())
             }, onError = {
                 RxBus.post(RxEvent.ParsingPlayUrlErrorEvent())
+                RxBus.post(RxEvent.ReleaseWakeLockEvent())
             }).addTo(compositeDisposable)
     }
 }

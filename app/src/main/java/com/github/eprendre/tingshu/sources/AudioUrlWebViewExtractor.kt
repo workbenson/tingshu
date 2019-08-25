@@ -108,6 +108,7 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
         Completable.timer(12, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
             .subscribe {
                 postError()
+                RxBus.post(RxEvent.StorePositionEvent())
             }
             .addTo(compositeDisposable)
     }
@@ -166,6 +167,7 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
                 exoPlayer.seekTo(Prefs.currentEpisodePosition)
             }
             webView.loadUrl("about:blank")
+            RxBus.post(RxEvent.StorePositionEvent())
         }
     }
 
