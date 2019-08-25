@@ -36,6 +36,8 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -95,7 +97,12 @@ class TingShuService : Service(), AnkoLogger {
         notificationManager = NotificationManagerCompat.from(this)
         becomingNoisyReceiver = BecomingNoisyReceiver(context = this, sessionToken = mediaSession.sessionToken)
         mediaSessionConnector = MediaSessionConnector(mediaSession).also {
-            val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, "tingshu"))
+//            val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, "tingshu"))
+            val dataSourceFactory = DefaultHttpDataSourceFactory(Util.getUserAgent(this, "tingshu"),
+                null,
+                DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
+                DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
+                true)
 
             val playbackPrepare = MyPlaybackPreparer(exoPlayer, dataSourceFactory)
             it.setPlayer(exoPlayer)

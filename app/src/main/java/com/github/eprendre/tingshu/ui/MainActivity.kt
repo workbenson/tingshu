@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private val headerView by lazy { nav_view.getHeaderView(0) }
     private lateinit var currentCategoryMenus: List<CategoryMenu>
     private val compositeDisposable = CompositeDisposable()
+    private var fragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,7 +73,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onStart() {
         super.onStart()
-        updateTitle()
         refreshMenus()
         initViews()
 
@@ -92,7 +92,15 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     .setIcon(categoryMenu.icon)
             }
             menuItem.subMenu.setGroupCheckable(R.id.group_category, true, true)
-            nav_view.setCheckedItem(currentCategoryMenus.first().id)
+            if (fragment is MenuFragment) {
+                nav_view.setCheckedItem(currentCategoryMenus.first().id)
+                updateTitle()
+                fragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
+                supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .replace(R.id.fragment_container, fragment!!)
+                    .commit()
+            }
         }
     }
 
@@ -105,17 +113,18 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         nav_view.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 in currentCategoryMenus.map { it.id } -> {
-                    val menuFragment = MenuFragment.newInstance(currentCategoryMenus.first { it.id == item.itemId }.tabs)
+                    fragment = MenuFragment.newInstance(currentCategoryMenus.first { it.id == item.itemId }.tabs)
                     supportFragmentManager.beginTransaction()
                         .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                        .replace(R.id.fragment_container, menuFragment)
+                        .replace(R.id.fragment_container, fragment!!)
                         .commit()
                     updateTitle()
                 }
                 R.id.nav_favorite -> {
+                    fragment = FavoriteFragment()
                     supportFragmentManager.beginTransaction()
                         .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                        .replace(R.id.fragment_container, FavoriteFragment())
+                        .replace(R.id.fragment_container, fragment!!)
                         .commit()
                     supportActionBar?.title = "我的收藏"
                 }
@@ -243,21 +252,21 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onNext = {
-                val firstFragment: Fragment
                 if (it.isEmpty()) {
-                    firstFragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
+                    fragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
+                    updateTitle()
                 } else {
-                    firstFragment = FavoriteFragment()
+                    fragment = FavoriteFragment()
                     supportActionBar?.title = "我的收藏"
                     nav_view.setCheckedItem(R.id.nav_favorite)
                 }
                 supportFragmentManager.beginTransaction()
-                    .add(R.id.fragment_container, firstFragment)
+                    .add(R.id.fragment_container, fragment!!)
                     .commit()
             }, onError = {
-                val firstFragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
+                fragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
                 supportFragmentManager.beginTransaction()
-                    .add(R.id.fragment_container, firstFragment)
+                    .add(R.id.fragment_container, fragment!!)
                     .commit()
             })
             .addTo(compositeDisposable)
