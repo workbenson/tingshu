@@ -22,20 +22,26 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.fragment.app.Fragment
 import com.github.eprendre.tingshu.BuildConfig
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
+import com.github.eprendre.tingshu.db.AppDatabase
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
-import com.github.eprendre.tingshu.ui.adapters.CategoryPagerAdapter
 import com.github.eprendre.tingshu.utils.CategoryMenu
 import com.github.eprendre.tingshu.utils.Prefs
-import com.github.eprendre.tingshu.utils.CategoryTab
 import com.github.eprendre.tingshu.widget.GlideApp
 import com.github.eprendre.tingshu.widget.MySuggestionProvider
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_favorite.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
@@ -48,8 +54,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var myService: TingShuService
     private val headerView by lazy { nav_view.getHeaderView(0) }
-    private lateinit var categoryPagerAdapter: CategoryPagerAdapter
     private lateinit var currentCategoryMenus: List<CategoryMenu>
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +65,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         currentCategoryMenus = TingShuSourceHandler.getCategoryMenus()
         refreshMenus(true)
         checkUpdate()
+        if (savedInstanceState == null) {
+            addFirstFragment()
+        }
     }
 
     override fun onStart() {
@@ -84,13 +93,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
             menuItem.subMenu.setGroupCheckable(R.id.group_category, true, true)
             nav_view.setCheckedItem(currentCategoryMenus.first().id)
-            initCategoryAdapter(currentCategoryMenus[0].tabs)
         }
     }
 
     private fun initViews() {
-        tabs.setupWithViewPager(view_pager)
-
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
@@ -99,10 +105,19 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         nav_view.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 in currentCategoryMenus.map { it.id } -> {
-                    initCategoryAdapter(currentCategoryMenus.first { it.id == item.itemId }.tabs)
+                    val menuFragment = MenuFragment.newInstance(currentCategoryMenus.first { it.id == item.itemId }.tabs)
+                    supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                        .replace(R.id.fragment_container, menuFragment)
+                        .commit()
+                    updateTitle()
                 }
                 R.id.nav_favorite -> {
-                    startActivity<FavoriteActivity>()
+                    supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                        .replace(R.id.fragment_container, FavoriteFragment())
+                        .commit()
+                    supportActionBar?.title = "我的收藏"
                 }
                 R.id.nav_settings -> {
                     startActivity<SettingsActivity>()
@@ -139,20 +154,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             drawer_layout.closeDrawer(GravityCompat.START)
             return@setNavigationItemSelectedListener true
         }
-
-        fab.setOnClickListener {
-            if (mediaController.playbackState.state == PlaybackStateCompat.STATE_NONE) {
-                startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBookUrl)
-            } else {
-                startActivity<PlayerActivity>()
-            }
-        }
     }
 
     private fun updatePlayerInfo() {
         if (Prefs.currentBookUrl.isNullOrBlank()) {
             headerView.container.setOnClickListener(null)
-            fab.hide()
         } else {
             GlideApp.with(this).load(Prefs.currentCover).into(headerView.cover_image)
             headerView.book_name_text.text = Prefs.currentBookName
@@ -169,14 +175,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     }
                 }, 250)
             }
-            fab.show()
         }
-    }
-
-    private fun initCategoryAdapter(categories: List<CategoryTab>) {
-        categoryPagerAdapter = CategoryPagerAdapter(this, supportFragmentManager)
-        categoryPagerAdapter.categories = categories
-        view_pager.adapter = categoryPagerAdapter
     }
 
     /**
@@ -237,6 +236,33 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
     }
 
+    private fun addFirstFragment() {
+        AppDatabase.getInstance(this)
+            .bookDao()
+            .loadAllBooks()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(onNext = {
+                val firstFragment: Fragment
+                if (it.isEmpty()) {
+                    firstFragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
+                } else {
+                    firstFragment = FavoriteFragment()
+                    supportActionBar?.title = "我的收藏"
+                    nav_view.setCheckedItem(R.id.nav_favorite)
+                }
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.fragment_container, firstFragment)
+                    .commit()
+            }, onError = {
+                val firstFragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.fragment_container, firstFragment)
+                    .commit()
+            })
+            .addTo(compositeDisposable)
+    }
+
     private fun updateTitle() {
         val sources = resources.getStringArray(R.array.source_entries)
         val index = resources.getStringArray(R.array.source_values).indexOfFirst { it == Prefs.source }
@@ -277,5 +303,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     override fun onStop() {
         super.onStop()
         unbindService(myConnection)
+        compositeDisposable.clear()
     }
 }

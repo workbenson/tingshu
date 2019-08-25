@@ -1,5 +1,7 @@
 package com.github.eprendre.tingshu.utils
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.annotation.Keep
@@ -63,7 +65,27 @@ data class Book(
 data class CategoryTab(
     val title: String,
     val url: String
-)
+) : Parcelable {
+    constructor(source: Parcel) : this(
+        source.readString(),
+        source.readString()
+    )
+
+    override fun describeContents() = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(title)
+        writeString(url)
+    }
+
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<CategoryTab> = object : Parcelable.Creator<CategoryTab> {
+            override fun createFromParcel(source: Parcel): CategoryTab = CategoryTab(source)
+            override fun newArray(size: Int): Array<CategoryTab?> = arrayOfNulls(size)
+        }
+    }
+}
 
 @Keep
 data class CategoryMenu(
