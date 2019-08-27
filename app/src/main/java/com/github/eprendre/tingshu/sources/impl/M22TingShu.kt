@@ -22,8 +22,9 @@ object M22TingShu : TingShu {
             val url = "https://m.ting22.com/search.php?q=$encodedKeywords&page=$page"
             val doc = Jsoup.connect(url).get()
 
-            val nextPageUrl = doc.selectFirst("#more-wrapper a").attr("href")
-            val totalPage = if (nextPageUrl.contains("javascript")) page else page + 1
+            val a = doc.selectFirst("#more-wrapper a")
+            val nextPageUrl = a?.attr("href")
+            val totalPage = if (nextPageUrl == null || nextPageUrl.contains("javascript")) page else page + 1
 
             val list = ArrayList<Book>()
             val elementList = doc.select(".card")

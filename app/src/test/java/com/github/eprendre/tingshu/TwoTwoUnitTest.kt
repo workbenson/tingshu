@@ -18,14 +18,15 @@ class TwoTwoUnitTest {
      */
     @Test
     fun search() {
-        val keywords = "仙"
+        val keywords = "斗罗大陆"
         val encodedKeywords = URLEncoder.encode(keywords, "utf-8")
         val page = 6
         val url = "https://m.ting22.com/search.php?q=$encodedKeywords&page=$page"
         val doc = Jsoup.connect(url).get()
 
-        val nextPageUrl = doc.selectFirst("#more-wrapper a").attr("href")
-        val totalPage = if (nextPageUrl.contains("javascript")) page else page + 1
+        val a = doc.selectFirst("#more-wrapper a")
+        val nextPageUrl = a?.attr("href")
+        val totalPage = if (nextPageUrl == null || nextPageUrl.contains("javascript")) page else page + 1
         println(totalPage)
 
         val list = ArrayList<Book>()
