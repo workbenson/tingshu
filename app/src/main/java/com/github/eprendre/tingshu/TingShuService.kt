@@ -8,9 +8,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Binder
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -29,10 +31,7 @@ import com.github.eprendre.tingshu.widget.NOW_PLAYING_NOTIFICATION
 import com.github.eprendre.tingshu.widget.NotificationBuilder
 import com.github.eprendre.tingshu.widget.RxBus
 import com.github.eprendre.tingshu.widget.RxEvent
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
@@ -116,15 +115,31 @@ class TingShuService : Service(), AnkoLogger {
                     Player.STATE_READY -> retryCount = 0
                 }
             }
+
+            override fun onPlayerError(error: ExoPlaybackException) {
+                retryOnError()
+            }
         })
+        exoPlayer.addListener(object : Player.EventListener {})
         disposable = RxBus.toFlowable(RxEvent.ParsingPlayUrlErrorEvent::class.java)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                if (App.isRetry && retryCount < 3) {
-                    mediaController.transportControls.playFromUri(Uri.parse(Prefs.currentEpisodeUrl), null)
-                    retryCount.inc()
-                }
+                retryOnError()
             }
+    }
+
+    private fun retryOnError() {
+        val player = MediaPlayer.create(applicationContext, R.raw.play_failed)
+        player.setOnCompletionListener {
+            if (App.isRetry && retryCount < 3) {
+                MediaPlayer.create(applicationContext, R.raw.retry).start()
+                Handler().postDelayed({
+                    mediaController.transportControls.playFromUri(Uri.parse(Prefs.currentEpisodeUrl), null)
+                }, 1000)
+                retryCount += 1
+            }
+        }
+        player.start()
     }
 
     override fun onBind(intent: Intent): IBinder? {
