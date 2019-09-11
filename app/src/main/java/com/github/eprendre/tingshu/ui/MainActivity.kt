@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         if (savedInstanceState == null) {
             addFirstFragment()
         }
+        showWarning()
     }
 
     override fun onStart() {
@@ -292,6 +293,20 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             mediaController = MediaControllerCompat(this@MainActivity, myService.mediaSession.sessionToken)
             updatePlayerInfo()
         }
+    }
+
+    private fun showWarning() {
+        if (!Prefs.isFirst) {
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle("注意：")
+            .setMessage("请务必添加省电白名单，否则后台播放时有很大的几率不能自动跳转下一集。比如小米手机在应用管理->省电策略->无限制。其它牌子可能叫‘省电优化'，总之操作大同小异不一一例举了。")
+            .setPositiveButton("已阅") { _, _ ->
+                Prefs.isFirst = false
+            }
+            .setNegativeButton("取消", null)
+            .show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -94,4 +94,8 @@ object Prefs {
     var showAlbumInLockScreen: Boolean
         get() = prefs.getBoolean("show_album_art", false)
         set(value) = prefs.edit().putBoolean("show_album_art", value).apply()
+
+    var isFirst: Boolean
+        get() = prefs.getBoolean("is_first", true)
+        set(value) = prefs.edit().putBoolean("is_first", value).apply()
 }
