@@ -76,7 +76,7 @@ object TingChina : TingShu {
             val episodes = doc.select(".main03 .list .b2 a").map {
                 Episode(it.text(), it.attr("abs:href"))
             }
-            App.playList = episodes
+            Prefs.playList = episodes
             Prefs.currentIntro = doc.selectFirst(".main03 .book02").ownText()
             return@fromCallable null
         }

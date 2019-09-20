@@ -75,7 +75,7 @@ object M520TingShu : TingShu {
                 Episode(it.text(), it.attr("abs:href"))
             }
 
-            App.playList = episodes
+            Prefs.playList = episodes
             Prefs.currentIntro = doc.getElementById("voddetail").ownText()
             return@fromCallable null
         }

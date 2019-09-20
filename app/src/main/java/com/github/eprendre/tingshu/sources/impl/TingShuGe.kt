@@ -95,7 +95,7 @@ object TingShuGe : TingShu {
                 Episode(it.text(), it.attr("abs:href"))
             }
 
-            App.playList = episodes
+            Prefs.playList = episodes
             Prefs.currentIntro = null
             return@fromCallable null
         }

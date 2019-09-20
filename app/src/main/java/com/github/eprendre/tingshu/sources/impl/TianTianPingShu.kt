@@ -52,7 +52,7 @@ object TianTianPingShu : TingShu {
                 val a = it.selectFirst("a")
                 Episode(a.text(), a.absUrl("href"))
             }
-            App.playList = episodes
+            Prefs.playList = episodes
             Prefs.currentIntro = doc.selectFirst("#ss .listb").text()
             return@fromCallable null
         }

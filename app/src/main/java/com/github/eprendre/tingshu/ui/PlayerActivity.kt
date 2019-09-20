@@ -223,7 +223,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 artist_text.text = "${Prefs.artist}"
                 episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
                 supportActionBar?.title = Prefs.currentBookName
-                listAdapter.submitList(App.playList)
+                listAdapter.submitList(Prefs.playList)
                 updateState(mediaController.playbackState)
                 state_layout.showContent()
                 tintColor()
@@ -256,8 +256,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     Prefs.currentEpisodePosition = 0
                 }
                 supportActionBar?.title = Prefs.currentBookName
-                listAdapter.submitList(App.playList)
-                mediaController.transportControls.playFromUri(Uri.parse(App.playList[index].url), null)
+                listAdapter.submitList(Prefs.playList)
+                mediaController.transportControls.playFromUri(Uri.parse(Prefs.playList[index].url), null)
             }, { error ->
                 error.printStackTrace()
                 state_layout.showError()

@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 object Prefs {
     private const val PREFS_FILENAME = "tingshu.prefs"
@@ -98,4 +100,13 @@ object Prefs {
     var isFirst: Boolean
         get() = prefs.getBoolean("is_first", true)
         set(value) = prefs.edit().putBoolean("is_first", value).apply()
+
+    var playList: List<Episode>
+        get() {
+            val json = prefs.getString("play_list", "[]")
+            return Gson().fromJson(json, object : TypeToken<List<Episode>>() {}.type)
+        }
+        set(value) {
+            prefs.edit().putString("play_list", Gson().toJson(value)).apply()
+        }
 }

@@ -47,7 +47,7 @@ object JingTingWang : TingShu {
             val episodes = doc.select(".plist a").map {
                 Episode(it.text(), it.attr("abs:href"))
             }
-            App.playList = episodes
+            Prefs.playList = episodes
             Prefs.currentIntro = doc.selectFirst(".intro").text()
             return@fromCallable null
         }

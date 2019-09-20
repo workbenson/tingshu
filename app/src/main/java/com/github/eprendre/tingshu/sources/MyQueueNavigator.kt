@@ -31,7 +31,7 @@ class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
         if (App.currentEpisodeIndex() == -1) {
             return actions
         }
-        if (App.currentEpisodeIndex() < App.playList.size - 1) {
+        if (App.currentEpisodeIndex() < Prefs.playList.size - 1) {
             actions = actions or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
         }
         actions = actions or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
@@ -47,7 +47,7 @@ class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
             player.seekTo(0)
         } else {
             mediaSessionCompat.controller.transportControls.playFromUri(
-                Uri.parse(App.playList[App.currentEpisodeIndex() - 1].url),
+                Uri.parse(Prefs.playList[App.currentEpisodeIndex() - 1].url),
                 null
             )
         }
@@ -59,7 +59,7 @@ class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
     override fun onSkipToNext(player: Player, controlDispatcher: ControlDispatcher) {
         Prefs.currentEpisodePosition = 0
         mediaSessionCompat.controller.transportControls.playFromUri(
-            Uri.parse(App.playList[App.currentEpisodeIndex() + 1].url),
+            Uri.parse(Prefs.playList[App.currentEpisodeIndex() + 1].url),
             null
         )
     }

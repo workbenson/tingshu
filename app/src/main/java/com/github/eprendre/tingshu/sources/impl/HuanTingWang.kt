@@ -52,7 +52,7 @@ object HuanTingWang : TingShu {
                 Episode(it.text(), it.attr("abs:href"))
             }
 
-            App.playList = episodes
+            Prefs.playList = episodes
             Prefs.currentIntro = doc.selectFirst(".book_intro").text()
             return@fromCallable null
         }

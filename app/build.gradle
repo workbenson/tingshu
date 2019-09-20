@@ -71,6 +71,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.github.kittinunf.fuel:fuel:2.1.0'
     implementation 'com.github.kittinunf.fuel:fuel-json:2.1.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
 
     def room_version = "2.1.0"
     implementation "androidx.room:room-runtime:$room_version"

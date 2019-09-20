@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.multidex.MultiDex
 import androidx.multidex.MultiDexApplication
-import com.github.eprendre.tingshu.utils.Episode
 import com.github.eprendre.tingshu.utils.Prefs
 import com.tencent.bugly.crashreport.CrashReport
 import io.reactivex.plugins.RxJavaPlugins
@@ -25,10 +24,9 @@ class App : MultiDexApplication() {
 
     companion object {
         lateinit var appContext: Context
-        var playList: List<Episode> = emptyList()
         var coverBitmap: Bitmap? = null
         var isRetry = true
-        fun currentEpisodeIndex() = playList.indexOfFirst { it.url == Prefs.currentEpisodeUrl }
-        fun currentEpisode() = playList.first { it.url == Prefs.currentEpisodeUrl }
+        fun currentEpisodeIndex() = Prefs.playList.indexOfFirst { it.url == Prefs.currentEpisodeUrl }
+        fun currentEpisode() = Prefs.playList.first { it.url == Prefs.currentEpisodeUrl }
     }
 }

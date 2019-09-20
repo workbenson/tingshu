@@ -68,7 +68,7 @@ object M56TingShu : TingShu {
                 .map {
                     Episode(it.text(), it.attr("abs:href"))
                 }
-            App.playList = episodes
+            Prefs.playList = episodes
             Prefs.currentIntro = doc.selectFirst(".book_intro").ownText()
             return@fromCallable null
         }
