@@ -28,15 +28,19 @@ object M22TingShu : TingShu {
 
             val list = ArrayList<Book>()
             val elementList = doc.select(".card")
-            elementList.forEach { element ->
-                val coverUrl = element.selectFirst(".pic img").absUrl("src")
-                val bookUrl = element.selectFirst(".link").absUrl("href")
-                val title = element.selectFirst(".title").text()
-                val infos = element.select(".con div")
-                val author = infos[0].text()
-                val artist = infos[2].text()
-                val intro = infos[4].text()
-                list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
+            try {
+                elementList.forEach { element ->
+                    val coverUrl = element.selectFirst(".pic img").absUrl("src")
+                    val bookUrl = element.selectFirst(".link").absUrl("href")
+                    val title = element.selectFirst(".title").text()
+                    val infos = element.select(".con div")
+                    val author = infos[0].text()
+                    val artist = infos[2].text()
+                    val intro = infos[4].text()
+                    list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
             return@fromCallable Pair(list, totalPage)
         }
