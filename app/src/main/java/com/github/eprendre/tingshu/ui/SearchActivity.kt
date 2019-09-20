@@ -10,12 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.ui.adapters.SearchPagerAdapter
+import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.MySuggestionProvider
 import kotlinx.android.synthetic.main.activity_search.*
 import org.jetbrains.anko.AnkoLogger
 
 class SearchActivity : AppCompatActivity(), AnkoLogger {
     private var keywords = ""
+    private var lastTabIndex = 0
     private lateinit var searchPagerAdapter: SearchPagerAdapter
     private val sources by lazy {
         resources.getStringArray(R.array.source_entries).toList()
@@ -25,6 +27,10 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        lastTabIndex = resources.getStringArray(R.array.source_values).indexOfFirst { it == Prefs.source }
+        if (lastTabIndex == -1) {
+            lastTabIndex = 0
+        }
     }
 
     override fun onStart() {
@@ -38,6 +44,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
         searchPagerAdapter.sources = sources
         searchPagerAdapter.keywords = keywords
         view_pager.adapter = searchPagerAdapter
+        view_pager.currentItem = lastTabIndex
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -51,6 +58,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
                     .saveRecentQuery(query, null)
                 keywords = query
                 supportActionBar?.title = keywords
+                lastTabIndex = tabs.selectedTabPosition
                 initPagerAdapter()
             }
         }
