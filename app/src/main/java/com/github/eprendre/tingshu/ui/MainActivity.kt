@@ -41,7 +41,6 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_favorite.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
@@ -299,14 +298,19 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         if (!Prefs.isFirst) {
             return
         }
-        AlertDialog.Builder(this)
+        val message = "请务必添加省电白名单，否则后台播放时有很大的几率不能自动跳转下一集。比如小米手机在应用管理->省电策略->无限制。大致可参考: \nhttps://blog.csdn.net/csdn_aiyang/article/details/89250278 \n或者：\nhttp://www.6maa.com/android/demo/8057.html"
+        val s = SpannableString(message)
+        Linkify.addLinks(s, Linkify.ALL)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("注意：")
-            .setMessage("请务必添加省电白名单，否则后台播放时有很大的几率不能自动跳转下一集。比如小米手机在应用管理->省电策略->无限制。其它牌子可能叫‘省电优化'，总之操作大同小异不一一例举了。")
+            .setMessage(s)
             .setPositiveButton("已阅") { _, _ ->
                 Prefs.isFirst = false
             }
             .setNegativeButton("取消", null)
             .show()
+        dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
+            LinkMovementMethod.getInstance()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
