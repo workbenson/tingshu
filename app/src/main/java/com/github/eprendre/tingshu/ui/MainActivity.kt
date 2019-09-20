@@ -105,6 +105,13 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun initViews() {
+        fab.setOnClickListener {
+            if (mediaController.playbackState.state == PlaybackStateCompat.STATE_NONE) {
+                startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBookUrl)
+            } else {
+                startActivity<PlayerActivity>()
+            }
+        }
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
@@ -168,6 +175,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private fun updatePlayerInfo() {
         if (Prefs.currentBookUrl.isNullOrBlank()) {
             headerView.container.setOnClickListener(null)
+            fab.hide()
         } else {
             GlideApp.with(this).load(Prefs.currentCover).into(headerView.cover_image)
             headerView.book_name_text.text = Prefs.currentBookName
@@ -184,6 +192,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     }
                 }, 250)
             }
+            fab.show()
         }
     }
 
