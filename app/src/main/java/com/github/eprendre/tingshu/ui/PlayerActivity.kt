@@ -57,6 +57,7 @@ import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.dip
 import org.jetbrains.anko.find
 import org.jetbrains.anko.toast
+import java.lang.IllegalArgumentException
 import java.util.concurrent.TimeUnit
 
 
@@ -556,8 +557,12 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     override fun onStop() {
         super.onStop()
         compositeDisposable.clear()
-        if (isBound) {
-            unbindService(myConnection)
+        try {
+            if (isBound) {
+                unbindService(myConnection)
+            }
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
         }
     }
 
