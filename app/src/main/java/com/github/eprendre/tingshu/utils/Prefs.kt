@@ -109,4 +109,8 @@ object Prefs {
         set(value) {
             prefs.edit().putString("play_list", Gson().toJson(value)).apply()
         }
+
+    var sortType: Int
+        get() = prefs.getInt("sort_type", 1)
+        set(value) = prefs.edit().putInt("sort_type", value).apply()
 }

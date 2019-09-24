@@ -1,18 +1,20 @@
 package com.github.eprendre.tingshu.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.adapters.CategoryPagerAdapter
 import com.github.eprendre.tingshu.utils.CategoryTab
+import com.github.eprendre.tingshu.utils.Prefs
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_menu.*
 import kotlinx.android.synthetic.main.fragment_menu.tabs
 import kotlinx.android.synthetic.main.fragment_menu.view_pager
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.startActivity
 
 class MenuFragment : Fragment(), AnkoLogger {
     private lateinit var categoryPagerAdapter: CategoryPagerAdapter
@@ -20,6 +22,7 @@ class MenuFragment : Fragment(), AnkoLogger {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         categoryTabs = arguments?.getParcelableArrayList(ARG_TABS)!!
     }
 
@@ -29,6 +32,33 @@ class MenuFragment : Fragment(), AnkoLogger {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_menu, container, false)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.main_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.search -> {
+                context?.startActivity<SearchActivity>()
+            }
+            R.id.switch_source -> {
+                if (context == null) return false
+                val values = resources.getStringArray(R.array.source_values)
+                val checkedItem = values.indexOfFirst { it == Prefs.source }
+                AlertDialog.Builder(context!!)
+                    .setSingleChoiceItems(R.array.source_entries, checkedItem) { dialog, which ->
+                        Prefs.source = values[which]
+                        TingShuSourceHandler.setupConfig()
+                        (activity as MainActivity).refreshMenus()
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

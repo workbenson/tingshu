@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
     }
 
-    private fun refreshMenus(force: Boolean = false) {
+    fun refreshMenus(force: Boolean = false) {
         if (force || currentCategoryMenus != TingShuSourceHandler.getCategoryMenus()) {
             currentCategoryMenus = TingShuSourceHandler.getCategoryMenus()
             val menuItem = nav_view.menu.getItem(0)
@@ -320,33 +320,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             .show()
         dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
             LinkMovementMethod.getInstance()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.search -> {
-                startActivity<SearchActivity>()
-            }
-            R.id.switch_source -> {
-                val values = resources.getStringArray(R.array.source_values)
-                val checkedItem = values.indexOfFirst { it == Prefs.source }
-                AlertDialog.Builder(this)
-                    .setSingleChoiceItems(R.array.source_entries, checkedItem) { dialog, which ->
-                        Prefs.source = values[which]
-                        TingShuSourceHandler.setupConfig()
-                        refreshMenus()
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onStop() {

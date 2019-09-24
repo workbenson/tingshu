@@ -20,6 +20,8 @@ interface BookDao {
     @Delete
     fun deleteBooks(vararg books: Book): Single<Int>
 
-    @Query("SELECT * FROM my_books ORDER BY id DESC")
-    fun loadAllBooks(): Flowable<List<Book>>
+    @Query("SELECT * FROM my_books ORDER BY " +
+            "CASE WHEN :parameter = 0 THEN id END ASC," +
+            "CASE WHEN :parameter = 1 THEN id END DESC")
+    fun loadAllBooks(parameter: Int = 1): Flowable<List<Book>>
 }
