@@ -333,6 +333,18 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             R.id.search -> {
                 startActivity<SearchActivity>()
             }
+            R.id.switch_source -> {
+                val values = resources.getStringArray(R.array.source_values)
+                val checkedItem = values.indexOfFirst { it == Prefs.source }
+                AlertDialog.Builder(this)
+                    .setSingleChoiceItems(R.array.source_entries, checkedItem) { dialog, which ->
+                        Prefs.source = values[which]
+                        TingShuSourceHandler.setupConfig()
+                        refreshMenus()
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
