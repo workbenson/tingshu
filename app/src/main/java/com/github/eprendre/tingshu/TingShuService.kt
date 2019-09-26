@@ -27,10 +27,7 @@ import com.github.eprendre.tingshu.sources.MyPlaybackPreparer
 import com.github.eprendre.tingshu.sources.MyQueueNavigator
 import com.github.eprendre.tingshu.ui.PlayerActivity
 import com.github.eprendre.tingshu.utils.Prefs
-import com.github.eprendre.tingshu.widget.NOW_PLAYING_NOTIFICATION
-import com.github.eprendre.tingshu.widget.NotificationBuilder
-import com.github.eprendre.tingshu.widget.RxBus
-import com.github.eprendre.tingshu.widget.RxEvent
+import com.github.eprendre.tingshu.widget.*
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -61,6 +58,7 @@ class TingShuService : Service(), AnkoLogger {
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var notificationBuilder: NotificationBuilder
     private lateinit var mediaSessionConnector: MediaSessionConnector
+    private lateinit var closeReciver: CloseBroadcastReceiver
 
     private var isForegroundService = false
     val exoPlayer: SimpleExoPlayer by lazy {
@@ -95,6 +93,7 @@ class TingShuService : Service(), AnkoLogger {
         notificationBuilder = NotificationBuilder(this)
         notificationManager = NotificationManagerCompat.from(this)
         becomingNoisyReceiver = BecomingNoisyReceiver(context = this, sessionToken = mediaSession.sessionToken)
+        closeReciver = CloseBroadcastReceiver(this)
         mediaSessionConnector = MediaSessionConnector(mediaSession).also {
 //            val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, "tingshu"))
             val dataSourceFactory = DefaultHttpDataSourceFactory(Util.getUserAgent(this, "tingshu"),
@@ -247,6 +246,7 @@ class TingShuService : Service(), AnkoLogger {
                         startService(Intent(applicationContext, this@TingShuService.javaClass))
                         startForeground(NOW_PLAYING_NOTIFICATION, notification)
                         isForegroundService = true
+                        closeReciver.register()
                     } else if (notification != null) {
                         notificationManager.notify(NOW_PLAYING_NOTIFICATION, notification)
                     }
@@ -255,23 +255,33 @@ class TingShuService : Service(), AnkoLogger {
                     becomingNoisyReceiver.unregister()
 
                     if (isForegroundService) {
-                        stopForeground(false)
-                        isForegroundService = false
-
-                        // If playback has ended, also stop the service.
-//                        if (updatedState == PlaybackStateCompat.STATE_NONE) {
-//                            stopSelf()
-//                        }
-
+//                        stopForeground(false)
+//                        isForegroundService = false
+//
+//                        // If playback has ended, also stop the service.
+////                        if (updatedState == PlaybackStateCompat.STATE_NONE) {
+////                            stopSelf()
+////                        }
+//
                         if (notification != null) {
                             notificationManager.notify(NOW_PLAYING_NOTIFICATION, notification)
-                        } else {
-                            //现在的跳转下一首的姿势比较非主流，会造成通知栏被关掉再打开，故备注这段代码
-//                            removeNowPlayingNotification()
+//                        } else {
+//                            //现在的跳转下一首的姿势比较非主流，会造成通知栏被关掉再打开，故备注这段代码
+////                            removeNowPlayingNotification()
                         }
                     }
                 }
             }
+        }
+    }
+
+    fun exit() {
+        mediaController.transportControls.pause()
+        if (isForegroundService) {
+            closeReciver.unregister()
+            stopForeground(true)
+            isForegroundService = false
+            stopSelf()
         }
     }
 

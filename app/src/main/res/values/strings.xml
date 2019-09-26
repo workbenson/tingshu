@@ -11,6 +11,7 @@
     <string name="notification_pause">Pause</string>
     <string name="notification_rewind">Rewind</string>
     <string name="notification_fast_forward">Rewind</string>
+    <string name="notification_close">关闭</string>
 
     <string name="title_activity_settings">设置</string>
     <string name="title_activity_favorite">我的收藏</string>

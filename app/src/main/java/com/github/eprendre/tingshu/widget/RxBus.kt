@@ -22,5 +22,4 @@ class RxEvent {
   class ParsingPlayUrlEvent
   class ParsingPlayUrlErrorEvent
   class StorePositionEvent
-  class ReleaseWakeLockEvent
 }

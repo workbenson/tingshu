@@ -19,7 +19,9 @@ package com.github.eprendre.tingshu.widget
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -73,6 +75,12 @@ class NotificationBuilder(private val context: Context) {
     private val stopPendingIntent =
             MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
 
+    private val closeAction = NotificationCompat.Action(
+        R.drawable.ic_close_white_24dp,
+        context.getString(R.string.notification_close),
+        PendingIntent.getBroadcast(context, 0, Intent(CloseBroadcastReceiver.CLOSE_ACTION), 0)
+        )
+
     fun buildNotification(sessionToken: MediaSessionCompat.Token): Notification {
         if (shouldCreateNowPlayingChannel()) {
             createNowPlayingChannel()
@@ -90,17 +98,18 @@ class NotificationBuilder(private val context: Context) {
             builder.addAction(skipToPreviousAction)
             ++playPauseIndex
         }
-        builder.addAction(rewindAction)
-        ++playPauseIndex
+//        builder.addAction(rewindAction)
+//        ++playPauseIndex
         if (playbackState.isPlaying) {
             builder.addAction(pauseAction)
         } else if (playbackState.isPlayEnabled) {
             builder.addAction(playAction)
         }
-        builder.addAction(fastForwardAction)
+//        builder.addAction(fastForwardAction)
         if (playbackState.isSkipToNextEnabled) {
             builder.addAction(skipToNextAction)
         }
+        builder.addAction(closeAction)
 
         val mediaStyle = MediaStyle()
                 .setCancelButtonIntent(stopPendingIntent)

@@ -166,6 +166,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
                         LinkMovementMethod.getInstance()
                 }
+                R.id.nav_exit -> {
+                    if (::myService.isInitialized) {
+                        myService.exit()
+                    }
+                    finish()
+                }
             }
             drawer_layout.closeDrawer(GravityCompat.START)
             return@setNavigationItemSelectedListener true

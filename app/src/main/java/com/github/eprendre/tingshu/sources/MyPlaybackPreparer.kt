@@ -23,13 +23,6 @@ class MyPlaybackPreparer(
     private val exoPlayer: ExoPlayer,
     private val dataSourceFactory: DataSource.Factory
 ) : MediaSessionConnector.PlaybackPreparer {
-    var wakeLock: PowerManager.WakeLock? = null
-    init {
-        RxBus.toFlowable(RxEvent.ReleaseWakeLockEvent::class.java)
-            .subscribe {
-                releaseWakeLock()
-            }
-    }
 
     override fun onCommand(
         player: Player?,
@@ -60,22 +53,7 @@ class MyPlaybackPreparer(
         Prefs.currentEpisodeName = App.currentEpisode().title
         RxBus.post(RxEvent.ParsingPlayUrlEvent())
 
-        releaseWakeLock()
-        wakeLock =
-            (App.appContext.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
-                    acquire(30000)
-                }
-            }
         TingShuSourceHandler.getAudioUrlExtractor(url, exoPlayer, dataSourceFactory).extract(url)
-    }
-
-    private fun releaseWakeLock() {
-        wakeLock?.let {
-            if (it.isHeld) {
-                it.release()
-            }
-        }
     }
 
     override fun onPrepare() {
