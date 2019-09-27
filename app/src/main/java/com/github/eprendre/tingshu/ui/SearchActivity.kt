@@ -22,6 +22,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     private val sources by lazy {
         resources.getStringArray(R.array.source_entries).toList()
     }
+    private var searchView: SearchView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,12 +32,13 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
         if (lastTabIndex == -1) {
             lastTabIndex = 0
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
         tabs.setupWithViewPager(view_pager)
         initPagerAdapter()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        searchView?.clearFocus()
     }
 
     private fun initPagerAdapter() {
@@ -73,11 +75,13 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
         menuInflater.inflate(R.menu.search_menu, menu)
 
         val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        val searchView = menu.findItem(R.id.search).actionView as SearchView
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-        searchView.setIconifiedByDefault(false) // Do not iconify the widget; expand it by default
-        searchView.isSubmitButtonEnabled = true
-        searchView.isQueryRefinementEnabled = true
+        searchView = menu.findItem(R.id.search).actionView as SearchView
+        searchView?.let {
+            it.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+            it.setIconifiedByDefault(false) // Do not iconify the widget; expand it by default
+            it.isSubmitButtonEnabled = true
+            it.isQueryRefinementEnabled = true
+        }
 //        searchView.isIconified = false
 //        searchView.queryHint = "搜索"
 //        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
