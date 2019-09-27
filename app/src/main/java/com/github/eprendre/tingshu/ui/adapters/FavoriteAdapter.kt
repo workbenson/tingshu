@@ -47,6 +47,7 @@ class FavoriteViewHolder(view: View, itemClickListener: (Book) -> Unit, itemLong
         titleView.text = book.title
         authorView.text = book.author
         artistView.text = book.artist
+        episodeView.text = ""
         book.currentEpisodeName?.let {
             episodeView.text = "上次播放：$it ${DateUtils.formatElapsedTime(book.currentEpisodePosition / 1000)}"
         }
