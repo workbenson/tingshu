@@ -110,6 +110,32 @@ object Prefs {
             prefs.edit().putString("play_list", Gson().toJson(value)).apply()
         }
 
+    var historyList: ArrayList<Book>
+        get() {
+            val json = prefs.getString("history_list", "[]")
+            return Gson().fromJson(json, object : TypeToken<ArrayList<Book>>() {}.type)
+        }
+        set(value) {
+            prefs.edit().putString("history_list", Gson().toJson(value.distinctBy { it.bookUrl }.take(20))).apply()
+        }
+
+    fun addToHistory(book: Book) {
+        val list = historyList
+        list.add(0, book)
+        historyList = ArrayList(list.distinctBy { it.bookUrl }.take(20))
+    }
+
+    fun storeHistoryPosition() {
+        val list = historyList
+        val book = list.firstOrNull { it.bookUrl == currentBookUrl }
+        if (book != null) {
+            book.currentEpisodePosition = currentEpisodePosition
+            book.currentEpisodeName = currentEpisodeName
+            book.currentEpisodeUrl = currentEpisodeUrl
+            historyList = list
+        }
+    }
+
     var sortType: Int
         get() = prefs.getInt("sort_type", 1)
         set(value) = prefs.edit().putInt("sort_type", value).apply()

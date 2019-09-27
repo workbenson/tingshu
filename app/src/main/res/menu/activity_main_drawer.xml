@@ -18,8 +18,13 @@
             <!--</group>-->
         </menu>
     </item>
-    <item android:title="收藏">
+    <item android:title="我的">
         <menu>
+            <item
+                    android:checkable="true"
+                    android:id="@+id/nav_history"
+                    android:icon="@drawable/ic_history_black_24dp"
+                    android:title="历史记录"/>
             <item
                     android:checkable="true"
                     android:id="@+id/nav_favorite"

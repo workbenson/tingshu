@@ -288,6 +288,7 @@ class TingShuService : Service(), AnkoLogger {
     @SuppressLint("CheckResult")
     private fun storeCurrentPosition() {
         Prefs.currentEpisodePosition = exoPlayer.currentPosition
+        Prefs.storeHistoryPosition()
         AppDatabase.getInstance(this@TingShuService)
             .bookDao()
             .findByBookUrl(Prefs.currentBookUrl!!)

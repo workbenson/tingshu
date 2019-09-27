@@ -135,6 +135,14 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                         .commit()
                     supportActionBar?.title = "我的收藏"
                 }
+                R.id.nav_history -> {
+                    fragment = HistoryFragment()
+                    supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                        .replace(R.id.fragment_container, fragment!!)
+                        .commit()
+                    supportActionBar?.title = "历史记录"
+                }
                 R.id.nav_settings -> {
                     startActivity<SettingsActivity>()
                 }

@@ -12,6 +12,7 @@ import com.github.eprendre.tingshu.db.AppDatabase
 import com.github.eprendre.tingshu.ui.adapters.FavoriteAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -20,11 +21,8 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_favorite.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
-import java.text.Collator
-import java.util.*
-import kotlin.Comparator
 
-class FavoriteFragment : Fragment(), AnkoLogger {
+class HistoryFragment : Fragment(), AnkoLogger {
     private val compositeDisposable = CompositeDisposable()
     private val onItemClickListener: (Book) -> Unit = {
         Prefs.currentCover = it.coverUrl
@@ -38,21 +36,13 @@ class FavoriteFragment : Fragment(), AnkoLogger {
         context?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to it.bookUrl)
     }
 
-    private val onItemLongClickListener: (Book) -> Unit = {
+    private val onItemLongClickListener: (Book) -> Unit = { book ->
         if (context != null) {
             AlertDialog.Builder(context!!)
-                .setTitle("是否取消收藏?")
+                .setTitle("是否删除本条记录?")
                 .setPositiveButton("是") { dialog, which ->
-                    //取消收藏
-                    AppDatabase.getInstance(context!!).bookDao()
-                        .deleteBooks(it)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeBy(onSuccess = {
-                        }, onError = {
-                            it.printStackTrace()
-                        })
-                        .addTo(compositeDisposable)
+                    Prefs.historyList = Prefs.historyList.apply { remove(book) }
+                    loadData()
                 }
                 .setNegativeButton("否", null)
                 .show()
@@ -61,11 +51,6 @@ class FavoriteFragment : Fragment(), AnkoLogger {
 
     private val listAdapter by lazy {
         FavoriteAdapter(onItemClickListener, onItemLongClickListener)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -78,7 +63,7 @@ class FavoriteFragment : Fragment(), AnkoLogger {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        state_layout.setEmptyText("暂无收藏")
+        state_layout.setEmptyText("暂无浏览记录")
         state_layout.setErrorText("加载出错啦")
         val linearLayoutManager = LinearLayoutManager(context)
         recycler_view.layoutManager = linearLayoutManager
@@ -94,39 +79,29 @@ class FavoriteFragment : Fragment(), AnkoLogger {
                 linearLayoutManager.scrollToPositionWithOffset(0, 0)
             }
         })
-
-        loadData()
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadData()
+    }
     private fun loadData() {
         compositeDisposable.clear()
-        AppDatabase.getInstance(context!!)
-            .bookDao()
-            .loadAllBooks(Prefs.sortType)
+        Single.fromCallable {
+            return@fromCallable Prefs.historyList
+        }
             .subscribeOn(Schedulers.io())
             .doOnSubscribe {
                 state_layout.showLoading()
             }
             .subscribeOn(AndroidSchedulers.mainThread())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(onNext = {
+            .subscribeBy(onSuccess = {
                 if (it.isEmpty()) {
                     state_layout.showEmpty()
                 } else {
                     state_layout.showContent()
-                    when (Prefs.sortType){
-                        0, 1 -> {
-                            listAdapter.submitList(it)
-                        }
-                        2 -> {
-                            val list = it.sortedWith(SortChinese())
-                            listAdapter.submitList(list)
-                        }
-                        3 -> {
-                            val list = it.sortedWith(SortChinese()).reversed()
-                            listAdapter.submitList(list)
-                        }
-                    }
+                    listAdapter.submitList(it)
                 }
             }, onError = {
                 it.printStackTrace()
@@ -140,43 +115,8 @@ class FavoriteFragment : Fragment(), AnkoLogger {
         inflater.inflate(R.menu.favorite_menu, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.sort -> {
-                AlertDialog.Builder(context!!)
-                    .setSingleChoiceItems(SORT_TYPES, Prefs.sortType) { dialog, which ->
-                        Prefs.sortType = which
-                        loadData()
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         compositeDisposable.clear()
-    }
-
-    companion object {
-        val SORT_TYPES = arrayOf(
-            "按添加时间排序（正序）",
-            "按添加时间排序（倒序）",
-            "按标题排序（正序）",
-            "按标题排序（倒序）"
-        )
-    }
-
-    class SortChinese : Comparator<Book> {
-        override fun compare(o1: Book, o2: Book): Int {
-            val collator: Collator = Collator.getInstance(Locale.CHINA)
-            return when {
-                collator.compare(o1.title, o2.title) > 0 -> 1
-                collator.compare(o1.title, o2.title) < 0 -> -1
-                else -> 0
-            }
-        }
     }
 }

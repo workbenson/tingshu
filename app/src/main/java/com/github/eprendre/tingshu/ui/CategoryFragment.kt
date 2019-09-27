@@ -40,6 +40,7 @@ class CategoryFragment : Fragment(), AnkoLogger {
             Prefs.currentBookName = it.title
             Prefs.artist = it.artist
             Prefs.author = it.author
+            Prefs.addToHistory(it)
             activity?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to it.bookUrl)
         }
     }
