@@ -6,6 +6,8 @@
 
 目前核心的播放功能已完成，UI方面不是强项，有兴趣的朋友欢迎帮忙 PR 改进。
 
+bug反馈或者功能建议可加 QQ 群：470339586
+
 ## 下载
 
 * [Release](https://github.com/eprendre/tingshu/releases)
@@ -13,18 +15,19 @@
 
 ## 已支持的站点
 
-* [http://m.ting89.com](http://m.ting89.com)
-* [http://m.520tingshu.com](http://m.520tingshu.com)
-* [http://m.ting56.com](http://m.ting56.com)
-* [http://m.audio699.com](http://m.audio699.com)
-* [https://www.tingshubao.com](https://www.tingshubao.com)
-* [http://www.tingchina.com](http://www.tingchina.com)
-* [http://www.tingshuge.com](http://www.tingshuge.com)(现在挂了，不知道啥时候能好。)
+* 幻听网：[http://m.ting89.com](http://m.ting89.com)
+* 520听书网：[http://m.520tingshu.com](http://m.520tingshu.com)
+* 56听书网：[http://m.ting56.com](http://m.ting56.com)
+* 静听网：[http://m.audio699.com](http://m.audio699.com)
+* 听书宝：[https://www.tingshubao.com](https://www.tingshubao.com)
+* TingChina：[http://www.tingchina.com](http://www.tingchina.com)
+* 天天评书网：[https://www.pingshu365.com](https://www.pingshu365.com)
+* 22听书网：[https://m.ting22.com](https://m.ting22.com)
+* 听书阁：[http://www.tingshuge.com](http://www.tingshuge.com)(现在挂了，不知道啥时候能好。)
 
 ## 注意事项
 
 * 这个 app 只是一个爬虫, 不对书籍是否能够播放的可靠性负责。如果原网站已经失效了, 那些书在 app 里面听不了也很正常。如果所有书都听不了, 那应该是机型的问题。碰到这种的希望大家可以提 issue 告之一下机型以及安卓系统版本。
-* 在某些手机里锁屏自动切换下一首时会卡住, 原因是由于每次播放时都要先去抓取实际的播放地址。需要加到后台白名单才能解决。
 
 ## 截图
 
