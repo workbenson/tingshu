@@ -154,6 +154,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 }
                 R.id.nav_about -> {
                     val message = "当前版本: ${BuildConfig.VERSION_NAME}\n\n" +
+                            "bug反馈与功能建议QQ群: 470339586\n\n" +
                             "部分资源来自:\nhttps://unsplash.com\n\n" +
                             "查看源码:\nhttps://github.com/eprendre/tingshu"
                     val s = SpannableString(message)
