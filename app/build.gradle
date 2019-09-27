@@ -9,7 +9,7 @@ android {
         applicationId "com.github.eprendre.tingshu"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 27
+        versionCode 28
         versionName "1.2.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "tingshu_${versionName}_${versionCode}")
