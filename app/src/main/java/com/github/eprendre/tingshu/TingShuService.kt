@@ -68,7 +68,7 @@ class TingShuService : Service(), AnkoLogger {
                     .setContentType(C.CONTENT_TYPE_MUSIC)
                     .setUsage(C.USAGE_MEDIA)
                     .build(),
-                true
+                !Prefs.ignoreFocus
             )
         }
     }
@@ -119,7 +119,6 @@ class TingShuService : Service(), AnkoLogger {
                 retryOnError()
             }
         })
-        exoPlayer.addListener(object : Player.EventListener {})
         disposable = RxBus.toFlowable(RxEvent.ParsingPlayUrlErrorEvent::class.java)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {

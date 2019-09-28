@@ -35,6 +35,12 @@
                 app:key="show_album_art"
                 app:title="在锁屏显示封面背景 (仅部分系统可用，重启或者换书生效)"
                 app:defaultValue="false"/>
+
+        <SwitchPreference
+                app:key="ignore_focus"
+                app:title="忽略其它 app"
+                app:summary="开启之后，在其它 app 中播放音频时，本 app 不会自动暂停。（重启后生效）"
+                app:defaultValue="false"/>
     </PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>

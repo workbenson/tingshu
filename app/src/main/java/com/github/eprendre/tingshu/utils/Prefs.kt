@@ -139,4 +139,8 @@ object Prefs {
     var sortType: Int
         get() = prefs.getInt("sort_type", 1)
         set(value) = prefs.edit().putInt("sort_type", value).apply()
+
+    var ignoreFocus: Boolean
+        get() = prefs.getBoolean("ignore_focus", false)
+        set(value) = prefs.edit().putBoolean("ignore_focus", value).apply()
 }
