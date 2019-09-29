@@ -127,17 +127,26 @@ class TingShuService : Service(), AnkoLogger {
     }
 
     private fun retryOnError() {
-        val player = MediaPlayer.create(applicationContext, R.raw.play_failed)
-        player.setOnCompletionListener {
+        if (Prefs.audioOnError) {
+            val player = MediaPlayer.create(applicationContext, R.raw.play_failed)
+            player.setOnCompletionListener {
+                if (App.isRetry && retryCount < 3) {
+                    MediaPlayer.create(applicationContext, R.raw.retry).start()
+                    Handler().postDelayed({
+                        mediaController.transportControls.playFromUri(Uri.parse(Prefs.currentEpisodeUrl), null)
+                    }, 1000)
+                    retryCount += 1
+                }
+            }
+            player.start()
+        } else {
             if (App.isRetry && retryCount < 3) {
-                MediaPlayer.create(applicationContext, R.raw.retry).start()
                 Handler().postDelayed({
                     mediaController.transportControls.playFromUri(Uri.parse(Prefs.currentEpisodeUrl), null)
                 }, 1000)
                 retryCount += 1
             }
         }
-        player.start()
     }
 
     override fun onBind(intent: Intent): IBinder? {

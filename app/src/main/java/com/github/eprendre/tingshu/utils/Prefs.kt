@@ -143,4 +143,8 @@ object Prefs {
     var ignoreFocus: Boolean
         get() = prefs.getBoolean("ignore_focus", false)
         set(value) = prefs.edit().putBoolean("ignore_focus", value).apply()
+
+    var audioOnError: Boolean
+        get() = prefs.getBoolean("audio_on_error", false)
+        set(value) = prefs.edit().putBoolean("audio_on_error", value).apply()
 }
