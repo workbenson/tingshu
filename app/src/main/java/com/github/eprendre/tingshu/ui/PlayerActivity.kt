@@ -173,6 +173,10 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 button_play.setImageResource(R.drawable.exo_controls_play)
                 toast("播放出错了(如果多次报错此地址可能已失效)")
             }
+            PlaybackStateCompat.STATE_STOPPED -> {
+                play_progress.visibility = View.GONE
+                button_play.setImageResource(R.drawable.exo_controls_play)
+            }
             PlaybackStateCompat.STATE_PLAYING -> {
                 button_play.setImageResource(R.drawable.exo_controls_pause)
                 play_progress.visibility = View.GONE

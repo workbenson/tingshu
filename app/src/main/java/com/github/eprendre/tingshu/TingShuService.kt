@@ -110,7 +110,13 @@ class TingShuService : Service(), AnkoLogger {
         exoPlayer.addListener(object : Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 when (playbackState) {
-                    Player.STATE_ENDED -> mediaController.transportControls.skipToNext()
+                    Player.STATE_ENDED -> {
+                        if (exoPlayer.duration > 10000) {//静听网会播放一个访问过快的音频，造成不停地跳转下一集
+                            mediaController.transportControls.skipToNext()
+                        } else {
+                            Prefs.currentEpisodePosition = 0
+                        }
+                    }
                     Player.STATE_READY -> retryCount = 0
                 }
             }
