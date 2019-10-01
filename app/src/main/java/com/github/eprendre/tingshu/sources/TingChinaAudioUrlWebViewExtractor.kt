@@ -134,16 +134,17 @@ object TingChinaAudioUrlWebViewExtractor : AudioUrlExtractor {
             compositeDisposable.clear()
             isAudioGet = true
 
-            val bookname = Prefs.currentEpisodeName + " - " + Prefs.currentBookName
+            val book = Prefs.currentBook!!
+            val bookname = book.currentEpisodeName + " - " + book.title
 
             val metadata = MediaMetadataCompat.Builder()
                 .apply {
                     title = bookname
-                    artist = Prefs.artist
+                    artist = book.artist
                     mediaUri = audioUrl
 
                     displayTitle = bookname
-                    displaySubtitle = Prefs.artist
+                    displaySubtitle = book.artist
                     downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
                     if (Prefs.showAlbumInLockScreen) {
                         var art = App.coverBitmap
@@ -157,8 +158,8 @@ object TingChinaAudioUrlWebViewExtractor : AudioUrlExtractor {
 
             val source = metadata.toMediaSource(dataSourceFactory)
             exoPlayer.prepare(source)
-            if (Prefs.currentEpisodePosition > 0) {
-                exoPlayer.seekTo(Prefs.currentEpisodePosition)
+            App.currentPosition {
+                exoPlayer.seekTo(book.currentEpisodePosition)
             }
             webView.loadUrl("about:blank")
         }

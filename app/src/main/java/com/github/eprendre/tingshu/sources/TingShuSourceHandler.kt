@@ -103,7 +103,7 @@ object TingShuSourceHandler {
             App.coverBitmap = GlideApp.with(App.appContext)
                 .applyDefaultRequestOptions(glideOptions)
                 .asBitmap()
-                .load(Prefs.currentCover)
+                .load(Prefs.currentBook!!.coverUrl)
                 .submit(144, 144)
                 .get()
         } catch (e: Exception) {

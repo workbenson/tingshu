@@ -27,60 +27,24 @@ object Prefs {
         set(value) = prefs.edit().putString("current_book", value).apply()
 
     /**
-     * 记录当前播放集数
-     */
-    var currentEpisodeUrl: String?
-        get() = prefs.getString("current_episode", "")
-        set(value) = prefs.edit().putString("current_episode", value).apply()
-
-    /**
-     * 记录播放时间
-     */
-    var currentEpisodePosition: Long
-        get() = prefs.getLong("position", 0L)
-        set(value) = prefs.edit().putLong("position", value).apply()
-
-    /**
-     * 当前播放书籍的作者
-     */
-    var author: String?
-        get() = prefs.getString("author", "")
-        set(value) = prefs.edit().putString("author", value).apply()
-
-    /**
-     * 记录当前播放艺术家
-     */
-    var artist: String?
-        get() = prefs.getString("artist", "")
-        set(value) = prefs.edit().putString("artist", value).apply()
-
-    /**
-     * 记录当前播放书名
-     */
-    var currentBookName: String?
-        get() = prefs.getString("current_book_name", "")
-        set(value) = prefs.edit().putString("current_book_name", value).apply()
-
-    /**
-     * 当前章节名
-     */
-    var currentEpisodeName: String?
-        get() = prefs.getString("current_episode_name", "")
-        set(value) = prefs.edit().putString("current_episode_name", value).apply()
-
-    /**
-     * 当前播放封面
-     */
-    var currentCover: String?
-        get() = prefs.getString("current_cover", "")
-        set(value) = prefs.edit().putString("current_cover", value).apply()
-
-    /**
      * 当前简介
      */
     var currentIntro: String?
         get() = prefs.getString("current_intro", "")
         set(value) = prefs.edit().putString("current_intro", value).apply()
+
+    var currentBook: Book?
+        get() {
+            val json = prefs.getString("current_audio_book", "")
+            return if (json.isNullOrBlank()) {
+                null
+            } else {
+                Gson().fromJson(json, Book::class.java)
+            }
+        }
+        set(value) {
+            prefs.edit().putString("current_audio_book", Gson().toJson(value)).apply()
+        }
 
     var source: String
         get() = prefs.getString("current_source", TingShuSourceHandler.SOURCE_URL_HUANTINGWANG)!!
@@ -125,13 +89,13 @@ object Prefs {
         historyList = ArrayList(list.distinctBy { it.bookUrl }.take(20))
     }
 
-    fun storeHistoryPosition() {
+    fun storeHistoryPosition(currentBook: Book) {
         val list = historyList
-        val book = list.firstOrNull { it.bookUrl == currentBookUrl }
+        val book = list.firstOrNull { it.bookUrl == currentBook.bookUrl }
         if (book != null) {
-            book.currentEpisodePosition = currentEpisodePosition
-            book.currentEpisodeName = currentEpisodeName
-            book.currentEpisodeUrl = currentEpisodeUrl
+            book.currentEpisodePosition = currentBook.currentEpisodePosition
+            book.currentEpisodeName = currentBook.currentEpisodeName
+            book.currentEpisodeUrl = currentBook.currentEpisodeUrl
             historyList = list
         }
     }

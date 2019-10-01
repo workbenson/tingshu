@@ -19,6 +19,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
+import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.session.MediaButtonReceiver
 import androidx.room.EmptyResultSetException
@@ -26,6 +27,7 @@ import com.github.eprendre.tingshu.db.AppDatabase
 import com.github.eprendre.tingshu.sources.MyPlaybackPreparer
 import com.github.eprendre.tingshu.sources.MyQueueNavigator
 import com.github.eprendre.tingshu.ui.PlayerActivity
+import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.*
 import com.google.android.exoplayer2.*
@@ -49,7 +51,7 @@ import java.util.concurrent.TimeUnit
 class TingShuService : Service(), AnkoLogger {
     val myBinder = MyLocalBinder()
     private val compositeDisposable = CompositeDisposable()
-    private lateinit var disposable: Disposable
+    private val busDisposables = CompositeDisposable()
     private var retryCount = 0
 
     lateinit var mediaSession: MediaSessionCompat
@@ -92,15 +94,18 @@ class TingShuService : Service(), AnkoLogger {
 
         notificationBuilder = NotificationBuilder(this)
         notificationManager = NotificationManagerCompat.from(this)
-        becomingNoisyReceiver = BecomingNoisyReceiver(context = this, sessionToken = mediaSession.sessionToken)
+        becomingNoisyReceiver =
+            BecomingNoisyReceiver(context = this, sessionToken = mediaSession.sessionToken)
         closeReciver = CloseBroadcastReceiver(this)
         mediaSessionConnector = MediaSessionConnector(mediaSession).also {
-//            val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, "tingshu"))
-            val dataSourceFactory = DefaultHttpDataSourceFactory(Util.getUserAgent(this, "tingshu"),
+            //            val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, "tingshu"))
+            val dataSourceFactory = DefaultHttpDataSourceFactory(
+                Util.getUserAgent(this, "tingshu"),
                 null,
                 DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
                 DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
-                true)
+                true
+            )
 
             val playbackPrepare = MyPlaybackPreparer(exoPlayer, dataSourceFactory)
             it.setPlayer(exoPlayer)
@@ -114,7 +119,9 @@ class TingShuService : Service(), AnkoLogger {
                         if (exoPlayer.duration > 10000) {//静听网会播放一个访问过快的音频，造成不停地跳转下一集
                             mediaController.transportControls.skipToNext()
                         } else {
-                            Prefs.currentEpisodePosition = 0
+                            Prefs.currentBook = Prefs.currentBook?.apply {
+                                this.currentEpisodePosition = 0
+                            }
                         }
                     }
                     Player.STATE_READY -> retryCount = 0
@@ -125,11 +132,19 @@ class TingShuService : Service(), AnkoLogger {
                 retryOnError()
             }
         })
-        disposable = RxBus.toFlowable(RxEvent.ParsingPlayUrlErrorEvent::class.java)
+        RxBus.toFlowable(RxEvent.ParsingPlayUrlErrorEvent::class.java)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 retryOnError()
             }
+            .addTo(busDisposables)
+        RxBus.toFlowable(RxEvent.StorePositionEvent::class.java)
+            .subscribe {
+                if (exoPlayer.playbackState == Player.STATE_READY) {
+                    storeCurrentPosition()
+                }
+            }
+            .addTo(busDisposables)
     }
 
     private fun retryOnError() {
@@ -139,7 +154,10 @@ class TingShuService : Service(), AnkoLogger {
                 if (App.isRetry && retryCount < 3) {
                     MediaPlayer.create(applicationContext, R.raw.retry).start()
                     Handler().postDelayed({
-                        mediaController.transportControls.playFromUri(Uri.parse(Prefs.currentEpisodeUrl), null)
+                        mediaController.transportControls.playFromUri(
+                            Uri.parse(Prefs.currentBook!!.currentEpisodeUrl),
+                            null
+                        )
                     }, 1000)
                     retryCount += 1
                 }
@@ -148,7 +166,10 @@ class TingShuService : Service(), AnkoLogger {
         } else {
             if (App.isRetry && retryCount < 3) {
                 Handler().postDelayed({
-                    mediaController.transportControls.playFromUri(Uri.parse(Prefs.currentEpisodeUrl), null)
+                    mediaController.transportControls.playFromUri(
+                        Uri.parse(Prefs.currentBook!!.currentEpisodeUrl),
+                        null
+                    )
                 }, 1000)
                 retryCount += 1
             }
@@ -225,9 +246,9 @@ class TingShuService : Service(), AnkoLogger {
             }
             updateNotification(state)
             when (state.state) {
-                PlaybackStateCompat.STATE_PLAYING,
                 PlaybackStateCompat.STATE_ERROR,
                 PlaybackStateCompat.STATE_PAUSED -> {
+                    Log.i("trigger Position", "123456")
                     storeCurrentPosition()
                 }
             }
@@ -300,26 +321,27 @@ class TingShuService : Service(), AnkoLogger {
     }
 
     @SuppressLint("CheckResult")
-    private fun storeCurrentPosition() {
-        Prefs.currentEpisodePosition = exoPlayer.currentPosition
-        Prefs.storeHistoryPosition()
+    private fun storeCurrentPosition(b: Book? = null) {
+        val currentBook: Book = b ?: Prefs.currentBook ?: return
+
+        currentBook.currentEpisodePosition = exoPlayer.currentPosition
+        Prefs.storeHistoryPosition(currentBook)
+        Prefs.currentBook = currentBook
         AppDatabase.getInstance(this@TingShuService)
             .bookDao()
-            .findByBookUrl(Prefs.currentBookUrl!!)
+            .findByBookUrl(currentBook.bookUrl)
             .subscribeOn(Schedulers.io())
             .subscribeBy(onSuccess = { book ->
-                book.currentEpisodePosition = Prefs.currentEpisodePosition
-                book.currentEpisodeName = Prefs.currentEpisodeName
-                book.currentEpisodeUrl = Prefs.currentEpisodeUrl
+                book.currentEpisodePosition = currentBook.currentEpisodePosition
+                book.currentEpisodeName = currentBook.currentEpisodeName
+                book.currentEpisodeUrl = currentBook.currentEpisodeUrl
                 AppDatabase.getInstance(this@TingShuService)
                     .bookDao()
                     .updateBooks(book)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(onComplete = {}, onError = {})
-                RxBus.post(RxEvent.StorePositionEvent())
             }, onError = {
-                RxBus.post(RxEvent.StorePositionEvent())
                 if (it is EmptyResultSetException) {
                     //数据库没有,忽略
                 } else {

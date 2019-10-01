@@ -12,6 +12,8 @@ import com.github.eprendre.tingshu.db.AppDatabase
 import com.github.eprendre.tingshu.ui.adapters.FavoriteAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
+import com.github.eprendre.tingshu.widget.RxBus
+import com.github.eprendre.tingshu.widget.RxEvent
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -26,16 +28,11 @@ import kotlin.Comparator
 
 class FavoriteFragment : Fragment(), AnkoLogger {
     private val compositeDisposable = CompositeDisposable()
-    private val onItemClickListener: (Book) -> Unit = {
-        Prefs.currentCover = it.coverUrl
-        Prefs.currentBookName = it.title
-        Prefs.artist = it.artist
-        Prefs.author = it.author
-        Prefs.currentEpisodeName = it.currentEpisodeName
-        Prefs.currentEpisodePosition = it.currentEpisodePosition
-        Prefs.currentEpisodeUrl = it.currentEpisodeUrl
-        Prefs.addToHistory(it)
-        context?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to it.bookUrl)
+    private val onItemClickListener: (Book) -> Unit = { book ->
+        Prefs.currentBook?.apply { RxBus.post(RxEvent.StorePositionEvent(this)) }
+        Prefs.currentBook = book
+        Prefs.addToHistory(book)
+        context?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
     }
 
     private val onItemLongClickListener: (Book) -> Unit = {

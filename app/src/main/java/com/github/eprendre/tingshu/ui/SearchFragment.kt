@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
@@ -15,6 +16,8 @@ import com.github.eprendre.tingshu.ui.adapters.SearchAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.EndlessRecyclerViewScrollListener
+import com.github.eprendre.tingshu.widget.RxBus
+import com.github.eprendre.tingshu.widget.RxEvent
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -35,18 +38,21 @@ class SearchFragment : Fragment(), AnkoLogger {
     private lateinit var tingShu: TingShu
 
     private val listAdapter by lazy {
-        SearchAdapter {
-            //        Prefs.currentBookUrl = it.bookUrl//这个不能在这里赋值，在PlayerActivity检测后再赋值避免不必要的bug
-            if (it.coverUrl.isBlank()) {
+        SearchAdapter { book ->
+            if (book.coverUrl.isBlank()) {
                 activity?.toast("本条目加载中，请稍后...")
                 return@SearchAdapter
             }
-            Prefs.currentCover = it.coverUrl
-            Prefs.currentBookName = it.title
-            Prefs.artist = it.artist
-            Prefs.author = it.author
-            Prefs.addToHistory(it)
-            activity?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to it.bookUrl)
+            Prefs.currentBook?.apply { RxBus.post(RxEvent.StorePositionEvent(this))}
+            if (Prefs.currentBook == null || Prefs.currentBook!!.bookUrl != book.bookUrl) {
+                App.findBookInHistoryOrFav(book) {
+                    Prefs.currentBook = it
+                    Prefs.addToHistory(it)
+                    activity?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
+                }
+            } else {
+                activity?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
+            }
         }
     }
 

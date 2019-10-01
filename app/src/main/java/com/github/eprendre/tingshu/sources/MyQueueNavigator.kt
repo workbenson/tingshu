@@ -42,7 +42,9 @@ class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
      * 处理跳转上一首的逻辑
      */
     override fun onSkipToPrevious(player: Player, controlDispatcher: ControlDispatcher) {
-        Prefs.currentEpisodePosition = 0
+        Prefs.currentBook = Prefs.currentBook?.apply {
+            this.currentEpisodePosition = 0
+        }
         if (App.currentEpisodeIndex() < 1) {
             player.seekTo(0)
         } else {
@@ -57,7 +59,9 @@ class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
      * 处理跳转下一首的逻辑, 不必担心越界 getSupportedQueueNavigatorActions 里面已经检查了
      */
     override fun onSkipToNext(player: Player, controlDispatcher: ControlDispatcher) {
-        Prefs.currentEpisodePosition = 0
+        Prefs.currentBook = Prefs.currentBook?.apply {
+            this.currentEpisodePosition = 0
+        }
         mediaSessionCompat.controller.transportControls.playFromUri(
             Uri.parse(Prefs.playList[App.currentEpisodeIndex() + 1].url),
             null

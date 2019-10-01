@@ -53,10 +53,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.android.synthetic.main.activity_player.*
 import kotlinx.android.synthetic.main.dialog_countdown.view.*
 import kotlinx.android.synthetic.main.dialog_episodes.view.*
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.dip
-import org.jetbrains.anko.find
-import org.jetbrains.anko.toast
+import org.jetbrains.anko.*
 import java.lang.IllegalArgumentException
 import java.util.concurrent.TimeUnit
 
@@ -82,7 +79,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         }
     }
     private val listAdapter = EpisodeAdapter {
-        Prefs.currentEpisodePosition = 0
+        Prefs.currentBook = Prefs.currentBook?.apply {
+            this.currentEpisodePosition = 0
+        }
         mediaController.transportControls.playFromUri(Uri.parse(it.url), null)
         dialogEpisodes.dismiss()
     }
@@ -164,8 +163,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
      * 根据播放状态更新 "播放/暂停" 按钮的图标
      */
     private fun updateState(state: PlaybackStateCompat) {
-        artist_text.text = "${Prefs.artist}"
-        episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
+        val book = Prefs.currentBook!!
+        artist_text.text = "${book.artist}"
+        episode_text.text = "当前章节：${book.currentEpisodeName}"
         listAdapter.notifyDataSetChanged()//更新当前正在播放的item颜色
         when (state.state) {
             PlaybackStateCompat.STATE_ERROR -> {
@@ -213,21 +213,18 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private fun handleIntent() {
         val bookurl = intent.getStringExtra(ARG_BOOKURL)
         if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {//需要换书
-            if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
-                mediaController.transportControls.pause()//如果正在播放，先暂停触发保存位置。 然后回调 StorePositionEvent 播放
-            } else {
-                Prefs.currentBookUrl = bookurl
-                playFromBookUrl(bookurl)
-                invalidateOptionsMenu()
-            }
+            Prefs.currentBookUrl = bookurl
+            playFromBookUrl(bookurl)
+            invalidateOptionsMenu()
         } else {//不需要换书
             if (myService.exoPlayer.playbackState == Player.STATE_IDLE) {
                 //此状态代表通知栏被关闭，导致播放器移除了当前播放曲目，需要重新加载链接
                 Prefs.currentBookUrl?.apply { playFromBookUrl(this) }
             } else {//继续播放
-                artist_text.text = "${Prefs.artist}"
-                episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
-                supportActionBar?.title = Prefs.currentBookName
+                val book = Prefs.currentBook!!
+                artist_text.text = "${book.artist}"
+                episode_text.text = "当前章节：${book.currentEpisodeName}"
+                supportActionBar?.title = book.title
                 listAdapter.submitList(Prefs.playList)
                 updateState(mediaController.playbackState)
                 state_layout.showContent()
@@ -247,8 +244,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                artist_text.text = "${Prefs.artist}"
-                episode_text.text = "当前章节：${Prefs.currentEpisodeName}"
+                val book = Prefs.currentBook!!
+                artist_text.text = "${book.artist}"
+                episode_text.text = "当前章节：${book.currentEpisodeName}"
                 invalidateOptionsMenu()
                 state_layout.showContent()
                 tintColor()
@@ -258,9 +256,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 //如果当前播放列表有上一次的播放地址就继续播放，否则清空记录的播放时间
                 if (index < 0) {
                     index = 0
-                    Prefs.currentEpisodePosition = 0
                 }
-                supportActionBar?.title = Prefs.currentBookName
+                supportActionBar?.title = book.title
                 listAdapter.submitList(Prefs.playList)
                 mediaController.transportControls.playFromUri(Uri.parse(Prefs.playList[index].url), null)
             }, { error ->
@@ -275,7 +272,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
      */
     private fun tintColor() {
         GlideApp.with(this)
-            .load(Prefs.currentCover)
+            .load(Prefs.currentBook!!.coverUrl)
             .error(//不能直接往error里面扔resource id, 否则transformation就不会应用
                 GlideApp.with(this@PlayerActivity)
                     .load(R.drawable.default_art)
@@ -349,7 +346,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
      */
     private fun initViews() {
         GlideApp.with(this)
-            .load(Prefs.currentCover)
+            .load(Prefs.currentBook!!.coverUrl)
             .error(
                 GlideApp.with(this@PlayerActivity)
                     .load(R.drawable.default_art)
@@ -407,17 +404,17 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 toast("播放地址解析出错了，请重试")
             }
             .addTo(compositeDisposable)
-        RxBus.toFlowable(RxEvent.StorePositionEvent::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                val bookurl = intent.getStringExtra(ARG_BOOKURL)
-                if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {
-                    Prefs.currentBookUrl = bookurl
-                    playFromBookUrl(bookurl)
-                    invalidateOptionsMenu()
-                }
-            }
-            .addTo(compositeDisposable)
+//        RxBus.toFlowable(RxEvent.StorePositionEvent::class.java)
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe {
+//                val bookurl = intent.getStringExtra(ARG_BOOKURL)
+//                if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {
+//                    Prefs.currentBookUrl = bookurl
+//                    playFromBookUrl(bookurl)
+//                    invalidateOptionsMenu()
+//                }
+//            }
+//            .addTo(compositeDisposable)
         //播放速度
         myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)//初始化播放器的速度
         speed_button.text = "${Prefs.speed} x"
@@ -633,7 +630,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         when (item.itemId) {
             R.id.link -> {
                 val i = Intent(Intent.ACTION_VIEW)
-                i.data = Uri.parse(Prefs.currentEpisodeUrl)
+                i.data = Uri.parse(Prefs.currentBook!!.currentEpisodeUrl)
                 startActivity(i)
             }
             R.id.favorite -> {
@@ -652,19 +649,19 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
                 } else {
                     //添加收藏
-                    val book = Book(
-                        Prefs.currentCover!!,
-                        Prefs.currentBookUrl!!,
-                        Prefs.currentBookName!!,
-                        Prefs.author!!,
-                        Prefs.artist!!
-                    ).apply {
-                        this.currentEpisodeUrl = Prefs.currentEpisodeUrl
-                        this.currentEpisodeName = Prefs.currentEpisodeName
-                        this.currentEpisodePosition = Prefs.currentEpisodePosition
-                    }
+//                    val book = Book(
+//                        Prefs.currentCover!!,
+//                        Prefs.currentBookUrl!!,
+//                        Prefs.currentBookName!!,
+//                        Prefs.author!!,
+//                        Prefs.artist!!
+//                    ).apply {
+//                        this.currentEpisodeUrl = Prefs.currentEpisodeUrl
+//                        this.currentEpisodeName = Prefs.currentEpisodeName
+//                        this.currentEpisodePosition = Prefs.currentEpisodePosition
+//                    }
                     AppDatabase.getInstance(this).bookDao()
-                        .insertBooks(book)
+                        .insertBooks(Prefs.currentBook!!)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeBy(onComplete = {

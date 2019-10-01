@@ -8,12 +8,15 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.adapters.CategoryAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.EndlessRecyclerViewScrollListener
+import com.github.eprendre.tingshu.widget.RxBus
+import com.github.eprendre.tingshu.widget.RxEvent
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -34,14 +37,18 @@ class CategoryFragment : Fragment(), AnkoLogger {
     private lateinit var scrollListener: EndlessRecyclerViewScrollListener
 
     private val listAdapter by lazy {
-        CategoryAdapter {
+        CategoryAdapter { book ->
             //这里数据都一样的，可以共用SearchAdapter
-            Prefs.currentCover = it.coverUrl
-            Prefs.currentBookName = it.title
-            Prefs.artist = it.artist
-            Prefs.author = it.author
-            Prefs.addToHistory(it)
-            activity?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to it.bookUrl)
+            Prefs.currentBook?.apply { RxBus.post(RxEvent.StorePositionEvent(this))}
+            if (Prefs.currentBook == null || Prefs.currentBook!!.bookUrl != book.bookUrl) {
+                App.findBookInHistoryOrFav(book) {
+                    Prefs.currentBook = it
+                    Prefs.addToHistory(it)
+                    activity?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
+                }
+            } else {
+                activity?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.github.eprendre.tingshu.widget
 
+import com.github.eprendre.tingshu.utils.Book
 import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
 
@@ -21,5 +22,5 @@ class RxEvent {
   data class TimerEvent(val msg: String)
   class ParsingPlayUrlEvent
   class ParsingPlayUrlErrorEvent
-  class StorePositionEvent
+  data class StorePositionEvent(val book: Book)
 }

@@ -40,7 +40,7 @@ class EpisodeViewHolder(view: View, itemClickedListener: (Episode) -> Unit) : Re
     fun bind(episode: Episode) {
         item = episode
         titleView.text = episode.title
-        if (episode.url == Prefs.currentEpisodeUrl) {
+        if (episode.url == Prefs.currentBook!!.currentEpisodeUrl) {
             titleView.setTextColor(ContextCompat.getColor(itemView.context,
                 R.color.colorAccent
             ))

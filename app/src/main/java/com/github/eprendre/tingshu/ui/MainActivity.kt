@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private fun initViews() {
         fab.setOnClickListener {
             if (mediaController.playbackState.state == PlaybackStateCompat.STATE_NONE) {
-                startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBookUrl)
+                startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBook!!.bookUrl)
             } else {
                 startActivity<PlayerActivity>()
             }
@@ -188,20 +188,21 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun updatePlayerInfo() {
-        if (Prefs.currentBookUrl.isNullOrBlank()) {
+        if (Prefs.currentBook == null) {
             headerView.container.setOnClickListener(null)
             fab.hide()
         } else {
-            GlideApp.with(this).load(Prefs.currentCover).into(headerView.cover_image)
-            headerView.book_name_text.text = Prefs.currentBookName
-            headerView.author_text.text = Prefs.author
-            headerView.artist_text.text = Prefs.artist
-            headerView.episode_text.text = Prefs.currentEpisodeName
+            val book = Prefs.currentBook!!
+            GlideApp.with(this).load(book.coverUrl).into(headerView.cover_image)
+            headerView.book_name_text.text = book.title
+            headerView.author_text.text = book.author
+            headerView.artist_text.text = book.artist
+            headerView.episode_text.text = book.currentEpisodeName
             headerView.container.setOnClickListener {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 Handler().postDelayed({
                     if (mediaController.playbackState.state == PlaybackStateCompat.STATE_NONE) {
-                        startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBookUrl)
+                        startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
                     } else {
                         startActivity<PlayerActivity>()
                     }

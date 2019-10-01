@@ -49,8 +49,10 @@ class MyPlaybackPreparer(
             return
         }
         val url = uri.toString()
-        Prefs.currentEpisodeUrl = url
-        Prefs.currentEpisodeName = App.currentEpisode().title
+        val book = Prefs.currentBook!!
+        book.currentEpisodeUrl = url
+        book.currentEpisodeName = Prefs.playList.first { it.url == url }.title
+        Prefs.currentBook = book
         RxBus.post(RxEvent.ParsingPlayUrlEvent())
 
         TingShuSourceHandler.getAudioUrlExtractor(url, exoPlayer, dataSourceFactory).extract(url)
