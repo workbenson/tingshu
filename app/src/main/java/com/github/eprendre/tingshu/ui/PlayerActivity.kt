@@ -1,5 +1,6 @@
 package com.github.eprendre.tingshu.ui
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -106,6 +107,18 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 myService.setTimerSeconds(seconds.toLong())
                 dialogCountDown.dismiss()
             }
+            button_pause_by1.setOnClickListener {
+                myService.setPauseCount(1)
+                dialogCountDown.dismiss()
+            }
+            button_pause_by2.setOnClickListener {
+                myService.setPauseCount(2)
+                dialogCountDown.dismiss()
+            }
+            button_pause_by3.setOnClickListener {
+                myService.setPauseCount(3)
+                dialogCountDown.dismiss()
+            }
             //formatter 默认值有 bug，于是采用 displayedValues
             np_hour.minValue = 0
             np_hour.maxValue = 23
@@ -147,7 +160,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             val binder = service as TingShuService.MyLocalBinder
             myService = binder.getService()
 
-            mediaController = MediaControllerCompat(this@PlayerActivity, myService.mediaSession.sessionToken)
+            mediaController =
+                MediaControllerCompat(this@PlayerActivity, myService.mediaSession.sessionToken)
             mediaController.registerCallback(object : MediaControllerCompat.Callback() {
                 override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
                     updateState(state)
@@ -260,7 +274,10 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 }
                 supportActionBar?.title = book.title
                 listAdapter.submitList(Prefs.playList)
-                mediaController.transportControls.playFromUri(Uri.parse(Prefs.playList[index].url), null)
+                mediaController.transportControls.playFromUri(
+                    Uri.parse(Prefs.playList[index].url),
+                    null
+                )
             }, { error ->
                 error.printStackTrace()
                 state_layout.showError()
@@ -296,19 +313,28 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                         window.statusBarColor = swatch.rgb
                         if (ColorUtils.calculateLuminance(swatch.rgb) > 0.5) {
                             val backArrow = ContextCompat.getDrawable(this, R.drawable.back)
-                            backArrow?.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
+                            backArrow?.setColorFilter(
+                                swatch.bodyTextColor,
+                                PorterDuff.Mode.SRC_ATOP
+                            )
                             supportActionBar?.setHomeAsUpIndicator(backArrow)
                             toolbar.setTitleTextColor(swatch.bodyTextColor)
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                                window.decorView.systemUiVisibility =
+                                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
                             }
                             toolbarIconColor = swatch.bodyTextColor
                             invalidateOptionsMenu()
                         }
                     }
                     artist_text.setTextColor(swatch.titleTextColor)
-                    artist_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)//加上阴影可以解决字体颜色和附近背景颜色接近时不能识别的情况
+                    artist_text.setShadowLayer(
+                        24f,
+                        0f,
+                        0f,
+                        swatch.rgb
+                    )//加上阴影可以解决字体颜色和附近背景颜色接近时不能识别的情况
                     episode_text.setTextColor(swatch.titleTextColor)
                     episode_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)
                     control_panel.setBackgroundColor(bgColor)
@@ -316,12 +342,24 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     playlist_button.setColorFilter(swatch.bodyTextColor)
                     speed_button.setTextColor(swatch.bodyTextColor)
                     text_current.setTextColor(swatch.bodyTextColor)
-                    seekbar.progressDrawable.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
+                    seekbar.progressDrawable.setColorFilter(
+                        swatch.bodyTextColor,
+                        PorterDuff.Mode.SRC_ATOP
+                    )
                     seekbar.thumb.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
                     text_duration.setTextColor(swatch.bodyTextColor)
-                    play_progress.indeterminateDrawable.setColorFilter(swatch.bodyTextColor, PorterDuff.Mode.SRC_ATOP)
+                    play_progress.indeterminateDrawable.setColorFilter(
+                        swatch.bodyTextColor,
+                        PorterDuff.Mode.SRC_ATOP
+                    )
                     bodyTextColor = swatch.bodyTextColor
-                    listOf(button_fastforward, button_play, button_rewind, button_previous, button_next)
+                    listOf(
+                        button_fastforward,
+                        button_play,
+                        button_rewind,
+                        button_previous,
+                        button_next
+                    )
                         .forEach {
                             it.setColorFilter(swatch.bodyTextColor)
                             val background = it.background
@@ -362,7 +400,12 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 override fun getOutline(view: View, outline: Outline) {
                     val top = (view.height - view.width) / 2
                     val bottom = top + view.width
-                    return outline.setOval(offset, top + offset, view.width - offset, bottom - offset)
+                    return outline.setOval(
+                        offset,
+                        top + offset,
+                        view.width - offset,
+                        bottom - offset
+                    )
                 }
             }
             cover_round_image.clipToOutline = true
@@ -462,7 +505,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {//拖动进度条的时候预计目标时间
                     val duration = myService.exoPlayer.duration
-                    text_current.text = DateUtils.formatElapsedTime(duration * progress / 100 / 1000)
+                    text_current.text =
+                        DateUtils.formatElapsedTime(duration * progress / 100 / 1000)
                 }
             }
 
@@ -687,6 +731,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     .setView(R.layout.dialog_skip)
                     .setPositiveButton("确定") { dialog, which ->
                         Prefs.currentBook = currentBook
+                        storeSkipPosition(currentBook)
                     }
                     .setNegativeButton("取消", null)
                     .show()
@@ -699,7 +744,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 textSkipEnd.text = "跳过片尾 ${currentBook.skipEnd / 1000}s"
                 seekBarSkipBeginning.progress = (currentBook.skipBeginning / 1000).toInt()
                 seekBarSkipEnd.progress = (currentBook.skipEnd / 1000).toInt()
-                seekBarSkipBeginning.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                seekBarSkipBeginning.setOnSeekBarChangeListener(object :
+                    SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(
                         seekBar: SeekBar?,
                         progress: Int,
@@ -740,6 +786,30 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    @SuppressLint("CheckResult")
+    private fun storeSkipPosition(book: Book) {
+        Prefs.storeSkipPosition(book)
+        AppDatabase.getInstance(this)
+            .bookDao()
+            .findByBookUrl(book.bookUrl)
+            .subscribeOn(Schedulers.io())
+            .subscribeBy(onSuccess = {
+                it.skipBeginning = book.skipBeginning
+                it.skipEnd = book.skipEnd
+                AppDatabase.getInstance(this)
+                    .bookDao()
+                    .updateBooks(it)
+                    .subscribeOn(Schedulers.io())
+                    .subscribeBy(onComplete = {}, onError = {})
+            }, onError = {
+                if (it is EmptyResultSetException) {
+                    //数据库没有,忽略
+                } else {
+                    it.printStackTrace()
+                }
+            })
     }
 
     companion object {

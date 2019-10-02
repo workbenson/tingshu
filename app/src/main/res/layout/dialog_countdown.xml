@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -8,11 +7,11 @@
         >
 
     <TextView
-            android:id="@+id/text_countdown"
+            android:id="@+id/text_pause_by_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="按集关闭:"
             android:textColor="@color/primary_text"
-            android:text="定时关闭:"
             android:textSize="16sp"
             android:textStyle="bold"
             />
@@ -21,26 +20,71 @@
             android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+        <Button
+                android:id="@+id/button_pause_by1"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="1集"
+                />
+        <Button
+                android:id="@+id/button_pause_by2"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="2集"
+                />
+        <Button
+                android:id="@+id/button_pause_by3"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="3集"
+                />
+
+    </LinearLayout>
+
+    <TextView
+            android:id="@+id/text_countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="定时关闭:"
+            android:textColor="@color/primary_text"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            />
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:gravity="center_horizontal"
             android:orientation="horizontal"
             >
 
         <NumberPicker
-                android:descendantFocusability="blocksDescendants"
-                android:layout_marginRight="8dp"
                 android:id="@+id/np_hour"
-                android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                android:descendantFocusability="blocksDescendants"
                 />
 
         <NumberPicker
-                android:descendantFocusability="blocksDescendants"
-                android:layout_marginLeft="8dp"
                 android:id="@+id/np_minute"
-                android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_weight="1"
+                android:descendantFocusability="blocksDescendants"
                 />
     </LinearLayout>
 
@@ -53,20 +97,20 @@
 
         <Button
                 android:id="@+id/button_countdown_cancel"
-                android:layout_weight="1"
+                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="取消/停止计时"
-                style="@style/Widget.AppCompat.Button.Colored"
                 />
 
         <Button
                 android:id="@+id/button_countdown_ok"
-                android:layout_weight="1"
+                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="确定"
-                style="@style/Widget.AppCompat.Button.Colored"
                 />
     </LinearLayout>
 </LinearLayout>

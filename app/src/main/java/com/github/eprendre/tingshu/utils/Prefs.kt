@@ -100,6 +100,16 @@ object Prefs {
         }
     }
 
+    fun storeSkipPosition(currentBook: Book) {
+        val list = historyList
+        val book = list.firstOrNull { it.bookUrl == currentBook.bookUrl }
+        if (book != null) {
+            book.skipBeginning = currentBook.skipBeginning
+            book.skipEnd = currentBook.skipEnd
+            historyList = list
+        }
+    }
+
     var sortType: Int
         get() = prefs.getInt("sort_type", 1)
         set(value) = prefs.edit().putInt("sort_type", value).apply()

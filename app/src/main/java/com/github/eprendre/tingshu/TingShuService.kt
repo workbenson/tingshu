@@ -51,6 +51,7 @@ class TingShuService : Service(), AnkoLogger {
     private val compositeDisposable = CompositeDisposable()
     private val busDisposables = CompositeDisposable()
     private var retryCount = 0
+    private var pauseCount = -1
 
     lateinit var mediaSession: MediaSessionCompat
     private lateinit var mediaController: MediaControllerCompat
@@ -115,14 +116,26 @@ class TingShuService : Service(), AnkoLogger {
                 when (playbackState) {
                     Player.STATE_ENDED -> {
                         if (exoPlayer.duration > 10000) {//静听网会播放一个访问过快的音频，造成不停地跳转下一集
-                            mediaController.transportControls.skipToNext()
+                            if (pauseCount < 0) {//未设置按集数关闭
+                                mediaController.transportControls.skipToNext()
+                            } else {
+                                pauseCount -= 1
+                                if (pauseCount > 0) {
+                                    RxBus.post(RxEvent.TimerEvent("播完 $pauseCount 集关闭"))
+                                } else {
+                                    RxBus.post(RxEvent.TimerEvent("定时关闭"))
+                                }
+                                mediaController.transportControls.skipToNext()
+                            }
                         } else {
                             Prefs.currentBook = Prefs.currentBook?.apply {
                                 this.currentEpisodePosition = 0
                             }
                         }
                     }
-                    Player.STATE_READY -> retryCount = 0
+                    Player.STATE_READY -> {
+                        retryCount = 0
+                    }
                 }
             }
 
@@ -147,7 +160,12 @@ class TingShuService : Service(), AnkoLogger {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 val currentBook = Prefs.currentBook ?: return@subscribe
-                if (!exoPlayer.playWhenReady) return@subscribe
+                if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) return@subscribe
+                if (pauseCount == 0) {
+                    mediaController.transportControls.pause()
+                    pauseCount = -1
+                    return@subscribe
+                }
                 if (it % 10 == 0L) {
                     storeCurrentPosition()
                 }
@@ -155,8 +173,17 @@ class TingShuService : Service(), AnkoLogger {
                 if ((currentBook.skipBeginning + currentBook.skipEnd) > exoPlayer.duration) return@subscribe
                 if (exoPlayer.currentPosition < currentBook.skipBeginning) {
                     exoPlayer.seekTo(currentBook.skipBeginning)
+                    return@subscribe
                 }
                 if (exoPlayer.currentPosition + currentBook.skipEnd > exoPlayer.duration) {
+                    if (pauseCount > 0) {
+                        pauseCount -= 1
+                        if (pauseCount > 0) {
+                            RxBus.post(RxEvent.TimerEvent("播完 $pauseCount 集关闭"))
+                        } else {
+                            RxBus.post(RxEvent.TimerEvent("定时关闭"))
+                        }
+                    }
                     mediaController.transportControls.skipToNext()
                 }
             }
@@ -208,6 +235,7 @@ class TingShuService : Service(), AnkoLogger {
     }
 
     fun setTimerSeconds(seconds: Long) {
+        pauseCount = -1
         Flowable.interval(1, TimeUnit.SECONDS)
             .take(seconds)
             .subscribeBy(onNext = {
@@ -220,7 +248,13 @@ class TingShuService : Service(), AnkoLogger {
     }
 
     fun resetTimer() {
+        pauseCount = -1
         compositeDisposable.clear()
+    }
+
+    fun setPauseCount(count: Int) {
+        pauseCount = count
+        RxBus.post(RxEvent.TimerEvent("播完 $pauseCount 集关闭"))
     }
 
     /**
