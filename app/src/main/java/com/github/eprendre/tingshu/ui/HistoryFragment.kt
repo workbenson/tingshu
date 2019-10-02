@@ -82,6 +82,7 @@ class HistoryFragment : Fragment(), AnkoLogger {
         super.onResume()
         loadData()
     }
+
     private fun loadData() {
         compositeDisposable.clear()
         Single.fromCallable {
@@ -105,11 +106,6 @@ class HistoryFragment : Fragment(), AnkoLogger {
                 state_layout.showError()
             })
             .addTo(compositeDisposable)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.favorite_menu, menu)
     }
 
     override fun onDestroyView() {

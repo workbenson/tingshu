@@ -9,13 +9,14 @@ import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.adapters.CategoryPagerAdapter
 import com.github.eprendre.tingshu.utils.CategoryTab
 import com.github.eprendre.tingshu.utils.Prefs
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_menu.*
 import kotlinx.android.synthetic.main.fragment_menu.tabs
 import kotlinx.android.synthetic.main.fragment_menu.view_pager
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
 
+/**
+ * 小说分类的容器
+ */
 class MenuFragment : Fragment(), AnkoLogger {
     private lateinit var categoryPagerAdapter: CategoryPagerAdapter
     private lateinit var categoryTabs: ArrayList<CategoryTab>
@@ -35,8 +36,9 @@ class MenuFragment : Fragment(), AnkoLogger {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
+        menu.clear()
         inflater.inflate(R.menu.main_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
