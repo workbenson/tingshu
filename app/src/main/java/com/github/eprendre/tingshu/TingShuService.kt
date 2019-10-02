@@ -19,7 +19,6 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
-import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.session.MediaButtonReceiver
 import androidx.room.EmptyResultSetException
@@ -40,7 +39,6 @@ import com.google.android.exoplayer2.util.Util
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
@@ -140,7 +138,14 @@ class TingShuService : Service(), AnkoLogger {
             .addTo(busDisposables)
         RxBus.toFlowable(RxEvent.StorePositionEvent::class.java)
             .subscribe {
-                if (exoPlayer.playbackState == Player.STATE_READY) {
+                if (exoPlayer.playWhenReady) {
+                    storeCurrentPosition()
+                }
+            }
+            .addTo(busDisposables)
+        Flowable.interval(1, TimeUnit.SECONDS)
+            .subscribe {
+                if (it % 10 == 0L && exoPlayer.playWhenReady) {
                     storeCurrentPosition()
                 }
             }
@@ -246,9 +251,9 @@ class TingShuService : Service(), AnkoLogger {
             }
             updateNotification(state)
             when (state.state) {
+                PlaybackStateCompat.STATE_PLAYING,
                 PlaybackStateCompat.STATE_ERROR,
                 PlaybackStateCompat.STATE_PAUSED -> {
-                    Log.i("trigger Position", "123456")
                     storeCurrentPosition()
                 }
             }
@@ -323,8 +328,9 @@ class TingShuService : Service(), AnkoLogger {
     @SuppressLint("CheckResult")
     private fun storeCurrentPosition(b: Book? = null) {
         val currentBook: Book = b ?: Prefs.currentBook ?: return
-
         currentBook.currentEpisodePosition = exoPlayer.currentPosition
+        if (currentBook.currentEpisodePosition == 0L) return
+
         Prefs.storeHistoryPosition(currentBook)
         Prefs.currentBook = currentBook
         AppDatabase.getInstance(this@TingShuService)
@@ -352,7 +358,9 @@ class TingShuService : Service(), AnkoLogger {
 
     override fun onDestroy() {
         super.onDestroy()
+        exoPlayer.stop(true)
         compositeDisposable.clear()
+        busDisposables.clear()
     }
 }
 
