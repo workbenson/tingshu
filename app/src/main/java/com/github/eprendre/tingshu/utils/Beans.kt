@@ -44,6 +44,9 @@ data class Book(
     var currentEpisodeUrl: String? = null
     var currentEpisodeName: String? = null
     var currentEpisodePosition: Long = 0
+    var skipBeginning: Long = 0
+    var skipEnd: Long = 0
+    var isFree: Boolean = true
 
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<Book>() {

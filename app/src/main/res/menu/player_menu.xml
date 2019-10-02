@@ -3,12 +3,6 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-            android:id="@+id/link"
-            android:icon="@drawable/ic_link_white_24dp"
-            android:title="link"
-            app:showAsAction="always"
-            />
-    <item
             android:id="@+id/desc"
             android:icon="@drawable/ic_description_white_24dp"
             android:title="description"
@@ -20,5 +14,15 @@
             android:title="favorite"
             app:showAsAction="always"
             />
-
+    <item
+            android:id="@+id/link"
+            android:icon="@drawable/ic_link_white_24dp"
+            android:title="查看源网页"
+            app:showAsAction="never"
+            />
+    <item
+            android:id="@+id/skip"
+            android:title="跳过片头片尾"
+            app:showAsAction="never"
+            />
 </menu>

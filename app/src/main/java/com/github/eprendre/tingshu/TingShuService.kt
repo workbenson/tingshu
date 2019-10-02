@@ -144,9 +144,20 @@ class TingShuService : Service(), AnkoLogger {
             }
             .addTo(busDisposables)
         Flowable.interval(1, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                if (it % 10 == 0L && exoPlayer.playWhenReady) {
+                val currentBook = Prefs.currentBook ?: return@subscribe
+                if (!exoPlayer.playWhenReady) return@subscribe
+                if (it % 10 == 0L) {
                     storeCurrentPosition()
+                }
+                if (exoPlayer.duration == C.TIME_UNSET) return@subscribe
+                if ((currentBook.skipBeginning + currentBook.skipEnd) > exoPlayer.duration) return@subscribe
+                if (exoPlayer.currentPosition < currentBook.skipBeginning) {
+                    exoPlayer.seekTo(currentBook.skipBeginning)
+                }
+                if (exoPlayer.currentPosition + currentBook.skipEnd > exoPlayer.duration) {
+                    mediaController.transportControls.skipToNext()
                 }
             }
             .addTo(busDisposables)

@@ -18,6 +18,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
 import android.view.*
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
@@ -588,9 +589,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val linkItem = menu.findItem(R.id.link)
+//        val linkItem = menu.findItem(R.id.link)
         toolbarIconColor?.let { color ->
-            linkItem.icon.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+            toolbar.overflowIcon?.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
         }
         val favoriteItem = menu.findItem(R.id.favorite)
         Prefs.currentBookUrl?.let {
@@ -678,6 +679,63 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                         .setMessage(it)
                         .setCancelable(true)
                         .show()
+                }
+            }
+            R.id.skip -> {
+                val currentBook = Prefs.currentBook!!
+                val dialog = AlertDialog.Builder(this)
+                    .setView(R.layout.dialog_skip)
+                    .setPositiveButton("确定") { dialog, which ->
+                        Prefs.currentBook = currentBook
+                    }
+                    .setNegativeButton("取消", null)
+                    .show()
+                val textSkipBeginning = dialog.find<TextView>(R.id.text_skip_beginning)
+                val seekBarSkipBeginning = dialog.find<SeekBar>(R.id.seekbar_skip_beginning)
+                val textSkipEnd = dialog.find<TextView>(R.id.text_skip_end)
+                val seekBarSkipEnd = dialog.find<SeekBar>(R.id.seekbar_skip_end)
+                val resetButton = dialog.find<Button>(R.id.reset_skipping)
+                textSkipBeginning.text = "跳过片头 ${currentBook.skipBeginning / 1000}s"
+                textSkipEnd.text = "跳过片尾 ${currentBook.skipEnd / 1000}s"
+                seekBarSkipBeginning.progress = (currentBook.skipBeginning / 1000).toInt()
+                seekBarSkipEnd.progress = (currentBook.skipEnd / 1000).toInt()
+                seekBarSkipBeginning.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(
+                        seekBar: SeekBar?,
+                        progress: Int,
+                        fromUser: Boolean
+                    ) {
+                        textSkipBeginning.text = "跳过片头 ${progress}s"
+                    }
+
+                    override fun onStartTrackingTouch(seekBar: SeekBar) {
+                    }
+
+                    override fun onStopTrackingTouch(seekBar: SeekBar) {
+                        currentBook.skipBeginning = seekBar.progress * 1000L
+                    }
+                })
+                seekBarSkipEnd.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(
+                        seekBar: SeekBar?,
+                        progress: Int,
+                        fromUser: Boolean
+                    ) {
+                        textSkipEnd.text = "跳过片尾 ${progress}s"
+                    }
+
+                    override fun onStartTrackingTouch(seekBar: SeekBar) {
+                    }
+
+                    override fun onStopTrackingTouch(seekBar: SeekBar) {
+                        currentBook.skipEnd = seekBar.progress * 1000L
+                    }
+                })
+                resetButton.setOnClickListener {
+                    seekBarSkipBeginning.progress = 0
+                    seekBarSkipEnd.progress = 0
+                    currentBook.skipBeginning = 0
+                    currentBook.skipEnd = 0
                 }
             }
         }
