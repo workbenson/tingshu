@@ -16,7 +16,6 @@ import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.view.Menu
-import android.view.MenuItem
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -63,7 +62,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         setSupportActionBar(toolbar)
         volumeControlStream = AudioManager.STREAM_MUSIC
         currentCategoryMenus = TingShuSourceHandler.getCategoryMenus()
-        refreshMenus(true)
+        refreshMenus(true)//第一次强制初始化左边源对应的菜单
         checkUpdate()
         if (savedInstanceState == null) {
             addFirstFragment()
@@ -73,7 +72,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onStart() {
         super.onStart()
-        refreshMenus()
+        refreshMenus()//从设置界面回来，如果发现源变了则刷新源
         initViews()
 
         val intent = Intent(this, TingShuService::class.java)
@@ -82,9 +81,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     fun refreshMenus(force: Boolean = false) {
-        if (force || currentCategoryMenus != TingShuSourceHandler.getCategoryMenus()) {
+        if (force || currentCategoryMenus != TingShuSourceHandler.getCategoryMenus()) {//检测是否换过源
             currentCategoryMenus = TingShuSourceHandler.getCategoryMenus()
-            val menuItem = nav_view.menu.getItem(0)
+            val menuItem = nav_view.menu.getItem(0)//如果换过源，重新初始化侧边菜单
             menuItem.subMenu.clear()
             currentCategoryMenus.forEach { categoryMenu ->
                 menuItem.subMenu
@@ -280,6 +279,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 if (it.isEmpty()) {
                     fragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
                     updateTitle()
+                    nav_view.setCheckedItem(currentCategoryMenus.first().id)
                 } else {
                     fragment = FavoriteFragment()
                     supportActionBar?.title = "我的收藏"
@@ -288,11 +288,13 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 supportFragmentManager.beginTransaction()
                     .add(R.id.fragment_container, fragment!!)
                     .commit()
+                compositeDisposable.clear()
             }, onError = {
                 fragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
                 supportFragmentManager.beginTransaction()
                     .add(R.id.fragment_container, fragment!!)
                     .commit()
+                compositeDisposable.clear()
             })
             .addTo(compositeDisposable)
     }
