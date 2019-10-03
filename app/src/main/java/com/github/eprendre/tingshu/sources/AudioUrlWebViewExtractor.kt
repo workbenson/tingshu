@@ -33,9 +33,10 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
     private var isAudioGet = false
     private var isError = false
     private var userAgent = "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.4) Gecko/20100101 Firefox/4.0"
+    private var script = ""
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var dataSourceFactory: DataSource.Factory
-    private lateinit var parse: (Document) -> String?
+    private lateinit var parse: (String) -> String?
 
     init {
         //jsoup 只能解析静态页面，使用 webview 可以省不少力气
@@ -80,7 +81,11 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
         }
     }
 
-    fun setUp(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory, isDeskTop: Boolean = false, parse: (Document) -> String?) {
+    fun setUp(exoPlayer: ExoPlayer,
+              dataSourceFactory: DataSource.Factory,
+              isDeskTop: Boolean = false,
+              script: String = "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();",
+              parse: (String) -> String?) {
         this.exoPlayer = exoPlayer
         this.dataSourceFactory = dataSourceFactory
         this.parse = parse
@@ -89,6 +94,7 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
         } else {
             webView.settings.userAgentString = null
         }
+        this.script = script
     }
 
     private fun postError() {
@@ -122,11 +128,9 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
             return
         }
         //提取webview的html
-        webView.evaluateJavascript(
-            "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();"
-        ) { html ->
+        webView.evaluateJavascript(script) { html ->
             val unescapedHtml = StringEscapeUtils.unescapeJava(html)//提取出来的html需要unescape
-            val audioUrl = parse(Jsoup.parse(unescapedHtml))
+            val audioUrl = parse(unescapedHtml)
             if (audioUrl.isNullOrBlank()) {
                 Handler().postDelayed({
                     tryGetAudioSrc()

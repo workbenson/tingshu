@@ -9,6 +9,7 @@
         <item>TingChina</item>
         <item>天天评书网</item>
         <item>22听书网</item>
+        <item>乾坤听书网</item>
     </string-array>
 
     <string-array name="source_values">
@@ -21,6 +22,7 @@
         <item>http://www.tingchina.com</item>
         <item>https://www.pingshu365.com</item>
         <item>https://m.ting22.com</item>
+        <item>http://m.qktsw.com</item>
     </string-array>
 
     <string-array name="play_speed">

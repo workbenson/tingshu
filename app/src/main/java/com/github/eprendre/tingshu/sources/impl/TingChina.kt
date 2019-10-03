@@ -83,7 +83,10 @@ object TingChina : TingShu {
     }
 
     override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {
-        TingChinaAudioUrlWebViewExtractor.setUp(exoPlayer, dataSourceFactory, true) { str ->
+        AudioUrlWebViewExtractor.setUp(exoPlayer, dataSourceFactory,
+            true,
+            "(function() { return ('<html>'+document.getElementById(\"playmedia\").contentDocument.documentElement.innerHTML+'</html>'); })();")
+        { str ->
             val url2 = Regex("url\\[2]= \"(.*?)\";").find(str)?.groupValues?.get(1)
             val url3 = Regex("url\\[3]= \"(.*?)\";").find(str)?.groupValues?.get(1)
 
@@ -93,7 +96,7 @@ object TingChina : TingShu {
 
             return@setUp "$url2$url3"
         }
-        return TingChinaAudioUrlWebViewExtractor
+        return AudioUrlWebViewExtractor
     }
 
     override fun getCategoryDetail(url: String): Single<Category> {
