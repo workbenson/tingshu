@@ -33,6 +33,7 @@ class CategoryViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycl
     private val artistView = view.artist_text
     private val introView = view.intro_text
     private val coverView = view.cover_image
+    private val statusView = view.status_text
     var item: Book? = null
 
     init {
@@ -56,6 +57,7 @@ class CategoryViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycl
         authorView.text = book.author
         artistView.text = book.artist
         introView.text = book.intro
+        statusView.text = book.status
         GlideApp.with(itemView).load(book.coverUrl).into(coverView)
     }
 

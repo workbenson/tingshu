@@ -22,7 +22,7 @@ object TianTianPingShu : TingShu {
             val url = "https://www.pingshu365.com/search/1.asp?page=$page&keyword=$encodedKeywords&stype="
             val doc = Jsoup.connect(url).get()
             val pages = doc.selectFirst(".fy").ownText().let { text ->
-                Regex(".+(\\d+)/(\\d+).+").find(text)!!.groupValues
+                Regex(".+页次:(\\d+)/(\\d+).+").find(text)!!.groupValues
             }
             val currentPage = pages[1].toInt()
             val totalPage = pages[2].toInt()

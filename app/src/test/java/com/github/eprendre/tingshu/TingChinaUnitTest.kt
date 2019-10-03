@@ -83,6 +83,7 @@ function getCookie(name){var arr = document.cookie.match(new RegExp("(^| )"+name
         val lis = book.select("ul li")
         val author = lis.get(5).text()
         val artist = lis.get(4).text()
+        val status = lis.get(6).text()
         println(author)
         println(artist)
 
@@ -108,7 +109,7 @@ function getCookie(name){var arr = document.cookie.match(new RegExp("(^| )"+name
 
     @Test
     fun category() {
-        val url = "http://www.tingchina.com/pingshu/leip_136_1.htm"
+        val url = "http://www.tingchina.com/yousheng/leip_135_3.htm"
         val doc = Jsoup.connect(url).get()
         val pages = doc.selectFirst(".yema span").children()
         val currentPage = Regex(".+leip_\\d+_(\\d+)\\.htm").find(url)!!.groupValues[1].toInt()
@@ -130,14 +131,37 @@ function getCookie(name){var arr = document.cookie.match(new RegExp("(^| )"+name
             val coverUrl = element.selectFirst("dt a img").absUrl("src")
             val titleElement = element.selectFirst("dd .title a")
             val bookUrl =  titleElement.absUrl("href")
+            val status: String
             val (title, author, artist) = titleElement.text().split(" ").let {
                 val i = it[0].replace("《", "").replace("》", "")
                 val j = if (it.size > 2) it[1] else ""
-                val k = if (it.size > 2) it[2].split("　")[0] else ""
+                val k = if (it.size > 2) {
+                    if (it.size > 3) {
+                        val temp = StringBuilder()
+                        (2 until (it.size - 1)).forEach { index ->
+                            temp.append(it[index])
+                            temp.append(" ")
+                        }
+                        temp.append(it.last().split("　")[0])
+                        temp.toString()
+                    } else {
+                        it[2].split("　")[0]
+                    }
+                } else ""
+
+                status = if (it.size > 2) {
+                    it.last().split("　")[1]
+                } else{
+                    it[1]
+                }
+                println(status)
                 Triple(i, j, k)
             }
             val intro = element.selectFirst("dd .info").ownText()
-            list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
+            list.add(Book(coverUrl, bookUrl, title, author, artist).apply {
+                this.intro = intro
+                this.status = status
+            })
         }
 
         list.take(5).forEach { println(it) }

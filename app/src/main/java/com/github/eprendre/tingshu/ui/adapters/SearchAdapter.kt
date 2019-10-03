@@ -45,12 +45,14 @@ class SearchAdapter(private val itemClickListener: (Book) -> Unit) :
                 val lis = book01.select("ul li")
                 val author = lis.get(5).text()
                 val artist = lis.get(4).text()
+                val status = lis.get(6).text()
 
                 val bookInfo = doc.selectFirst(".book02").ownText()
                 book.coverUrl = coverUrl
                 book.author = author
                 book.artist = artist
                 book.intro = bookInfo
+                book.status = status
                 return@fromCallable null
             }
                 .subscribeOn(Schedulers.io())
@@ -75,6 +77,7 @@ class SearchViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycler
     private val artistView = view.artist_text
     private val introView = view.intro_text
     private val coverView = view.cover_image
+    private val statusView = view.status_text
     var item: Book? = null
 
     init {
@@ -98,6 +101,7 @@ class SearchViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycler
         authorView.text = book.author
         artistView.text = book.artist
         introView.text = book.intro
+        statusView.text = book.status
         GlideApp.with(itemView).load(book.coverUrl).into(coverView)
     }
 

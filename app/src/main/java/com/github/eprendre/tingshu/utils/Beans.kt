@@ -6,10 +6,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.annotation.Keep
 import androidx.recyclerview.widget.DiffUtil
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room.*
 
 @Keep
 data class Episode(val title: String, val url: String) {
@@ -47,6 +44,7 @@ data class Book(
     var skipBeginning: Long = 0
     var skipEnd: Long = 0
     var isFree: Boolean = true
+    @Ignore var status: String = ""
 
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<Book>() {

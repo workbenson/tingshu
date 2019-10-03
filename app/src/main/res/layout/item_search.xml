@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:background="?selectableItemBackground"
-              android:padding="8dp"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal"
+        android:padding="8dp"
         >
 
     <ImageView
@@ -16,9 +16,9 @@
             />
 
     <LinearLayout
-            android:layout_marginLeft="8dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
             android:orientation="vertical"
             >
 
@@ -26,9 +26,9 @@
                 android:id="@+id/title_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/primary_text"
                 android:maxLines="1"
+                android:textColor="@color/primary_text"
+                android:textSize="18sp"
                 tools:text="魔鬼考卷"
                 />
 
@@ -36,32 +36,53 @@
                 android:id="@+id/author_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/secondary_text"
-                android:maxLines="1"
                 android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/secondary_text"
+                android:textSize="16sp"
                 tools:text="作者：黑色火种"
                 />
 
-        <TextView
-                android:id="@+id/artist_text"
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/secondary_text"
-                android:maxLines="1"
-                android:ellipsize="end"
-                tools:text="播音：谜一样的B哥"
-                />
+                android:orientation="horizontal"
+                >
+
+            <TextView
+                    android:id="@+id/artist_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="16sp"
+                    tools:text="播音：谜一样的B哥"
+                    />
+
+            <TextView
+                    android:layout_marginLeft="8dp"
+                    android:id="@+id/status_text"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="16sp"
+                    tools:text="连载中"
+                    />
+        </LinearLayout>
 
         <TextView
                 android:id="@+id/intro_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textColor="@color/secondary_text"
-                android:maxLines="2"
                 android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="@color/secondary_text"
+                android:textSize="12sp"
                 tools:text="为了得到永生，男主高影和女主朱荪伶分别进入了2个恐怖的教室....."
                 />
     </LinearLayout>

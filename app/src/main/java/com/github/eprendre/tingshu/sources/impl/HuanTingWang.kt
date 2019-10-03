@@ -37,7 +37,11 @@ object HuanTingWang : TingShu {
                     Pair(it[0], it[1])
                 }
                 val intro = bookInfo.selectFirst(".intro_line").text()
-                list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
+                val status = bookInfo.selectFirst(".update").text()
+                list.add(Book(coverUrl, bookUrl, title, author, artist).apply {
+                    this.intro = intro
+                    this.status = status
+                })
             }
             return@fromCallable Pair(list, totalPage)
         }
@@ -129,7 +133,11 @@ object HuanTingWang : TingShu {
                     Pair(it[0], it[1])
                 }
                 val intro = bookInfo.selectFirst(".intro_line").text()
-                list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
+                val status = bookInfo.selectFirst(".update").text()
+                list.add(Book(coverUrl, bookUrl, title, author, artist).apply {
+                    this.intro = intro
+                    this.status = status
+                })
             }
 
             return@fromCallable Category(list, currentPage, totalPage, url, nextUrl)

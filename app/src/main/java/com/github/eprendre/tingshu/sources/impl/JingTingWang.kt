@@ -29,10 +29,10 @@ object JingTingWang : TingShu {
                 val bookUrl = element.attr("href")
                 val coverUrl = element.selectFirst("img").attr("src")
                 val title = element.selectFirst("h3").text()
-                val (author, artist) = element.select("p").map { it.text() }.let {
-                    Pair(it[0], it[1])
+                val (author, artist, status) = element.select("p").map { it.text() }.let {
+                    Triple(it[0], it[1], it[2])
                 }
-                list.add(Book(coverUrl, bookUrl, title, author, artist))
+                list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.status = status })
             }
 
             return@fromCallable Pair(list, totalPage)
@@ -96,10 +96,10 @@ object JingTingWang : TingShu {
                 val bookUrl = element.attr("href")
                 val coverUrl = element.selectFirst("img").attr("src")
                 val title = element.selectFirst("h3").text()
-                val (author, artist) = element.select("p").map { it.text() }.let {
-                    Pair(it[0], it[1])
+                val (author, artist, status) = element.select("p").map { it.text() }.let {
+                    Triple(it[0], it[1], it[2])
                 }
-                list.add(Book(coverUrl, bookUrl, title, author, artist))
+                list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.status = status })
             }
 
             return@fromCallable Category(list, currentPage, totalPage, url, nextUrl)

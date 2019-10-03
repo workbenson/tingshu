@@ -119,14 +119,36 @@ object TingChina : TingShu {
                 val coverUrl = element.selectFirst("dt a img").absUrl("src")
                 val titleElement = element.selectFirst("dd .title a")
                 val bookUrl = titleElement.absUrl("href")
+                val status: String
                 val (title, author, artist) = titleElement.text().split(" ").let {
                     val i = it[0].replace("《", "").replace("》", "")
-                    val j = if (it.size > 2) it[1] else "" //大于2代表是评书
-                    val k = if (it.size > 2) it[2].split("　")[0] else ""
+                    val j = if (it.size > 2) it[1] else "" //大于2代表不是评书
+                    val k = if (it.size > 2) {
+                        if (it.size > 3) {
+                            val temp = StringBuilder()
+                            (2 until (it.size - 1)).forEach { index ->
+                                temp.append(it[index])
+                                temp.append(" ")
+                            }
+                            temp.append(it.last().split("　")[0])
+                            temp.toString()
+                        } else {
+                            it[2].split("　")[0]
+                        }
+                    } else ""
+
+                    status = if (it.size > 2) {
+                        it.last().split("　")[1]
+                    } else{
+                        it[1]
+                    }
                     Triple(i, j, k)
                 }
                 val intro = element.selectFirst("dd .info").ownText()
-                list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
+                list.add(Book(coverUrl, bookUrl, title, author, artist).apply {
+                    this.intro = intro
+                    this.status = status
+                })
             }
             return@fromCallable Category(list, currentPage, totalPage, url, nextUrl)
         }

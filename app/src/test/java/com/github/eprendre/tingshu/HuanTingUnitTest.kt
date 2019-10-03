@@ -64,7 +64,11 @@ class HuanTingUnitTest {
                 Pair(it[0], it[1])
             }
             val intro = bookInfo.selectFirst(".intro_line").text()
-            list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
+            val status = bookInfo.selectFirst(".update").text()
+            list.add(Book(coverUrl, bookUrl, title, author, artist).apply {
+                this.intro = intro
+                this.status = status
+            })
         }
         list.forEach { println(it) }
         assertThat(list.size).isGreaterThan(0)
@@ -112,7 +116,11 @@ class HuanTingUnitTest {
                 Pair(it[0], it[1])
             }
             val intro = bookInfo.selectFirst(".intro_line").text()
-            list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.intro = intro })
+            val status = bookInfo.selectFirst(".update").text()
+            list.add(Book(coverUrl, bookUrl, title, author, artist).apply {
+                this.intro = intro
+                this.status = status
+            })
         }
         list.take(5).forEach { println(it) }
         assertThat(list.size).isGreaterThan(0)

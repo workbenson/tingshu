@@ -47,10 +47,10 @@ class JingTingUnitTest {
             val bookUrl = element.attr("href")
             val coverUrl = element.selectFirst("img").attr("src")
             val title = element.selectFirst("h3").text()
-            val (author, artist) = element.select("p").map { it.text() }.let {
-                Pair(it[0], it[1])
+            val (author, artist, status) = element.select("p").map { it.text() }.let {
+                Triple(it[0], it[1], it[2])
             }
-            list.add(Book(coverUrl, bookUrl, title, author, artist))
+            list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.status = status })
         }
         list.forEach { println(it) }
         assertThat(list.size).isGreaterThan(0)
@@ -86,10 +86,10 @@ class JingTingUnitTest {
             val bookUrl = element.attr("href")
             val coverUrl = element.selectFirst("img").attr("src")
             val title = element.selectFirst("h3").text()
-            val (author, artist) = element.select("p").map { it.text() }.let {
-                Pair(it[0], it[1])
+            val (author, artist, status) = element.select("p").map { it.text() }.let {
+                Triple(it[0], it[1], it[2])
             }
-            list.add(Book(coverUrl, bookUrl, title, author, artist))
+            list.add(Book(coverUrl, bookUrl, title, author, artist).apply { this.status = status })
         }
         list.take(5).forEach { println(it) }
         assertThat(list.size).isGreaterThan(0)
