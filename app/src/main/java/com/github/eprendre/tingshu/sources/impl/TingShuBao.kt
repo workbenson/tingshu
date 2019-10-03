@@ -55,11 +55,23 @@ object TingShuBao : TingShu {
                 val titleElement = element.selectFirst(".list-book-dt a")
                 val bookUrl = titleElement.absUrl("href")
                 val title = titleElement.ownText()
-                val (author, artist) = element.select(".list-book-cs .book-author").let {
-                    Pair(it[0].ownText(), it[1].ownText())
+                val (author, artist, status) = element.select(".list-book-cs .book-author").let {
+                    var s = ""
+                    if (it.size > 2) {
+                        val a = it[2].selectFirst("a")
+                        s = if (null == a) {
+                            it[2].ownText()
+                        } else {
+                            a.ownText()
+                        }
+                    }
+                    Triple("作者: ${it[0].ownText()}", "播音: ${it[1].ownText()}", s)
                 }
-                val intro = element.selectFirst(".list-book-des").ownText()
-                list.add(Book(coverUrl, bookUrl, title, "作者: $author", "播音: $artist").apply { this.intro = intro })
+                val intro = element.selectFirst(".list-book-des").text()
+                list.add(Book(coverUrl, bookUrl, title, author, artist).apply {
+                    this.intro = intro
+                    this.status = status
+                })
             }
 
             return@fromCallable Pair(list, totalPage)
@@ -104,11 +116,23 @@ object TingShuBao : TingShu {
                 val titleElement = element.selectFirst(".list-book-dt a")
                 val bookUrl = titleElement.absUrl("href")
                 val title = titleElement.ownText()
-                val (author, artist) = element.select(".list-book-cs .book-author").let {
-                    Pair(it[0].ownText(), it[1].ownText())
+                val (author, artist, status) = element.select(".list-book-cs .book-author").let {
+                    var s = ""
+                    if (it.size > 2) {
+                        val a = it[2].selectFirst("a")
+                        s = if (null == a) {
+                            it[2].ownText()
+                        } else {
+                            a.ownText()
+                        }
+                    }
+                    Triple("作者: ${it[0].ownText()}", "播音: ${it[1].ownText()}", s)
                 }
                 val intro = element.selectFirst(".list-book-des").ownText()
-                list.add(Book(coverUrl, bookUrl, title, "作者: $author", "播音: $artist").apply { this.intro = intro })
+                list.add(Book(coverUrl, bookUrl, title, author, artist).apply {
+                    this.intro = intro
+                    this.status = status
+                })
             }
 
             return@fromCallable Category(list, currentPage, totalPage, url, nextUrl)
