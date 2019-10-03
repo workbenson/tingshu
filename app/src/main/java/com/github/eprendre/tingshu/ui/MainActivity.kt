@@ -159,6 +159,24 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     Prefs.lastUpdate = System.currentTimeMillis()
                     checkUpdate(true)
                 }
+                R.id.nav_support -> {
+                    AlertDialog.Builder(this)
+                        .setItems(arrayOf("微信赞赏码", "支付宝收款码")) { dialog, which ->
+                            when (which) {
+                                0 -> {
+                                    val i = Intent(Intent.ACTION_VIEW)
+                                    i.data = Uri.parse("https://github.com/eprendre/tingshu/raw/master/art/support_wechat.png")
+                                    startActivity(i)
+                                }
+                                1 -> {
+                                    val i = Intent(Intent.ACTION_VIEW)
+                                    i.data = Uri.parse("https://github.com/eprendre/tingshu/raw/master/art/support_alipay.jpg")
+                                    startActivity(i)
+                                }
+                            }
+                        }
+                        .show()
+                }
                 R.id.nav_about -> {
                     val message = "当前版本: ${BuildConfig.VERSION_NAME}\n\n" +
                             "bug反馈与功能建议QQ群: 470339586\n\n" +
