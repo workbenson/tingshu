@@ -44,7 +44,7 @@ class CategoryFragment : Fragment(), AnkoLogger {
                 App.findBookInHistoryOrFav(book) {
                     Prefs.currentBook = it
                     Prefs.addToHistory(it)
-                    activity?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
+                    activity?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to it.bookUrl)
                 }
             } else {
                 activity?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)

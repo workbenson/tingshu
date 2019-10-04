@@ -3,6 +3,7 @@ package com.github.eprendre.tingshu.sources
 import android.graphics.BitmapFactory
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.util.Log
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.extensions.*
@@ -68,7 +69,7 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
 
                 val source = metadata.toMediaSource(dataSourceFactory)
                 exoPlayer.prepare(source)
-                App.currentPosition {
+                if (book.currentEpisodePosition > 0) {
                     exoPlayer.seekTo(book.currentEpisodePosition)
                 }
             }, onError = {

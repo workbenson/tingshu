@@ -19,8 +19,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import org.apache.commons.text.StringEscapeUtils
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import java.util.concurrent.TimeUnit
 
 /**
@@ -167,7 +165,7 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
 
             val source = metadata.toMediaSource(dataSourceFactory)
             exoPlayer.prepare(source)
-            App.currentPosition {
+            if (book.currentEpisodePosition > 0) {
                 exoPlayer.seekTo(book.currentEpisodePosition)
             }
             webView.loadUrl("about:blank")

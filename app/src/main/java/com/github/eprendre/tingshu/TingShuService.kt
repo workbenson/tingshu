@@ -152,7 +152,7 @@ class TingShuService : Service(), AnkoLogger {
         RxBus.toFlowable(RxEvent.StorePositionEvent::class.java)
             .subscribe {
                 if (exoPlayer.playWhenReady) {
-                    storeCurrentPosition()
+                    storeCurrentPosition(it.book)
                 }
             }
             .addTo(busDisposables)
@@ -255,6 +255,12 @@ class TingShuService : Service(), AnkoLogger {
     fun setPauseCount(count: Int) {
         pauseCount = count
         RxBus.post(RxEvent.TimerEvent("播完 $pauseCount 集关闭"))
+    }
+
+    fun updateTimerText() {
+        if (pauseCount > 0) {
+            RxBus.post(RxEvent.TimerEvent("播完 $pauseCount 集关闭"))
+        }
     }
 
     /**
