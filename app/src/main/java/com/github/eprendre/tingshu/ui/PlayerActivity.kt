@@ -169,6 +169,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             })
 
             initViews()
+            myService.updateTimerText()
             handleIntent()
             isBound = true
         }
@@ -244,9 +245,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 updateState(mediaController.playbackState)
                 state_layout.showContent()
                 tintColor()
-                if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
-                    mediaController.transportControls.play()
-                }
+//                if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
+//                    mediaController.transportControls.play()
+//                }
             }
         }
     }
@@ -448,17 +449,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 toast("播放地址解析出错了，请重试")
             }
             .addTo(compositeDisposable)
-//        RxBus.toFlowable(RxEvent.StorePositionEvent::class.java)
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe {
-//                val bookurl = intent.getStringExtra(ARG_BOOKURL)
-//                if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {
-//                    Prefs.currentBookUrl = bookurl
-//                    playFromBookUrl(bookurl)
-//                    invalidateOptionsMenu()
-//                }
-//            }
-//            .addTo(compositeDisposable)
         //播放速度
         myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)//初始化播放器的速度
         speed_button.text = "${Prefs.speed} x"
