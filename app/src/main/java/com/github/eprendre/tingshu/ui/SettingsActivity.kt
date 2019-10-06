@@ -5,11 +5,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
+import com.github.eprendre.tingshu.utils.Prefs
 
 class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        when (Prefs.currentTheme) {
+            0 -> setTheme(R.style.AppTheme)
+            1 -> setTheme(R.style.DarkTheme)
+        }
         setContentView(R.layout.settings_activity)
         supportFragmentManager
             .beginTransaction()

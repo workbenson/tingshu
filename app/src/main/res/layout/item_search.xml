@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:textColor="@color/primary_text"
+                android:textColor="?attr/primary_text_color"
                 android:textSize="18sp"
                 tools:text="魔鬼考卷"
                 />
@@ -38,7 +38,6 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="@color/secondary_text"
                 android:textSize="16sp"
                 tools:text="作者：黑色火种"
                 />
@@ -55,7 +54,6 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="@color/secondary_text"
                     android:textSize="16sp"
                     tools:text="播音：谜一样的B哥"
                     />
@@ -69,7 +67,6 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="@color/secondary_text"
                     android:textSize="16sp"
                     tools:text="连载中"
                     />
@@ -81,7 +78,6 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:textColor="@color/secondary_text"
                 android:textSize="12sp"
                 tools:text="为了得到永生，男主高影和女主朱荪伶分别进入了2个恐怖的教室....."
                 />

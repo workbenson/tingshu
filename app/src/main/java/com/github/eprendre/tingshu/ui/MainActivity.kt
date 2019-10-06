@@ -58,6 +58,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        when (Prefs.currentTheme) {
+            0 -> setTheme(R.style.AppTheme_NoActionBar)
+            1 -> setTheme(R.style.DarkTheme_NoActionBar)
+        }
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         volumeControlStream = AudioManager.STREAM_MUSIC

@@ -6,7 +6,9 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="primary_text_color">@color/primary_text</item>
         <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
+        <item name="bottomSheetDialogTheme">@style/Theme.Design.Light.BottomSheetDialog</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -15,6 +17,23 @@
     </style>
 
     <style name="AppTheme.Player">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="DarkTheme" parent="Theme.AppCompat">
+        <item name="colorAccent">@color/dark_colorAccent</item>
+        <item name="primary_text_color">@color/dark_primary_text</item>
+        <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
+        <item name="bottomSheetDialogTheme">@style/Theme.Design.BottomSheetDialog</item>
+    </style>
+
+    <style name="DarkTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="DarkTheme.Player">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

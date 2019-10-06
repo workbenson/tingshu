@@ -26,6 +26,10 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        when (Prefs.currentTheme) {
+            0 -> setTheme(R.style.AppTheme)
+            1 -> setTheme(R.style.DarkTheme)
+        }
         setContentView(R.layout.activity_search)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         lastTabIndex = resources.getStringArray(R.array.source_values).indexOfFirst { it == Prefs.source }

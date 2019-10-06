@@ -19,6 +19,8 @@
     <string name="sources_header">选择源站点</string>
     <string name="source_title">当前站点</string>
 
+    <string name="select_theme">选择主题 (重启 APP 生效)</string>
+
     <string name="navigation_drawer_open">打开导航抽屉</string>
     <string name="navigation_drawer_close">关闭导航抽屉</string>
 

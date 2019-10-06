@@ -31,6 +31,13 @@
     </PreferenceCategory>
     <PreferenceCategory
             app:title="其它设置">
+        <ListPreference
+                app:key="current_theme"
+                app:title="@string/select_theme"
+                app:entries="@array/theme_entries"
+                app:entryValues="@array/theme_values"
+                app:defaultValue="0"
+                app:useSimpleSummaryProvider="true"/>
         <SwitchPreference
                 app:key="show_album_art"
                 app:title="在锁屏显示封面背景 (仅部分系统可用，重启或者换书生效)"

@@ -4,10 +4,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.getColorAccent
+import com.github.eprendre.tingshu.extensions.getTextColorPrimary
 import com.github.eprendre.tingshu.utils.Episode
 import com.github.eprendre.tingshu.utils.Prefs
 import kotlinx.android.synthetic.main.item_episode.view.*
@@ -41,13 +42,9 @@ class EpisodeViewHolder(view: View, itemClickedListener: (Episode) -> Unit) : Re
         item = episode
         titleView.text = episode.title
         if (episode.url == Prefs.currentBook!!.currentEpisodeUrl) {
-            titleView.setTextColor(ContextCompat.getColor(itemView.context,
-                R.color.colorAccent
-            ))
+            titleView.setTextColor(itemView.context.getColorAccent())
         } else {
-            titleView.setTextColor(ContextCompat.getColor(itemView.context,
-                R.color.primary_text
-            ))
+            titleView.setTextColor(itemView.context.getTextColorPrimary())
         }
     }
 }

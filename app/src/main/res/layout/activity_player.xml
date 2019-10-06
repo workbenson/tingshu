@@ -84,7 +84,7 @@
                                 android:id="@+id/artist_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/primary_text"
+                                android:textColor="?attr/primary_text_color"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
                                 tools:text="播音: xxxx"
@@ -98,7 +98,7 @@
                                 android:id="@+id/episode_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/primary_text"
+                                android:textColor="?attr/primary_text_color"
                                 android:textStyle="bold"
                                 android:textSize="16sp"
                                 tools:text="第1章"
@@ -153,7 +153,7 @@
                                     android:layout_width="40dp"
                                     android:layout_height="match_parent"
                                     android:src="@drawable/ic_playlist_play"
-                                    android:tint="@color/colorAccent"
+                                    android:tint="?attr/colorAccent"
                                     android:background="?selectableItemBackground"
                                     android:scaleType="fitCenter"
                                     android:contentDescription="章节选择"
@@ -173,7 +173,6 @@
                                 android:id="@+id/text_current"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/secondary_text"
                                 tools:text="00:12"
                                 />
 
@@ -189,7 +188,6 @@
                                 android:layout_gravity="right"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/secondary_text"
                                 tools:text="21:35"
                                 />
                     </LinearLayout>
@@ -209,7 +207,7 @@
                                 android:layout_height="match_parent"
                                 android:background="?selectableItemBackgroundBorderless"
                                 android:src="@drawable/exo_icon_previous"
-                                android:tint="@color/colorAccent"
+                                android:tint="?attr/colorAccent"
                                 android:contentDescription="上一章"
                                 />
 
@@ -220,7 +218,7 @@
                                 android:layout_height="match_parent"
                                 android:background="?selectableItemBackgroundBorderless"
                                 android:src="@drawable/exo_icon_rewind"
-                                android:tint="@color/colorAccent"
+                                android:tint="?attr/colorAccent"
                                 android:contentDescription="后退"
                                 />
 
@@ -236,7 +234,7 @@
                                     android:layout_height="match_parent"
                                     android:background="?selectableItemBackgroundBorderless"
                                     android:src="@drawable/exo_icon_play"
-                                    android:tint="@color/colorAccent"
+                                    android:tint="?attr/colorAccent"
                                     />
 
                             <ProgressBar
@@ -255,7 +253,7 @@
                                 android:layout_height="match_parent"
                                 android:background="?selectableItemBackgroundBorderless"
                                 android:src="@drawable/exo_icon_fastforward"
-                                android:tint="@color/colorAccent"
+                                android:tint="?attr/colorAccent"
                                 android:contentDescription="前进"
                                 />
 
@@ -266,7 +264,7 @@
                                 android:layout_height="match_parent"
                                 android:background="?selectableItemBackgroundBorderless"
                                 android:src="@drawable/exo_icon_next"
-                                android:tint="@color/colorAccent"
+                                android:tint="?attr/colorAccent"
                                 android:contentDescription="下一章"
                                 />
                     </LinearLayout>

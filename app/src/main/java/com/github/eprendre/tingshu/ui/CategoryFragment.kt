@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.getColorAccent
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.adapters.CategoryAdapter
 import com.github.eprendre.tingshu.utils.Book
@@ -82,7 +83,8 @@ class CategoryFragment : Fragment(), AnkoLogger {
             }
         }
         recycler_view.addOnScrollListener(scrollListener)
-        swiperefresh_layout.setColorSchemeResources(R.color.colorAccent)
+        swiperefresh_layout.setColorSchemeColors(context!!.getColorAccent())
+
         swiperefresh_layout.setOnRefreshListener {
             fetch(categoryUrl)
         }

@@ -10,7 +10,7 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/primary_text"
+            android:textColor="?attr/primary_text_color"
             android:text="章节列表:"
             android:textSize="16sp"
             android:textStyle="bold"

@@ -121,4 +121,8 @@ object Prefs {
     var audioOnError: Boolean
         get() = prefs.getBoolean("audio_on_error", false)
         set(value) = prefs.edit().putBoolean("audio_on_error", value).apply()
+
+    var currentTheme: Int
+        get() = prefs.getString("current_theme", "0")!!.toInt()
+        set(value) = prefs.edit().putString("current_theme", value.toString()).apply()
 }
