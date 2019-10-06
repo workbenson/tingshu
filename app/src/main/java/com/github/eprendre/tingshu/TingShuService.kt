@@ -253,6 +253,7 @@ class TingShuService : Service(), AnkoLogger {
     }
 
     fun setPauseCount(count: Int) {
+        resetTimer()//如果有定时的话需要先重置
         pauseCount = count
         RxBus.post(RxEvent.TimerEvent("播完 $pauseCount 集关闭"))
     }
