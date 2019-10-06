@@ -187,17 +187,23 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             PlaybackStateCompat.STATE_ERROR -> {
                 play_progress.visibility = View.GONE
                 button_play.setImageResource(R.drawable.exo_controls_play)
+                button_play.contentDescription = "播放"
                 toast("播放出错了(如果多次报错此地址可能已失效)")
             }
             PlaybackStateCompat.STATE_STOPPED -> {
                 play_progress.visibility = View.GONE
                 button_play.setImageResource(R.drawable.exo_controls_play)
+                button_play.contentDescription = "播放"
             }
             PlaybackStateCompat.STATE_PLAYING -> {
                 button_play.setImageResource(R.drawable.exo_controls_pause)
+                button_play.contentDescription = "暂停"
                 play_progress.visibility = View.GONE
             }
-            PlaybackStateCompat.STATE_PAUSED -> button_play.setImageResource(R.drawable.exo_controls_play)
+            PlaybackStateCompat.STATE_PAUSED -> {
+                button_play.setImageResource(R.drawable.exo_controls_play)
+                button_play.contentDescription = "播放"
+            }
         }
     }
 
@@ -635,6 +641,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 .subscribeBy(onSuccess = { book ->
                     //如果已收藏设置图标为实心
                     favoriteItem.setIcon(R.drawable.ic_favorite)
+                    favoriteItem.title = "取消收藏"
                     toolbarIconColor?.let { color ->
                         favoriteItem.icon.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
                     }
@@ -643,6 +650,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     //如果未收藏设置图标为空心
                     if (e is EmptyResultSetException) {
                         favoriteItem.setIcon(R.drawable.ic_favorite_border)
+                        favoriteItem.title = "添加收藏"
                         toolbarIconColor?.let { color ->
                             favoriteItem.icon.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
                         }

@@ -156,7 +156,7 @@
                                     android:tint="@color/colorAccent"
                                     android:background="?selectableItemBackground"
                                     android:scaleType="fitCenter"
-                                    android:contentDescription="@null"
+                                    android:contentDescription="章节选择"
                                     />
                         </LinearLayout>
                     </FrameLayout>
@@ -210,6 +210,7 @@
                                 android:background="?selectableItemBackgroundBorderless"
                                 android:src="@drawable/exo_icon_previous"
                                 android:tint="@color/colorAccent"
+                                android:contentDescription="上一章"
                                 />
 
                         <ImageButton
@@ -220,6 +221,7 @@
                                 android:background="?selectableItemBackgroundBorderless"
                                 android:src="@drawable/exo_icon_rewind"
                                 android:tint="@color/colorAccent"
+                                android:contentDescription="后退"
                                 />
 
                         <FrameLayout
@@ -254,6 +256,7 @@
                                 android:background="?selectableItemBackgroundBorderless"
                                 android:src="@drawable/exo_icon_fastforward"
                                 android:tint="@color/colorAccent"
+                                android:contentDescription="前进"
                                 />
 
                         <ImageButton
@@ -264,6 +267,7 @@
                                 android:background="?selectableItemBackgroundBorderless"
                                 android:src="@drawable/exo_icon_next"
                                 android:tint="@color/colorAccent"
+                                android:contentDescription="下一章"
                                 />
                     </LinearLayout>
                 </LinearLayout>

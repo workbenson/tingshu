@@ -4,13 +4,13 @@
     <item
             android:id="@+id/switch_source"
             android:icon="@drawable/ic_sync_white_24dp"
-            android:title="source"
+            android:title="更换源"
             app:showAsAction="always"
             />
     <item
             android:id="@+id/search"
             android:icon="@drawable/ic_search"
-            android:title="search"
+            android:title="搜索"
             app:showAsAction="always"
             />
 
