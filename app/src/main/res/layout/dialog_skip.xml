@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="跳过片头 0秒"
+            android:text="跳过片头 0 秒"
             android:accessibilityLiveRegion="polite"
             />
 
@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:max="60"
+            android:max="120"
             />
 
     <TextView
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="跳过片尾 0秒"
+            android:text="跳过片尾 0 秒"
             android:accessibilityLiveRegion="polite"
             />
 
@@ -64,6 +64,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:max="60"
+            android:max="120"
             />
 </LinearLayout>

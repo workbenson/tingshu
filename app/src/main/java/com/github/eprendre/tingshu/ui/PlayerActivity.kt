@@ -745,8 +745,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 val textSkipEnd = dialog.find<TextView>(R.id.text_skip_end)
                 val seekBarSkipEnd = dialog.find<SeekBar>(R.id.seekbar_skip_end)
                 val resetButton = dialog.find<Button>(R.id.reset_skipping)
-                textSkipBeginning.text = "跳过片头 ${currentBook.skipBeginning / 1000}秒"
-                textSkipEnd.text = "跳过片尾 ${currentBook.skipEnd / 1000}秒"
+                textSkipBeginning.text = "跳过片头 ${currentBook.skipBeginning / 1000} 秒"
+                textSkipEnd.text = "跳过片尾 ${currentBook.skipEnd / 1000} 秒"
                 seekBarSkipBeginning.progress = (currentBook.skipBeginning / 1000).toInt()
                 seekBarSkipEnd.progress = (currentBook.skipEnd / 1000).toInt()
                 seekBarSkipBeginning.setOnSeekBarChangeListener(object :
@@ -756,7 +756,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                         progress: Int,
                         fromUser: Boolean
                     ) {
-                        textSkipBeginning.text = "跳过片头 ${progress}秒"
+                        textSkipBeginning.text = "跳过片头 ${progress} 秒"
                         currentBook.skipBeginning = seekBar.progress * 1000L
                     }
 
@@ -772,7 +772,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                         progress: Int,
                         fromUser: Boolean
                     ) {
-                        textSkipEnd.text = "跳过片尾 ${progress}秒"
+                        textSkipEnd.text = "跳过片尾 ${progress} 秒"
                         currentBook.skipEnd = seekBar.progress * 1000L
                     }
 
