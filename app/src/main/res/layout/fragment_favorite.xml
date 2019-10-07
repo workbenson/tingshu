@@ -5,7 +5,6 @@
         android:id="@+id/state_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.FavoriteActivity"
         android:inAnimation="@android:anim/fade_in"
         android:outAnimation="@android:anim/fade_out"
         >
