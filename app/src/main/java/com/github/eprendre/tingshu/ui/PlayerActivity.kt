@@ -745,41 +745,41 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 val textSkipEnd = dialog.find<TextView>(R.id.text_skip_end)
                 val seekBarSkipEnd = dialog.find<SeekBar>(R.id.seekbar_skip_end)
                 val resetButton = dialog.find<Button>(R.id.reset_skipping)
-                textSkipBeginning.text = "跳过片头 ${currentBook.skipBeginning / 1000}s"
-                textSkipEnd.text = "跳过片尾 ${currentBook.skipEnd / 1000}s"
+                textSkipBeginning.text = "跳过片头 ${currentBook.skipBeginning / 1000}秒"
+                textSkipEnd.text = "跳过片尾 ${currentBook.skipEnd / 1000}秒"
                 seekBarSkipBeginning.progress = (currentBook.skipBeginning / 1000).toInt()
                 seekBarSkipEnd.progress = (currentBook.skipEnd / 1000).toInt()
                 seekBarSkipBeginning.setOnSeekBarChangeListener(object :
                     SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(
-                        seekBar: SeekBar?,
+                        seekBar: SeekBar,
                         progress: Int,
                         fromUser: Boolean
                     ) {
-                        textSkipBeginning.text = "跳过片头 ${progress}s"
+                        textSkipBeginning.text = "跳过片头 ${progress}秒"
+                        currentBook.skipBeginning = seekBar.progress * 1000L
                     }
 
                     override fun onStartTrackingTouch(seekBar: SeekBar) {
                     }
 
                     override fun onStopTrackingTouch(seekBar: SeekBar) {
-                        currentBook.skipBeginning = seekBar.progress * 1000L
                     }
                 })
                 seekBarSkipEnd.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(
-                        seekBar: SeekBar?,
+                        seekBar: SeekBar,
                         progress: Int,
                         fromUser: Boolean
                     ) {
-                        textSkipEnd.text = "跳过片尾 ${progress}s"
+                        textSkipEnd.text = "跳过片尾 ${progress}秒"
+                        currentBook.skipEnd = seekBar.progress * 1000L
                     }
 
                     override fun onStartTrackingTouch(seekBar: SeekBar) {
                     }
 
                     override fun onStopTrackingTouch(seekBar: SeekBar) {
-                        currentBook.skipEnd = seekBar.progress * 1000L
                     }
                 })
                 resetButton.setOnClickListener {

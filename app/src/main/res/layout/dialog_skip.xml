@@ -38,7 +38,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="跳过片头 0s"
+            android:text="跳过片头 0秒"
+            android:accessibilityLiveRegion="polite"
             />
 
     <SeekBar
@@ -54,7 +55,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="跳过片尾 0s"
+            android:text="跳过片尾 0秒"
+            android:accessibilityLiveRegion="polite"
             />
 
     <SeekBar
