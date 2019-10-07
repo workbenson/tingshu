@@ -462,7 +462,13 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         //播放速度
         myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)//初始化播放器的速度
         speed_button.text = "${Prefs.speed} x"
+        speed_button.contentDescription = "播放速度 ${Prefs.speed} 倍"
         speed_button.setOnClickListener {
+            val updateSpeedButton = {
+                myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
+                speed_button.text = "${Prefs.speed} x"
+                speed_button.contentDescription = "播放速度 ${Prefs.speed} 倍"
+            }
             val dialog = AlertDialog.Builder(this)
                 .setView(R.layout.speed_dialog)
                 .show()
@@ -473,31 +479,28 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             val speedDownButton = dialog.find<ImageButton>(R.id.button_speed_down)
             val speedUpButton = dialog.find<ImageButton>(R.id.button_speed_up)
             seekBar.progress = (Prefs.speed * 10 - 1).toInt()
-            speedText.text = "播放速度: ${Prefs.speed} x"
+            speedText.text = "播放速度: ${Prefs.speed} 倍"
             seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     val speed = (progress + 1) / 10f
-                    speedText.text = "播放速度: ${speed} x"
+                    speedText.text = "播放速度: ${speed} 倍"
                     Prefs.speed = speed
+                    updateSpeedButton()
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
-                    speed_button.text = "${Prefs.speed} x"
                 }
             })
             speedDownButton.setOnClickListener {
                 seekBar.progress = seekBar.progress - 1
-                myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
-                speed_button.text = "${Prefs.speed} x"
+                updateSpeedButton()
             }
             speedUpButton.setOnClickListener {
                 seekBar.progress = seekBar.progress + 1
-                myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)
-                speed_button.text = "${Prefs.speed} x"
+                updateSpeedButton()
             }
         }
         //进度条
