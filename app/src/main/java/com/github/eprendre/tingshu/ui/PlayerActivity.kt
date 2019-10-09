@@ -11,10 +11,7 @@ import android.graphics.PorterDuff
 import android.graphics.drawable.RippleDrawable
 import android.media.AudioManager
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.IBinder
+import android.os.*
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
@@ -173,7 +170,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             })
 
             initViews()
-            myService.updateTimerText()
             handleIntent()
             isBound = true
         }
@@ -185,7 +181,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private fun updateState(state: PlaybackStateCompat) {
         val book = Prefs.currentBook!!
         artist_text.text = "${book.artist}"
-        episode_text.text = "当前章节：${book.currentEpisodeName}"
+        episode_text.text = "当前章节：${book.currentEpisodeName ?: ""}"
         listAdapter.notifyDataSetChanged()//更新当前正在播放的item颜色
         when (state.state) {
             PlaybackStateCompat.STATE_ERROR -> {
@@ -249,7 +245,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             } else {//继续播放
                 val book = Prefs.currentBook!!
                 artist_text.text = "${book.artist}"
-                episode_text.text = "当前章节：${book.currentEpisodeName}"
+                episode_text.text = "当前章节：${book.currentEpisodeName ?: ""}"
                 supportActionBar?.title = book.title
                 listAdapter.submitList(Prefs.playList)
                 updateState(mediaController.playbackState)
@@ -272,7 +268,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             .subscribe({
                 val book = Prefs.currentBook!!
                 artist_text.text = "${book.artist}"
-                episode_text.text = "当前章节：${book.currentEpisodeName}"
+                episode_text.text = "当前章节：${book.currentEpisodeName ?: ""}"
                 invalidateOptionsMenu()
                 state_layout.showContent()
                 tintColor()
@@ -435,13 +431,13 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             dialogCountDown.show()
         }
 
-        //监听倒计时, 更新按钮的剩余时间
-        RxBus.toFlowable(RxEvent.TimerEvent::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                timer_button.text = it.msg
-            }
-            .addTo(compositeDisposable)
+//        //监听倒计时, 更新按钮的剩余时间
+//        RxBus.toFlowable(RxEvent.TimerEvent::class.java)
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe {
+//                timer_button.text = it.msg
+//            }
+//            .addTo(compositeDisposable)
 
         //书籍页面解析成功 -> 开始解析播放地址
         RxBus.toFlowable(RxEvent.ParsingPlayUrlEvent::class.java)
@@ -583,6 +579,15 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                         seekbar.secondaryProgress = bufferedPercentage
                         seekbar.progress = positionPercentage
                     }
+                    if (myService.getPauseCount() > 0) {
+                        timer_button.text = "播完 ${myService.getPauseCount()} 集关闭"
+                    } else if (myService.timeToPause > SystemClock.elapsedRealtime()) {
+                        val seconds = (myService.timeToPause - SystemClock.elapsedRealtime()) / 1000
+                        timer_button.text = "${DateUtils.formatElapsedTime(seconds)} 后关闭"
+                    } else {
+                        timer_button.text = "定时关闭"
+                    }
+
                 }
             }
             .addTo(compositeDisposable)

@@ -10,10 +10,7 @@ import android.content.IntentFilter
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Binder
-import android.os.Build
-import android.os.Handler
-import android.os.IBinder
+import android.os.*
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -43,15 +40,16 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class TingShuService : Service(), AnkoLogger {
     val myBinder = MyLocalBinder()
-    private val compositeDisposable = CompositeDisposable()
     private val busDisposables = CompositeDisposable()
     private var retryCount = 0
     private var pauseCount = -1
+    private var isSkipping = false
 
     lateinit var mediaSession: MediaSessionCompat
     private lateinit var mediaController: MediaControllerCompat
@@ -60,6 +58,11 @@ class TingShuService : Service(), AnkoLogger {
     private lateinit var notificationBuilder: NotificationBuilder
     private lateinit var mediaSessionConnector: MediaSessionConnector
     private lateinit var closeReciver: CloseBroadcastReceiver
+    private val timerHandler by lazy { Handler() }
+    private val timerRunnable by lazy { Runnable {
+        mediaController.transportControls.pause()
+    } }
+    var timeToPause = 0L
 
     private var isForegroundService = false
     val exoPlayer: SimpleExoPlayer by lazy {
@@ -116,17 +119,12 @@ class TingShuService : Service(), AnkoLogger {
                 when (playbackState) {
                     Player.STATE_ENDED -> {
                         if (exoPlayer.duration > 10000) {//静听网会播放一个访问过快的音频，造成不停地跳转下一集
-                            if (pauseCount < 0) {//未设置按集数关闭
-                                mediaController.transportControls.skipToNext()
-                            } else {
+                            if (isSkipping) return
+                            if (pauseCount > 0) {
                                 pauseCount -= 1
-                                if (pauseCount > 0) {
-                                    RxBus.post(RxEvent.TimerEvent("播完 $pauseCount 集关闭"))
-                                } else {
-                                    RxBus.post(RxEvent.TimerEvent("定时关闭"))
-                                }
-                                mediaController.transportControls.skipToNext()
                             }
+                            isSkipping = true
+                            mediaController.transportControls.skipToNext()
                         } else {
                             Prefs.currentBook = Prefs.currentBook?.apply {
                                 this.currentEpisodePosition = 0
@@ -135,6 +133,21 @@ class TingShuService : Service(), AnkoLogger {
                     }
                     Player.STATE_READY -> {
                         retryCount = 0
+                        isSkipping = false
+                        val currentBook = Prefs.currentBook ?: return
+                        if (!exoPlayer.playWhenReady) return
+
+                        if (pauseCount == 0) {//检测按集关闭
+                            mediaController.transportControls.pause()
+                            pauseCount = -1
+                            return
+                        }
+
+                        if ((currentBook.skipBeginning + currentBook.skipEnd) > exoPlayer.duration) return//若设置的片头片尾大于音频总长度则忽略
+                        if (exoPlayer.currentPosition < currentBook.skipBeginning) {//跳过片头
+                            exoPlayer.seekTo(currentBook.skipBeginning)
+                            return
+                        }
                     }
                 }
             }
@@ -160,30 +173,18 @@ class TingShuService : Service(), AnkoLogger {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 val currentBook = Prefs.currentBook ?: return@subscribe
-                if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) return@subscribe
-                if (pauseCount == 0) {
-                    mediaController.transportControls.pause()
-                    pauseCount = -1
-                    return@subscribe
-                }
-                if (it % 10 == 0L) {
+                if (it % 10 == 0L) {//每10秒保存一次位置
                     storeCurrentPosition()
                 }
+                if (exoPlayer.playbackState != Player.STATE_READY || !exoPlayer.playWhenReady) return@subscribe//如果没有在播放状态则不检测
                 if (exoPlayer.duration == C.TIME_UNSET) return@subscribe
-                if ((currentBook.skipBeginning + currentBook.skipEnd) > exoPlayer.duration) return@subscribe
-                if (exoPlayer.currentPosition < currentBook.skipBeginning) {
-                    exoPlayer.seekTo(currentBook.skipBeginning)
-                    return@subscribe
-                }
-                if (exoPlayer.currentPosition + currentBook.skipEnd > exoPlayer.duration) {
+                if ((currentBook.skipBeginning + currentBook.skipEnd) > exoPlayer.duration) return@subscribe//若设置的片头片尾大于音频总长度则忽略
+                if (exoPlayer.currentPosition + currentBook.skipEnd > exoPlayer.duration) {//跳过片尾
+                    if (isSkipping) return@subscribe
                     if (pauseCount > 0) {
                         pauseCount -= 1
-                        if (pauseCount > 0) {
-                            RxBus.post(RxEvent.TimerEvent("播完 $pauseCount 集关闭"))
-                        } else {
-                            RxBus.post(RxEvent.TimerEvent("定时关闭"))
-                        }
                     }
+                    isSkipping = true
                     mediaController.transportControls.skipToNext()
                 }
             }
@@ -236,33 +237,23 @@ class TingShuService : Service(), AnkoLogger {
 
     fun setTimerSeconds(seconds: Long) {
         pauseCount = -1
-        Flowable.interval(1, TimeUnit.SECONDS)
-            .take(seconds)
-            .subscribeBy(onNext = {
-                RxBus.post(RxEvent.TimerEvent("${DateUtils.formatElapsedTime(seconds - it)} 后关闭"))
-            }, onComplete = {
-                RxBus.post(RxEvent.TimerEvent("定时关闭"))
-                mediaController.transportControls.pause()
-            })
-            .addTo(compositeDisposable)
+        timeToPause = SystemClock.elapsedRealtime() + seconds * 1000
+        timerHandler.postDelayed(timerRunnable, seconds * 1000)
     }
 
     fun resetTimer() {
         pauseCount = -1
-        compositeDisposable.clear()
+        timeToPause = 0
+        timerHandler.removeCallbacks(timerRunnable)
     }
 
     fun setPauseCount(count: Int) {
         resetTimer()//如果有定时的话需要先重置
         pauseCount = count
-        RxBus.post(RxEvent.TimerEvent("播完 $pauseCount 集关闭"))
     }
 
-    fun updateTimerText() {
-        if (pauseCount > 0) {
-            RxBus.post(RxEvent.TimerEvent("播完 $pauseCount 集关闭"))
-        }
-    }
+    fun getPauseCount() = pauseCount
+
 
     /**
      * Removes the [NOW_PLAYING_NOTIFICATION] notification.
@@ -379,6 +370,7 @@ class TingShuService : Service(), AnkoLogger {
 
     @SuppressLint("CheckResult")
     private fun storeCurrentPosition(b: Book? = null) {
+        if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) return//如果不在播放就不保存
         val currentBook: Book = b ?: Prefs.currentBook ?: return
         currentBook.currentEpisodePosition = exoPlayer.currentPosition
         if (currentBook.currentEpisodePosition == 0L) return
@@ -411,7 +403,6 @@ class TingShuService : Service(), AnkoLogger {
     override fun onDestroy() {
         super.onDestroy()
         exoPlayer.stop(true)
-        compositeDisposable.clear()
         busDisposables.clear()
     }
 }
