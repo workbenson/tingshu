@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.widget.GlideApp
@@ -34,6 +35,7 @@ class CategoryViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycl
     private val introView = view.intro_text
     private val coverView = view.cover_image
     private val statusView = view.status_text
+    private val sourceView = view.source_text
     var item: Book? = null
 
     init {
@@ -58,6 +60,7 @@ class CategoryViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycl
         artistView.text = book.artist
         introView.text = book.intro
         statusView.text = book.status
+        sourceView.text = App.getSourceTitle(book.bookUrl)
         GlideApp.with(itemView).load(book.coverUrl).into(coverView)
     }
 

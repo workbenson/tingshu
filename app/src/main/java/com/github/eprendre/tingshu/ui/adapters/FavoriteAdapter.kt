@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.widget.GlideApp
@@ -30,6 +31,7 @@ class FavoriteViewHolder(view: View, itemClickListener: (Book) -> Unit, itemLong
     private val artistView = view.artist_text
     private val coverView = view.cover_image
     private val episodeView = view.episode_text
+    private val sourceView = view.source_text
     var item: Book? = null
 
     init {
@@ -51,6 +53,7 @@ class FavoriteViewHolder(view: View, itemClickListener: (Book) -> Unit, itemLong
         book.currentEpisodeName?.let {
             episodeView.text = "上次播放：$it ${DateUtils.formatElapsedTime(book.currentEpisodePosition / 1000)}"
         }
+        sourceView.text = App.getSourceTitle(book.bookUrl)
         GlideApp.with(itemView).load(book.coverUrl).into(coverView)
     }
 }

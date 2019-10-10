@@ -34,6 +34,8 @@ class App : MultiDexApplication() {
         var coverBitmap: Bitmap? = null
         var isRetry = true
         fun currentEpisodeIndex() = Prefs.playList.indexOfFirst { it.url == Prefs.currentBook!!.currentEpisodeUrl }
+        private val sourceValues by lazy { appContext.resources.getStringArray(R.array.source_values) }
+        private val sourceEntries by lazy { appContext.resources.getStringArray(R.array.source_entries) }
 
         @SuppressLint("CheckResult")
         fun findBookInHistoryOrFav(book: Book, f: (book:Book) -> Unit) {
@@ -59,6 +61,15 @@ class App : MultiDexApplication() {
                         it.printStackTrace()
                     }
                 })
+        }
+
+        fun getSourceTitle(url: String): String {
+            val index = sourceValues.indexOfFirst { url.startsWith(it) }
+            return if (index > -1) {
+                sourceEntries[index]
+            } else {
+                ""
+            }
         }
     }
 }

@@ -8,12 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.widget.GlideApp
 import io.reactivex.Completable
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -25,7 +25,7 @@ import org.jsoup.Jsoup
 
 class SearchAdapter(private val itemClickListener: (Book) -> Unit) :
     ListAdapter<Book, SearchViewHolder>(Book.diffCallback) {
-    val compositeDisposable = CompositeDisposable()
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_search, parent, false)
@@ -43,9 +43,9 @@ class SearchAdapter(private val itemClickListener: (Book) -> Unit) :
                 val book01 = doc.getElementsByClass("book01").first()
                 val coverUrl = book01.selectFirst("img").absUrl("src")
                 val lis = book01.select("ul li")
-                val author = lis.get(5).text()
-                val artist = lis.get(4).text()
-                val status = lis.get(6).text()
+                val author = lis[5].text()
+                val artist = lis[4].text()
+                val status = lis[6].text()
 
                 val bookInfo = doc.selectFirst(".book02").ownText()
                 book.coverUrl = coverUrl
@@ -78,6 +78,7 @@ class SearchViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycler
     private val introView = view.intro_text
     private val coverView = view.cover_image
     private val statusView = view.status_text
+    private val sourceView = view.source_text
     var item: Book? = null
 
     init {
@@ -102,6 +103,7 @@ class SearchViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycler
         artistView.text = book.artist
         introView.text = book.intro
         statusView.text = book.status
+        sourceView.text = App.getSourceTitle(book.bookUrl)
         GlideApp.with(itemView).load(book.coverUrl).into(coverView)
     }
 
