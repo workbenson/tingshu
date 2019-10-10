@@ -103,6 +103,21 @@
                                 android:textSize="16sp"
                                 tools:text="第1章"
                                 />
+
+                        <TextView
+                                android:paddingLeft="8dp"
+                                android:paddingRight="8dp"
+                                android:paddingTop="4dp"
+                                android:paddingBottom="4dp"
+                                android:id="@+id/charge_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="?attr/primary_text_color"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:visibility="gone"
+                                android:text="本书含收费章节, 请去原网站收听"
+                                />
                     </LinearLayout>
 
                 </FrameLayout>

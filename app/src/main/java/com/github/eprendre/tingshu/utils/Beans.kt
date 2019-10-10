@@ -10,6 +10,7 @@ import androidx.room.*
 
 @Keep
 data class Episode(val title: String, val url: String) {
+    var isFree: Boolean = true
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<Episode>() {
             override fun areItemsTheSame(oldItem: Episode, newItem: Episode): Boolean {

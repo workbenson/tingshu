@@ -78,10 +78,14 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         }
     }
     private val listAdapter = EpisodeAdapter {
-        Prefs.currentBook = Prefs.currentBook?.apply {
-            this.currentEpisodePosition = 0
+        if (it.isFree) {
+            Prefs.currentBook = Prefs.currentBook?.apply {
+                this.currentEpisodePosition = 0
+            }
+            mediaController.transportControls.playFromUri(Uri.parse(it.url), null)
+        } else {
+            longToast("此章节是收费章节，请去原网站收听")
         }
-        mediaController.transportControls.playFromUri(Uri.parse(it.url), null)
         dialogEpisodes.dismiss()
     }
     private val dialogCountDown: BottomSheetDialog by lazy {
@@ -281,6 +285,13 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 }
                 supportActionBar?.title = book.title
                 listAdapter.submitList(Prefs.playList)
+                val episode = Prefs.playList.firstOrNull { !it.isFree }
+                if (episode != null) {
+                    longToast("本书章节第${episode.title}开始是收费内容，请去原网站收听。")
+                    charge_text.visibility = View.VISIBLE
+                } else {
+                    charge_text.visibility = View.GONE
+                }
                 mediaController.transportControls.playFromUri(
                     Uri.parse(Prefs.playList[index].url),
                     null
@@ -336,14 +347,11 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                         }
                     }
                     artist_text.setTextColor(swatch.titleTextColor)
-                    artist_text.setShadowLayer(
-                        24f,
-                        0f,
-                        0f,
-                        swatch.rgb
-                    )//加上阴影可以解决字体颜色和附近背景颜色接近时不能识别的情况
+                    artist_text.setShadowLayer( 24f, 0f, 0f, swatch.rgb)//加上阴影可以解决字体颜色和附近背景颜色接近时不能识别的情况
                     episode_text.setTextColor(swatch.titleTextColor)
                     episode_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)
+                    charge_text.setTextColor(swatch.titleTextColor)
+                    charge_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)
                     control_panel.setBackgroundColor(bgColor)
                     timer_button.setTextColor(swatch.bodyTextColor)
                     playlist_button.setColorFilter(swatch.bodyTextColor)

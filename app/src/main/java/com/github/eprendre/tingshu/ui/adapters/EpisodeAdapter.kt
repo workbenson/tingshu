@@ -30,6 +30,7 @@ class EpisodeAdapter(private val itemClickedListener: (Episode) -> Unit) :
 
 class EpisodeViewHolder(view: View, itemClickedListener: (Episode) -> Unit) : RecyclerView.ViewHolder(view) {
     private val titleView: TextView = view.title
+    private val chargeView: TextView = view.charge
     var item: Episode? = null
 
     init {
@@ -45,6 +46,11 @@ class EpisodeViewHolder(view: View, itemClickedListener: (Episode) -> Unit) : Re
             titleView.setTextColor(itemView.context.getColorAccent())
         } else {
             titleView.setTextColor(itemView.context.getTextColorPrimary())
+        }
+        if (episode.isFree) {
+            chargeView.visibility = View.GONE
+        } else {
+            chargeView.visibility = View.VISIBLE
         }
     }
 }

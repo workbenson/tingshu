@@ -10,6 +10,7 @@
         <item>天天评书网</item>
         <item>22听书网</item>
         <item>乾坤听书网</item>
+        <item>恋听网</item>
     </string-array>
 
     <string-array name="source_values">
@@ -23,6 +24,7 @@
         <item>https://www.pingshu365.com</item>
         <item>https://m.ting22.com</item>
         <item>http://m.qktsw.com</item>
+        <item>https://ting55.com/</item>
     </string-array>
 
     <string-array name="theme_entries">
