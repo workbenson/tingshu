@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         when (Prefs.currentTheme) {
             0 -> setTheme(R.style.AppTheme_NoActionBar)
             1 -> setTheme(R.style.DarkTheme_NoActionBar)
+            2 -> setTheme(R.style.BlueTheme_NoActionBar)
         }
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)

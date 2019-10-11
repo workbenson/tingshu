@@ -29,6 +29,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
         when (Prefs.currentTheme) {
             0 -> setTheme(R.style.AppTheme)
             1 -> setTheme(R.style.DarkTheme)
+            2 -> setTheme(R.style.BlueTheme)
         }
         setContentView(R.layout.activity_search)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

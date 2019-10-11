@@ -14,6 +14,7 @@ class SettingsActivity : AppCompatActivity() {
         when (Prefs.currentTheme) {
             0 -> setTheme(R.style.AppTheme)
             1 -> setTheme(R.style.DarkTheme)
+            2 -> setTheme(R.style.BlueTheme)
         }
         setContentView(R.layout.settings_activity)
         supportFragmentManager
