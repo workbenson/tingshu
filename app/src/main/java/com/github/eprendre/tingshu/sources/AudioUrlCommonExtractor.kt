@@ -67,7 +67,6 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
                     }
                     .build()
 
-                exoPlayer.playWhenReady = Prefs.isAutoPlay
                 val source = metadata.toMediaSource(dataSourceFactory)
                 exoPlayer.prepare(source)
                 if (book.currentEpisodePosition > 0) {

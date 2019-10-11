@@ -3,7 +3,7 @@
     <color name="colorPrimary">#FFC107</color>
     <color name="colorPrimaryDark">#FFA000</color>
     <color name="primary_light">#FFECB3</color>
-    <color name="colorAccent">#8BC34A</color>
+    <color name="colorAccent">#FF9800</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
     <color name="icons">#212121</color>
@@ -14,6 +14,7 @@
     <color name="dark_primary_text">#E0E0E0</color>
 
     <color name="blue_colorPrimary">#2196F3</color>
+    <color name="blue_primary_light">#BBDEFB</color>
     <color name="blue_colorAccent">#4CAF50</color>
 
 </resources>

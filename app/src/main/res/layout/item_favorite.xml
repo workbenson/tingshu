@@ -48,7 +48,7 @@
                     tools:text="56听书网"
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
-                    android:background="?attr/colorAccent"
+                    android:background="@drawable/source_round_bg"
                     />
 
         </LinearLayout>
