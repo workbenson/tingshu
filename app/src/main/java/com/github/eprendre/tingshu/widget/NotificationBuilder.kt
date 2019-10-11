@@ -123,7 +123,7 @@ class NotificationBuilder(private val context: Context) {
                 .setDeleteIntent(stopPendingIntent)
                 .setLargeIcon(App.coverBitmap)
                 .setOnlyAlertOnce(true)
-                .setSmallIcon(R.drawable.ic_notification)
+                .setSmallIcon(R.drawable.ic_radio_black_24dp)
                 .setStyle(mediaStyle)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .build()
