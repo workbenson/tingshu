@@ -199,6 +199,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 button_play.setImageResource(R.drawable.exo_controls_play)
                 button_play.contentDescription = "播放"
             }
+            PlaybackStateCompat.STATE_BUFFERING -> {
+                play_progress.visibility = View.GONE
+            }
             PlaybackStateCompat.STATE_PLAYING -> {
                 button_play.setImageResource(R.drawable.exo_controls_pause)
                 button_play.contentDescription = "暂停"
@@ -255,9 +258,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 updateState(mediaController.playbackState)
                 state_layout.showContent()
                 tintColor()
-//                if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
-//                    mediaController.transportControls.play()
-//                }
+                if (Prefs.isAutoPlay && mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
+                    mediaController.transportControls.play()
+                }
             }
         }
     }
@@ -324,7 +327,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
                 palette.dominantSwatch?.let { swatch ->
                     val bgColor = ColorUtils.setAlphaComponent(swatch.rgb, 204)
-                    toolbar.setBackgroundColor(bgColor)
+                    toolbar.setBackgroundColor(swatch.rgb)
                     //如果actionbar的背景颜色太亮，则修改toolbar, statusbar的文字、图标为深色
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)

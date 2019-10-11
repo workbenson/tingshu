@@ -4,7 +4,7 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="primary_text_color">@color/primary_text</item>
         <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
@@ -22,6 +22,8 @@
     </style>
 
     <style name="DarkTheme" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/dark_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/dark_colorPrimary</item>
         <item name="colorAccent">@color/dark_colorAccent</item>
         <item name="primary_text_color">@color/dark_primary_text</item>
         <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>

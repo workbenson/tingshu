@@ -125,4 +125,8 @@ object Prefs {
     var currentTheme: Int
         get() = prefs.getString("current_theme", "0")!!.toInt()
         set(value) = prefs.edit().putString("current_theme", value.toString()).apply()
+
+    var isAutoPlay: Boolean
+        get() = prefs.getBoolean("auto_play", true)
+        set(value) = prefs.edit().putBoolean("auto_play", value).apply()
 }

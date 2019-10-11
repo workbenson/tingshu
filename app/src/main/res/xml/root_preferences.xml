@@ -53,6 +53,11 @@
                 app:key="audio_on_error"
                 app:title="播放失败时语音提示"
                 app:defaultValue="false"/>
+
+        <SwitchPreference
+            app:key="auto_play"
+            app:title="进入播放页面自动播放"
+            app:defaultValue="true"/>
     </PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>
