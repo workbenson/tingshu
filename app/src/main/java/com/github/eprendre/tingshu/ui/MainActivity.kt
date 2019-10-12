@@ -209,6 +209,14 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         }
     }
 
+    override fun onBackPressed() {
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            drawer_layout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     private fun updatePlayerInfo() {
         if (Prefs.currentBook == null) {
             headerView.container.setOnClickListener(null)
