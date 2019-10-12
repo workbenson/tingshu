@@ -314,7 +314,7 @@ class TingShuService : Service(), AnkoLogger {
                 PlaybackStateCompat.STATE_ERROR,
                 PlaybackStateCompat.STATE_PAUSED -> {
                     tickDisposables.clear()
-                    storeCurrentPosition()
+                    storeCurrentPosition(ignorePaused = true)
                 }
                 PlaybackStateCompat.STATE_STOPPED,
                 PlaybackStateCompat.STATE_NONE -> {
@@ -400,8 +400,8 @@ class TingShuService : Service(), AnkoLogger {
     }
 
     @SuppressLint("CheckResult")
-    private fun storeCurrentPosition(b: Book? = null) {
-        if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) return//如果不在播放就不保存
+    private fun storeCurrentPosition(b: Book? = null, ignorePaused: Boolean = false) {
+        if (!ignorePaused && mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) return//如果不在播放就不保存
         val currentBook: Book = b ?: Prefs.currentBook ?: return
         currentBook.currentEpisodePosition = exoPlayer.currentPosition
         if (currentBook.currentEpisodePosition == 0L) return
