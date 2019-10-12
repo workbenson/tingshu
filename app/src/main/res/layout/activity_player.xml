@@ -120,6 +120,16 @@
                                 />
                     </LinearLayout>
 
+                    <TextView
+                            android:layout_margin="8dp"
+                            android:layout_gravity="right|bottom"
+                            android:id="@+id/cache_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="?attr/primary_text_color"
+                            android:textStyle="bold"
+                            tools:text="缓存完成"/>
+
                 </FrameLayout>
 
                 <LinearLayout

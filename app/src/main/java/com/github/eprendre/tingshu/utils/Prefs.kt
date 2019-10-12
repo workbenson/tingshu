@@ -133,4 +133,8 @@ object Prefs {
     var currentAudioUrl: String?
         get() = prefs.getString("current_audio_url", null)
         set(value) = prefs.edit().putString("current_audio_url", value).apply()
+
+    var isCacheNextEpisode: Boolean
+        get() = prefs.getBoolean("cache_next", true)
+        set(value) = prefs.edit().putBoolean("cache_next", value).apply()
 }

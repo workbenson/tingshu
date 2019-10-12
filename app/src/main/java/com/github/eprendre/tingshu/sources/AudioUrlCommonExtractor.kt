@@ -23,7 +23,7 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
         this.parse = parse
     }
 
-    override fun extract(url: String, autoPlay: Boolean) {
+    override fun extract(url: String, autoPlay: Boolean, isCache: Boolean) {
         compositeDisposable.clear()
         Single.fromCallable {
             return@fromCallable parse(Jsoup.connect(url).get())
@@ -31,13 +31,16 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = { audioUrl ->
-                Prefs.currentAudioUrl = audioUrl
-                if (autoPlay) {
-                    RxBus.post(RxEvent.ParsingPlayUrlEvent(3))
+                if (isCache) {
+                    RxBus.post(RxEvent.CacheEvent(url, audioUrl, 0))
                 } else {
-                    RxBus.post(RxEvent.ParsingPlayUrlEvent(1))
+                    Prefs.currentAudioUrl = audioUrl
+                    if (autoPlay) {
+                        RxBus.post(RxEvent.ParsingPlayUrlEvent(3))
+                    } else {
+                        RxBus.post(RxEvent.ParsingPlayUrlEvent(1))
+                    }
                 }
-
             }, onError = {
                 RxBus.post(RxEvent.ParsingPlayUrlEvent(2))
             }).addTo(compositeDisposable)

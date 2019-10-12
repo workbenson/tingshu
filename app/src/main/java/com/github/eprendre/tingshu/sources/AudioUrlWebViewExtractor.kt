@@ -27,6 +27,8 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
     private var userAgent = "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.4) Gecko/20100101 Firefox/4.0"
     private var script = ""
     private lateinit var parse: (String) -> String?
+    private var isCache = false
+    private var episodeUrl = ""
 
     init {
         //jsoup 只能解析静态页面，使用 webview 可以省不少力气
@@ -91,12 +93,14 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
         }
     }
 
-    override fun extract(url: String, autoPlay: Boolean) {
+    override fun extract(url: String, autoPlay: Boolean, isCache: Boolean) {
         compositeDisposable.clear()
         isAudioGet = false
         isPageFinished = false
         isError = false
         isAutoPlay = autoPlay
+        episodeUrl = url
+        this.isCache = isCache
         webView.loadUrl(url)
         Completable.timer(12, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
             .subscribe {
@@ -130,11 +134,15 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
             compositeDisposable.clear()
             isAudioGet = true
 
-            Prefs.currentAudioUrl = audioUrl
-            if (isAutoPlay) {
-                RxBus.post(RxEvent.ParsingPlayUrlEvent(3))
+            if (isCache) {
+                RxBus.post(RxEvent.CacheEvent(episodeUrl, audioUrl, 0))
             } else {
-                RxBus.post(RxEvent.ParsingPlayUrlEvent(1))
+                Prefs.currentAudioUrl = audioUrl
+                if (isAutoPlay) {
+                    RxBus.post(RxEvent.ParsingPlayUrlEvent(3))
+                } else {
+                    RxBus.post(RxEvent.ParsingPlayUrlEvent(1))
+                }
             }
 
             webView.loadUrl("about:blank")

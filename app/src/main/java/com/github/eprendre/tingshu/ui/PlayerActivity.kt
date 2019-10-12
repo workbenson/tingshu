@@ -32,6 +32,7 @@ import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.db.AppDatabase
+import com.github.eprendre.tingshu.extensions.md5
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.adapters.EpisodeAdapter
 import com.github.eprendre.tingshu.utils.Book
@@ -53,6 +54,7 @@ import kotlinx.android.synthetic.main.activity_player.*
 import kotlinx.android.synthetic.main.dialog_countdown.view.*
 import kotlinx.android.synthetic.main.dialog_episodes.view.*
 import org.jetbrains.anko.*
+import java.io.File
 import java.lang.IllegalArgumentException
 import java.util.concurrent.TimeUnit
 
@@ -204,6 +206,14 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 button_play.setImageResource(R.drawable.exo_controls_pause)
                 button_play.contentDescription = "暂停"
                 play_progress.visibility = View.GONE
+                if (App.currentEpisodeIndex() < Prefs.playList.size - 1) {
+                    val episodeUrl = Prefs.playList[App.currentEpisodeIndex() + 1].url
+                    if (File(externalCacheDir, episodeUrl.md5()).exists()) {//如果缓存文件已存在，则忽略
+                        cache_text.text = "下集缓存成功"
+                    } else {
+                        cache_text.text = ""
+                    }
+                }
             }
             PlaybackStateCompat.STATE_PAUSED -> {
                 button_play.setImageResource(R.drawable.exo_controls_play)
@@ -348,6 +358,8 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     episode_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)
                     charge_text.setTextColor(swatch.titleTextColor)
                     charge_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)
+                    cache_text.setTextColor(swatch.titleTextColor)
+                    cache_text.setShadowLayer(24f, 0f, 0f, swatch.rgb)
                     control_panel.setBackgroundColor(bgColor)
                     timer_button.setTextColor(swatch.bodyTextColor)
                     playlist_button.setColorFilter(swatch.bodyTextColor)
@@ -447,6 +459,18 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                         button_play.setImageResource(R.drawable.exo_controls_play)
                         toast("播放地址解析出错了，请重试")
                     }
+                }
+
+            }
+            .addTo(compositeDisposable)
+        RxBus.toFlowable(RxEvent.CacheEvent::class.java)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                when (it.status) {
+                    0 -> cache_text.text = "下集缓存中..."
+                    1 -> cache_text.text = "下集缓存成功"
+                    2 -> cache_text.text = "下集缓存失败"
+                    3 -> cache_text.text = "下集缓存中...${it.progress}%"
                 }
 
             }

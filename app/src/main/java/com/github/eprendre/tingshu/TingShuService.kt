@@ -16,9 +16,11 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import androidx.media.session.MediaButtonReceiver
 import androidx.room.EmptyResultSetException
 import com.github.eprendre.tingshu.db.AppDatabase
+import com.github.eprendre.tingshu.extensions.md5
 import com.github.eprendre.tingshu.sources.MyPlaybackPreparer
 import com.github.eprendre.tingshu.sources.MyQueueNavigator
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
@@ -26,6 +28,9 @@ import com.github.eprendre.tingshu.ui.PlayerActivity
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.*
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.requests.CancellableRequest
+import com.github.kittinunf.result.Result
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -41,6 +46,7 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
+import java.io.File
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
@@ -66,6 +72,9 @@ class TingShuService : Service(), AnkoLogger {
         }
     }
     var timeToPause = 0L
+    private var downloadRequest: CancellableRequest? = null
+    private var downloadingEpisodeUrl: String? = null
+    private var downloadProgress = 0L
 
     private var isForegroundService = false
     val exoPlayer: SimpleExoPlayer by lazy {
@@ -103,14 +112,14 @@ class TingShuService : Service(), AnkoLogger {
             BecomingNoisyReceiver(context = this, sessionToken = mediaSession.sessionToken)
         closeReciver = CloseBroadcastReceiver(this)
         mediaSessionConnector = MediaSessionConnector(mediaSession).also {
-            //            val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, "tingshu"))
-            val dataSourceFactory = DefaultHttpDataSourceFactory(
+            val httpDataSourceFactory = DefaultHttpDataSourceFactory(
                 Util.getUserAgent(this, "tingshu"),
                 null,
                 DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
                 DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
                 true
             )
+            val dataSourceFactory = DefaultDataSourceFactory(this, null, httpDataSourceFactory)
 
             val playbackPrepare = MyPlaybackPreparer(exoPlayer, dataSourceFactory)
             it.setPlayer(exoPlayer)
@@ -180,6 +189,40 @@ class TingShuService : Service(), AnkoLogger {
             .subscribe {
                 if (exoPlayer.playWhenReady) {
                     storeCurrentPosition(it.book)
+                }
+            }
+            .addTo(busDisposables)
+        RxBus.toFlowable(RxEvent.CacheEvent::class.java)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                when (it.status) {
+                    0 -> {
+                        downloadRequest?.cancel() //先取消上一个任务
+
+                        val tmpFile = File(externalCacheDir, it.episodeUrl.md5() + ".tmp")
+                        downloadRequest = Fuel.download(it.audioUrl)
+                            .fileDestination { response, request -> tmpFile }
+                            .progress { readBytes, totalBytes ->
+                                val progress = 100 * readBytes / totalBytes
+                                if (downloadProgress != progress && progress % 5 == 0L) {
+                                    downloadProgress = progress
+                                    RxBus.post(RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 3, progress))
+                                }
+                            }
+                            .response { result ->
+                                downloadingEpisodeUrl = null
+                                when (result) {
+                                    is Result.Failure -> {
+                                        RxBus.post(RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 2))
+                                    }
+                                    is Result.Success -> {
+                                        RxBus.post(RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 1))
+                                        tmpFile.renameTo(File(externalCacheDir, it.episodeUrl.md5()))
+                                    }
+                                }
+                            }
+
+                    }
                 }
             }
             .addTo(busDisposables)
@@ -310,6 +353,8 @@ class TingShuService : Service(), AnkoLogger {
                             }
                         }.addTo(tickDisposables)
                     storeCurrentPosition()
+
+                    cacheAudioUrl()
                 }
                 PlaybackStateCompat.STATE_ERROR,
                 PlaybackStateCompat.STATE_PAUSED -> {
@@ -394,9 +439,37 @@ class TingShuService : Service(), AnkoLogger {
         book.currentEpisodeUrl = episodeUrl
         book.currentEpisodeName = Prefs.playList.first { it.url == episodeUrl }.title
         Prefs.currentBook = book
-        RxBus.post(RxEvent.ParsingPlayUrlEvent(0))
+        val file = File(externalCacheDir, episodeUrl.md5())
+        if (file.exists()) {
+            mediaController.transportControls.playFromUri(file.toUri(),null)
+        } else {
+            RxBus.post(RxEvent.ParsingPlayUrlEvent(0))
+            TingShuSourceHandler.getAudioUrlExtractor(episodeUrl).extract(episodeUrl, autoPlay)
+        }
+    }
 
-        TingShuSourceHandler.getAudioUrlExtractor(episodeUrl).extract(episodeUrl, autoPlay)
+    private fun cacheAudioUrl() {
+        if (!Prefs.isCacheNextEpisode) {
+            return
+        }
+        if (App.currentEpisodeIndex() < Prefs.playList.size - 1) {
+            val episodeUrl = Prefs.playList[App.currentEpisodeIndex() + 1].url
+            if (episodeUrl.startsWith(TingShuSourceHandler.SOURCE_URL_JINGTINGWANG)) {
+                return //静听网不能频繁加载，故不做缓存。
+            }
+            //audiourl可能每次都不一样，所以用episodeUrl来判断
+            if (downloadingEpisodeUrl == episodeUrl) {//如果正在下载，则忽略
+                return
+            }
+            if (File(externalCacheDir, episodeUrl.md5()).exists()) {//如果缓存文件已存在，则忽略
+                return
+            }
+            downloadingEpisodeUrl = episodeUrl
+            TingShuSourceHandler.getAudioUrlExtractor(episodeUrl).extract(episodeUrl,
+                autoPlay = false,
+                isCache = true
+            )
+        }
     }
 
     @SuppressLint("CheckResult")

@@ -20,6 +20,7 @@ object RxBus {
 
 class RxEvent {
     data class TimerEvent(val msg: String)
-    class ParsingPlayUrlEvent(val status: Int)//0: 开始 1: 结束 2: 失败 3: 播放
+    data class ParsingPlayUrlEvent(val status: Int)//0: 开始 1: 结束 2: 失败 3: 播放
+    data class CacheEvent(val episodeUrl: String, val audioUrl: String, val status: Int, val progress:Long = 0)//0: 开始 1: 成功 2: 失败 3: 进度
     data class StorePositionEvent(val book: Book)
 }

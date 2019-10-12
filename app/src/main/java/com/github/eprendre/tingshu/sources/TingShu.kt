@@ -27,5 +27,5 @@ interface AudioUrlExtractor {
     /**
      * 根据传入的章节地址提取实际的播放地址, 并请求播放
      */
-    fun extract(url: String, autoPlay: Boolean)
+    fun extract(url: String, autoPlay: Boolean, isCache: Boolean = false)
 }

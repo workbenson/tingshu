@@ -34,6 +34,7 @@ import com.github.eprendre.tingshu.widget.MySuggestionProvider
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -44,6 +45,7 @@ import kotlinx.android.synthetic.main.nav_header_main.view.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 
@@ -153,6 +155,22 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 R.id.nav_clear_history -> {
                     SearchRecentSuggestions(this, MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE)
                         .clearHistory()
+                }
+                R.id.nav_clear_cache -> {
+                    Completable.fromCallable {
+                        if (externalCacheDir != null) {
+                            val listFiles = externalCacheDir.listFiles()
+                            listFiles.forEach { file ->
+                                file.delete()
+                            }
+                        }
+                    }
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeBy(onComplete = {
+                            toast("缓存清除完毕")
+                        }, onError = {})
+                        .addTo(compositeDisposable)
                 }
                 R.id.nav_update -> {
                     if (System.currentTimeMillis() - Prefs.lastUpdate <
