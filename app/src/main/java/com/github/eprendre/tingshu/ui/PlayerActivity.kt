@@ -82,7 +82,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             Prefs.currentBook = Prefs.currentBook?.apply {
                 this.currentEpisodePosition = 0
             }
-            mediaController.transportControls.playFromUri(Uri.parse(it.url), null)
+            myService.getAudioUrl(it.url)
         } else {
             longToast("此章节是收费章节，请去原网站收听")
         }
@@ -200,9 +200,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 button_play.setImageResource(R.drawable.exo_controls_play)
                 button_play.contentDescription = "播放"
             }
-            PlaybackStateCompat.STATE_BUFFERING -> {
-                play_progress.visibility = View.GONE
-            }
             PlaybackStateCompat.STATE_PLAYING -> {
                 button_play.setImageResource(R.drawable.exo_controls_pause)
                 button_play.contentDescription = "暂停"
@@ -244,6 +241,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         val bookurl = intent.getStringExtra(ARG_BOOKURL)
         if (!bookurl.isNullOrBlank() && bookurl != Prefs.currentBookUrl) {//需要换书
             Prefs.currentBookUrl = bookurl
+            if (myService.exoPlayer.playbackState == Player.STATE_READY) {
+                mediaController.transportControls.stop()
+            }
             playFromBookUrl(bookurl)
             invalidateOptionsMenu()
         } else {//不需要换书
@@ -282,11 +282,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 tintColor()
 
                 //开始请求播放
-                var index = App.currentEpisodeIndex()
-                //如果当前播放列表有上一次的播放地址就继续播放，否则清空记录的播放时间
-                if (index < 0) {
-                    index = 0
-                }
                 supportActionBar?.title = book.title
                 listAdapter.submitList(Prefs.playList)
                 val episode = Prefs.playList.firstOrNull { !it.isFree }
@@ -296,10 +291,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 } else {
                     charge_text.visibility = View.GONE
                 }
-                mediaController.transportControls.playFromUri(
-                    Uri.parse(Prefs.playList[index].url),
-                    null
-                )
+                myService.getAudioUrl(Prefs.playList[App.currentEpisodeIndex()].url, Prefs.isAutoPlay)
             }, { error ->
                 error.printStackTrace()
                 state_layout.showError()
@@ -443,28 +435,20 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             dialogCountDown.show()
         }
 
-//        //监听倒计时, 更新按钮的剩余时间
-//        RxBus.toFlowable(RxEvent.TimerEvent::class.java)
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe {
-//                timer_button.text = it.msg
-//            }
-//            .addTo(compositeDisposable)
-
         //书籍页面解析成功 -> 开始解析播放地址
         RxBus.toFlowable(RxEvent.ParsingPlayUrlEvent::class.java)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                play_progress.visibility = View.VISIBLE
-            }
-            .addTo(compositeDisposable)
-        //播放地址解析失败
-        RxBus.toFlowable(RxEvent.ParsingPlayUrlErrorEvent::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                play_progress.visibility = View.GONE
-                button_play.setImageResource(R.drawable.exo_controls_play)
-                toast("播放地址解析出错了，请重试")
+                when (it.status) {
+                    0 -> play_progress.visibility = View.VISIBLE
+                    1, 3 -> play_progress.visibility = View.GONE
+                    2 -> {
+                        play_progress.visibility = View.GONE
+                        button_play.setImageResource(R.drawable.exo_controls_play)
+                        toast("播放地址解析出错了，请重试")
+                    }
+                }
+
             }
             .addTo(compositeDisposable)
         //播放速度
@@ -570,7 +554,13 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 PlaybackStateCompat.STATE_ERROR,
                 PlaybackStateCompat.STATE_STOPPED,
                 PlaybackStateCompat.STATE_NONE -> {
-                    Prefs.currentBookUrl?.apply { playFromBookUrl(this) }
+                    if (!Prefs.currentAudioUrl.isNullOrEmpty()) {
+                        mediaController.transportControls.playFromUri(
+                            Uri.parse(Prefs.currentAudioUrl!!), null
+                        )
+                    } else {
+                        Prefs.currentBookUrl?.apply { playFromBookUrl(this) }
+                    }
                 }
             }
         }
@@ -591,6 +581,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                         seekbar.secondaryProgress = bufferedPercentage
                         seekbar.progress = positionPercentage
                     }
+                    //顺便更新倒计时
                     if (myService.getPauseCount() > 0) {
                         timer_button.text = "播完 ${myService.getPauseCount()} 集关闭"
                     } else if (myService.timeToPause > SystemClock.elapsedRealtime()) {

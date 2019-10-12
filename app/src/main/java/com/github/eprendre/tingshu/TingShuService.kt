@@ -15,13 +15,13 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.text.format.DateUtils
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.session.MediaButtonReceiver
 import androidx.room.EmptyResultSetException
 import com.github.eprendre.tingshu.db.AppDatabase
 import com.github.eprendre.tingshu.sources.MyPlaybackPreparer
 import com.github.eprendre.tingshu.sources.MyQueueNavigator
+import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.PlayerActivity
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
@@ -45,8 +45,9 @@ import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class TingShuService : Service(), AnkoLogger {
-    val myBinder = MyLocalBinder()
+    private val myBinder = MyLocalBinder()
     private val busDisposables = CompositeDisposable()
+    private var tickDisposables = CompositeDisposable()
     private var retryCount = 0
     private var pauseCount = -1
     private var isSkipping = false
@@ -59,9 +60,11 @@ class TingShuService : Service(), AnkoLogger {
     private lateinit var mediaSessionConnector: MediaSessionConnector
     private lateinit var closeReciver: CloseBroadcastReceiver
     private val timerHandler by lazy { Handler() }
-    private val timerRunnable by lazy { Runnable {
-        mediaController.transportControls.pause()
-    } }
+    private val timerRunnable by lazy {
+        Runnable {
+            mediaController.transportControls.pause()
+        }
+    }
     var timeToPause = 0L
 
     private var isForegroundService = false
@@ -112,7 +115,7 @@ class TingShuService : Service(), AnkoLogger {
             val playbackPrepare = MyPlaybackPreparer(exoPlayer, dataSourceFactory)
             it.setPlayer(exoPlayer)
             it.setPlaybackPreparer(playbackPrepare)
-            it.setQueueNavigator(MyQueueNavigator(mediaSession))
+            it.setQueueNavigator(MyQueueNavigator(mediaSession, this))
         }
         exoPlayer.addListener(object : Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -134,6 +137,7 @@ class TingShuService : Service(), AnkoLogger {
                     Player.STATE_READY -> {
                         retryCount = 0
                         isSkipping = false
+                        Prefs.currentAudioUrl = null
                         val currentBook = Prefs.currentBook ?: return
                         if (!exoPlayer.playWhenReady) return
 
@@ -156,36 +160,26 @@ class TingShuService : Service(), AnkoLogger {
                 retryOnError()
             }
         })
-        RxBus.toFlowable(RxEvent.ParsingPlayUrlErrorEvent::class.java)
+        RxBus.toFlowable(RxEvent.ParsingPlayUrlEvent::class.java)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                retryOnError()
+                when (it.status) {
+                    3 -> {
+                        Prefs.currentAudioUrl?.let { url ->
+                            mediaController.transportControls.playFromUri(
+                                Uri.parse(url),null)
+                        }
+                    }
+                    2 -> {
+                        retryOnError()
+                    }
+                }
             }
             .addTo(busDisposables)
         RxBus.toFlowable(RxEvent.StorePositionEvent::class.java)
             .subscribe {
                 if (exoPlayer.playWhenReady) {
                     storeCurrentPosition(it.book)
-                }
-            }
-            .addTo(busDisposables)
-        Flowable.interval(1, TimeUnit.SECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                val currentBook = Prefs.currentBook ?: return@subscribe
-                if (it % 10 == 0L) {//每10秒保存一次位置
-                    storeCurrentPosition()
-                }
-                if (exoPlayer.playbackState != Player.STATE_READY || !exoPlayer.playWhenReady) return@subscribe//如果没有在播放状态则不检测
-                if (exoPlayer.duration == C.TIME_UNSET) return@subscribe
-                if ((currentBook.skipBeginning + currentBook.skipEnd) > exoPlayer.duration) return@subscribe//若设置的片头片尾大于音频总长度则忽略
-                if (exoPlayer.currentPosition + currentBook.skipEnd > exoPlayer.duration) {//跳过片尾
-                    if (isSkipping) return@subscribe
-                    if (pauseCount > 0) {
-                        pauseCount -= 1
-                    }
-                    isSkipping = true
-                    mediaController.transportControls.skipToNext()
                 }
             }
             .addTo(busDisposables)
@@ -294,10 +288,37 @@ class TingShuService : Service(), AnkoLogger {
             }
             updateNotification(state)
             when (state.state) {
-                PlaybackStateCompat.STATE_PLAYING,
+                PlaybackStateCompat.STATE_PLAYING -> {
+                    tickDisposables.clear()
+                    Flowable.interval(1, TimeUnit.SECONDS)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            val currentBook = Prefs.currentBook ?: return@subscribe
+                            if (it % 30 == 0L) {//每30秒保存一次位置
+                                storeCurrentPosition()
+                            }
+                            if (exoPlayer.playbackState != Player.STATE_READY || !exoPlayer.playWhenReady) return@subscribe//如果没有在播放状态则不检测
+                            if (exoPlayer.duration == C.TIME_UNSET) return@subscribe
+                            if ((currentBook.skipBeginning + currentBook.skipEnd) > exoPlayer.duration) return@subscribe//若设置的片头片尾大于音频总长度则忽略
+                            if (exoPlayer.currentPosition + currentBook.skipEnd > exoPlayer.duration) {//跳过片尾
+                                if (isSkipping) return@subscribe
+                                if (pauseCount > 0) {
+                                    pauseCount -= 1
+                                }
+                                isSkipping = true
+                                mediaController.transportControls.skipToNext()
+                            }
+                        }.addTo(tickDisposables)
+                    storeCurrentPosition()
+                }
                 PlaybackStateCompat.STATE_ERROR,
                 PlaybackStateCompat.STATE_PAUSED -> {
+                    tickDisposables.clear()
                     storeCurrentPosition()
+                }
+                PlaybackStateCompat.STATE_STOPPED,
+                PlaybackStateCompat.STATE_NONE -> {
+                    tickDisposables.clear()
                 }
             }
         }
@@ -366,6 +387,16 @@ class TingShuService : Service(), AnkoLogger {
             isForegroundService = false
             stopSelf()
         }
+    }
+
+    fun getAudioUrl(episodeUrl: String, autoPlay: Boolean = true) {
+        val book = Prefs.currentBook!!
+        book.currentEpisodeUrl = episodeUrl
+        book.currentEpisodeName = Prefs.playList.first { it.url == episodeUrl }.title
+        Prefs.currentBook = book
+        RxBus.post(RxEvent.ParsingPlayUrlEvent(0))
+
+        TingShuSourceHandler.getAudioUrlExtractor(episodeUrl).extract(episodeUrl, autoPlay)
     }
 
     @SuppressLint("CheckResult")

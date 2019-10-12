@@ -16,7 +16,7 @@ interface TingShu {
 
     fun playFromBookUrl(bookUrl: String): Completable
 
-    fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor
+    fun getAudioUrlExtractor(): AudioUrlExtractor
 
     fun getCategoryMenus(): List<CategoryMenu>
 
@@ -27,5 +27,5 @@ interface AudioUrlExtractor {
     /**
      * 根据传入的章节地址提取实际的播放地址, 并请求播放
      */
-    fun extract(url: String)
+    fun extract(url: String, autoPlay: Boolean)
 }

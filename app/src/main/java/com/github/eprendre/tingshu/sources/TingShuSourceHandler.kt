@@ -74,14 +74,13 @@ object TingShuSourceHandler {
         return findSource(url).getCategoryDetail(url)
     }
 
-    fun getAudioUrlExtractor(
-        url: String,
-        exoPlayer: ExoPlayer,
-        dataSourceFactory: DataSource.Factory
-    ): AudioUrlExtractor {
-        return findSource(url).getAudioUrlExtractor(exoPlayer, dataSourceFactory)
+    fun getAudioUrlExtractor(url: String): AudioUrlExtractor {
+        return findSource(url).getAudioUrlExtractor()
     }
 
+    /**
+     * 根据书本链接加载章节信息和简介
+     */
     fun playFromBookUrl(bookUrl: String): Completable {
         return findSource(bookUrl).playFromBookUrl(bookUrl)
     }

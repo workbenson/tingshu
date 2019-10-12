@@ -5,22 +5,21 @@ import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
 
 object RxBus {
-  private val bus = PublishProcessor.create<Any>().toSerialized()
+    private val bus = PublishProcessor.create<Any>().toSerialized()
 
-  fun post(any: Any) {
-    bus.onNext(any)
-  }
+    fun post(any: Any) {
+        bus.onNext(any)
+    }
 
-  fun toFlowable(): Flowable<Any> = bus
+    fun toFlowable(): Flowable<Any> = bus
 
-  fun <T> toFlowable(tClass: Class<T>): Flowable<T> = bus.ofType(tClass)
+    fun <T> toFlowable(tClass: Class<T>): Flowable<T> = bus.ofType(tClass)
 
-  fun hasSubscribers(): Boolean = bus.hasSubscribers()
+    fun hasSubscribers(): Boolean = bus.hasSubscribers()
 }
 
 class RxEvent {
-  data class TimerEvent(val msg: String)
-  class ParsingPlayUrlEvent
-  class ParsingPlayUrlErrorEvent
-  data class StorePositionEvent(val book: Book)
+    data class TimerEvent(val msg: String)
+    class ParsingPlayUrlEvent(val status: Int)//0: 开始 1: 结束 2: 失败 3: 播放
+    data class StorePositionEvent(val book: Book)
 }

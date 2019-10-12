@@ -62,8 +62,8 @@ object HuanTingWang : TingShu {
         }
     }
 
-    override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {
-        AudioUrlCommonExtractor.setUp(exoPlayer, dataSourceFactory) { doc ->
+    override fun getAudioUrlExtractor(): AudioUrlExtractor {
+        AudioUrlCommonExtractor.setUp { doc ->
             val result = doc.getElementsByTag("script")
                 .first { !it.hasAttr("src") && !it.hasAttr("type") }
                 .html()

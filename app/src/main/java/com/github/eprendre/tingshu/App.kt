@@ -33,7 +33,13 @@ class App : MultiDexApplication() {
         lateinit var appContext: Context
         var coverBitmap: Bitmap? = null
         var isRetry = true
-        fun currentEpisodeIndex() = Prefs.playList.indexOfFirst { it.url == Prefs.currentBook!!.currentEpisodeUrl }
+        fun currentEpisodeIndex(): Int {
+            var index = Prefs.playList.indexOfFirst { it.url == Prefs.currentBook!!.currentEpisodeUrl }
+            if (index < 0) {
+                index = 0
+            }
+            return index
+        }
         private val sourceValues by lazy { appContext.resources.getStringArray(R.array.source_values) }
         private val sourceEntries by lazy { appContext.resources.getStringArray(R.array.source_entries) }
 

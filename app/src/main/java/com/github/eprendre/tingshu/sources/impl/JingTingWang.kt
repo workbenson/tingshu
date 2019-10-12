@@ -53,8 +53,8 @@ object JingTingWang : TingShu {
         }
     }
 
-    override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {
-       AudioUrlCommonExtractor.setUp(exoPlayer, dataSourceFactory) { doc ->
+    override fun getAudioUrlExtractor(): AudioUrlExtractor {
+       AudioUrlCommonExtractor.setUp { doc ->
            return@setUp doc.getElementsByTag("source")
                .first()
                .attr("src")

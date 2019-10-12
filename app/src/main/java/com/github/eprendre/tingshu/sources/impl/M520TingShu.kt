@@ -48,8 +48,8 @@ object M520TingShu : TingShu {
         return listOf(menu1, menu2)
     }
 
-    override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {
-        AudioUrlWebViewExtractor.setUp(exoPlayer, dataSourceFactory) { str ->
+    override fun getAudioUrlExtractor(): AudioUrlExtractor {
+        AudioUrlWebViewExtractor.setUp { str ->
             val doc = Jsoup.parse(str)
             val audioElement = doc.getElementById("jp_audio_0")
             return@setUp audioElement?.attr("src")

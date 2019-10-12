@@ -129,4 +129,8 @@ object Prefs {
     var isAutoPlay: Boolean
         get() = prefs.getBoolean("auto_play", true)
         set(value) = prefs.edit().putBoolean("auto_play", value).apply()
+
+    var currentAudioUrl: String?
+        get() = prefs.getString("current_audio_url", null)
+        set(value) = prefs.edit().putString("current_audio_url", value).apply()
 }

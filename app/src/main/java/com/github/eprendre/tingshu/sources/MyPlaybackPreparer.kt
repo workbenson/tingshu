@@ -1,12 +1,16 @@
 package com.github.eprendre.tingshu.sources
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.PowerManager
 import android.os.ResultReceiver
+import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.*
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.RxBus
 import com.github.eprendre.tingshu.widget.RxEvent
@@ -48,14 +52,35 @@ class MyPlaybackPreparer(
         if (uri == null) {
             return
         }
-        val url = uri.toString()
+        RxBus.post(RxEvent.ParsingPlayUrlEvent(0))//借用这个event，让播放按钮外面的圈圈显示
         val book = Prefs.currentBook!!
-        book.currentEpisodeUrl = url
-        book.currentEpisodeName = Prefs.playList.first { it.url == url }.title
-        Prefs.currentBook = book
-        RxBus.post(RxEvent.ParsingPlayUrlEvent())
+        val bookname = book.currentEpisodeName + " - " + book.title
 
-        TingShuSourceHandler.getAudioUrlExtractor(url, exoPlayer, dataSourceFactory).extract(url)
+        val metadata = MediaMetadataCompat.Builder()
+            .apply {
+                title = bookname
+                artist = book.artist
+                mediaUri = uri.toString()
+
+                displayTitle = bookname
+                displaySubtitle = book.artist
+                downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
+
+                if (Prefs.showAlbumInLockScreen) {
+                    var art = App.coverBitmap
+                    if (art == null) {
+                        art = BitmapFactory.decodeResource(App.appContext.resources, R.drawable.ic_notification)
+                    }
+                    albumArt = art
+                }
+            }
+            .build()
+
+        val source = metadata.toMediaSource(dataSourceFactory)
+        exoPlayer.prepare(source)
+        if (book.currentEpisodePosition > 0) {
+            exoPlayer.seekTo(book.currentEpisodePosition)
+        }
     }
 
     override fun onPrepare() {

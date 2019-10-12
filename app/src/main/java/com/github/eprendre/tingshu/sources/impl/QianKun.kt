@@ -59,11 +59,8 @@ object QianKun : TingShu {
         }
     }
 
-    override fun getAudioUrlExtractor(
-        exoPlayer: ExoPlayer,
-        dataSourceFactory: DataSource.Factory
-    ): AudioUrlExtractor {
-        AudioUrlWebViewExtractor.setUp(exoPlayer, dataSourceFactory,
+    override fun getAudioUrlExtractor(): AudioUrlExtractor {
+        AudioUrlWebViewExtractor.setUp(
             script = "(function() { return ('<html>'+document.getElementById(\"xplayer\").contentDocument.documentElement.innerHTML+'</html>'); })();") { str ->
             val doc = Jsoup.parse(str)
             val audioElement = doc.selectFirst("audio")

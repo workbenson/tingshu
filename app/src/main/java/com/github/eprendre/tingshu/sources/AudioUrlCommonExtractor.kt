@@ -1,17 +1,8 @@
 package com.github.eprendre.tingshu.sources
 
-import android.graphics.BitmapFactory
-import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaMetadataCompat
-import android.util.Log
-import com.github.eprendre.tingshu.App
-import com.github.eprendre.tingshu.R
-import com.github.eprendre.tingshu.extensions.*
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.RxBus
 import com.github.eprendre.tingshu.widget.RxEvent
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -26,17 +17,13 @@ import org.jsoup.nodes.Document
  */
 object AudioUrlCommonExtractor : AudioUrlExtractor {
     private val compositeDisposable by lazy { CompositeDisposable() }
-    private lateinit var exoPlayer: ExoPlayer
-    private lateinit var dataSourceFactory: DataSource.Factory
     private lateinit var parse: (Document) -> String
 
-    fun setUp(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory, parse: (Document) -> String) {
-        this.exoPlayer = exoPlayer
-        this.dataSourceFactory = dataSourceFactory
+    fun setUp(parse: (Document) -> String) {
         this.parse = parse
     }
 
-    override fun extract(url: String) {
+    override fun extract(url: String, autoPlay: Boolean) {
         compositeDisposable.clear()
         Single.fromCallable {
             return@fromCallable parse(Jsoup.connect(url).get())
@@ -44,36 +31,15 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = { audioUrl ->
-                val book = Prefs.currentBook!!
-                val bookname = book.currentEpisodeName + " - " + book.title
-
-                val metadata = MediaMetadataCompat.Builder()
-                    .apply {
-                        title = bookname
-                        artist = book.artist
-                        mediaUri = audioUrl
-
-                        displayTitle = bookname
-                        displaySubtitle = book.artist
-                        downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
-
-                        if (Prefs.showAlbumInLockScreen) {
-                            var art = App.coverBitmap
-                            if (art == null) {
-                                art = BitmapFactory.decodeResource(App.appContext.resources, R.drawable.ic_notification)
-                            }
-                            albumArt = art
-                        }
-                    }
-                    .build()
-
-                val source = metadata.toMediaSource(dataSourceFactory)
-                exoPlayer.prepare(source)
-                if (book.currentEpisodePosition > 0) {
-                    exoPlayer.seekTo(book.currentEpisodePosition)
+                Prefs.currentAudioUrl = audioUrl
+                if (autoPlay) {
+                    RxBus.post(RxEvent.ParsingPlayUrlEvent(3))
+                } else {
+                    RxBus.post(RxEvent.ParsingPlayUrlEvent(1))
                 }
+
             }, onError = {
-                RxBus.post(RxEvent.ParsingPlayUrlErrorEvent())
+                RxBus.post(RxEvent.ParsingPlayUrlEvent(2))
             }).addTo(compositeDisposable)
     }
 }

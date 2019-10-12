@@ -1,7 +1,6 @@
 package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
-import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
@@ -40,8 +39,8 @@ object M56TingShu : TingShu {
         return listOf(menu1, menu2)
     }
 
-    override fun getAudioUrlExtractor(exoPlayer: ExoPlayer, dataSourceFactory: DataSource.Factory): AudioUrlExtractor {
-        AudioUrlWebViewExtractor.setUp(exoPlayer, dataSourceFactory) { str ->
+    override fun getAudioUrlExtractor(): AudioUrlExtractor {
+        AudioUrlWebViewExtractor.setUp { str ->
             val doc = Jsoup.parse(str)
             val audioElement = doc.getElementById("jp_audio_0")
             audioElement?.attr("src")

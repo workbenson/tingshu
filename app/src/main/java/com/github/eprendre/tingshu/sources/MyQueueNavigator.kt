@@ -1,17 +1,17 @@
 package com.github.eprendre.tingshu.sources
 
-import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.TingShuService
 import com.github.eprendre.tingshu.utils.Prefs
 import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 
-class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
+class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat, val service: TingShuService) :
     TimelineQueueNavigator(mediaSessionCompat) {
     private val window = Timeline.Window()
 
@@ -28,9 +28,6 @@ class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
             return 0
         }
         var actions = 0L
-        if (App.currentEpisodeIndex() == -1) {
-            return actions
-        }
         if (App.currentEpisodeIndex() < Prefs.playList.size - 1) {
             actions = actions or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
         }
@@ -48,10 +45,7 @@ class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
         if (App.currentEpisodeIndex() < 1) {
             player.seekTo(0)
         } else {
-            mediaSessionCompat.controller.transportControls.playFromUri(
-                Uri.parse(Prefs.playList[App.currentEpisodeIndex() - 1].url),
-                null
-            )
+            service.getAudioUrl(Prefs.playList[App.currentEpisodeIndex() - 1].url)
         }
     }
 
@@ -62,9 +56,6 @@ class MyQueueNavigator(private val mediaSessionCompat: MediaSessionCompat) :
         Prefs.currentBook = Prefs.currentBook?.apply {
             this.currentEpisodePosition = 0
         }
-        mediaSessionCompat.controller.transportControls.playFromUri(
-            Uri.parse(Prefs.playList[App.currentEpisodeIndex() + 1].url),
-            null
-        )
+        service.getAudioUrl(Prefs.playList[App.currentEpisodeIndex() + 1].url)
     }
 }

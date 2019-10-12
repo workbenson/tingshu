@@ -1,19 +1,12 @@
 package com.github.eprendre.tingshu.sources
 
 import android.annotation.SuppressLint
-import android.graphics.BitmapFactory
 import android.os.Handler
-import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaMetadataCompat
 import android.webkit.*
 import com.github.eprendre.tingshu.App
-import com.github.eprendre.tingshu.R
-import com.github.eprendre.tingshu.extensions.*
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.RxBus
 import com.github.eprendre.tingshu.widget.RxEvent
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -29,11 +22,10 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
     private val webView by lazy { WebView(App.appContext) }
     private var isPageFinished = false
     private var isAudioGet = false
+    private var isAutoPlay = true
     private var isError = false
     private var userAgent = "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.4) Gecko/20100101 Firefox/4.0"
     private var script = ""
-    private lateinit var exoPlayer: ExoPlayer
-    private lateinit var dataSourceFactory: DataSource.Factory
     private lateinit var parse: (String) -> String?
 
     init {
@@ -65,7 +57,7 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
                 failingUrl: String?
             ) {
                 when (errorCode) {
-                    ERROR_TIMEOUT, ERROR_HOST_LOOKUP -> {
+                    ERROR_TIMEOUT -> {
                         compositeDisposable.clear()
                         postError()
                     }
@@ -79,13 +71,9 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
         }
     }
 
-    fun setUp(exoPlayer: ExoPlayer,
-              dataSourceFactory: DataSource.Factory,
-              isDeskTop: Boolean = false,
+    fun setUp(isDeskTop: Boolean = false,
               script: String = "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();",
               parse: (String) -> String?) {
-        this.exoPlayer = exoPlayer
-        this.dataSourceFactory = dataSourceFactory
         this.parse = parse
         if (isDeskTop) {
             webView.settings.userAgentString = userAgent
@@ -98,16 +86,17 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
     private fun postError() {
         if (!isAudioGet) {
             isError = true
-            RxBus.post(RxEvent.ParsingPlayUrlErrorEvent())
+            RxBus.post(RxEvent.ParsingPlayUrlEvent(2))
             webView.loadUrl("about:blank")
         }
     }
 
-    override fun extract(url: String) {
+    override fun extract(url: String, autoPlay: Boolean) {
         compositeDisposable.clear()
         isAudioGet = false
         isPageFinished = false
         isError = false
+        isAutoPlay = autoPlay
         webView.loadUrl(url)
         Completable.timer(12, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
             .subscribe {
@@ -141,33 +130,13 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
             compositeDisposable.clear()
             isAudioGet = true
 
-            val book = Prefs.currentBook!!
-            val bookname = book.currentEpisodeName + " - " + book.title
-
-            val metadata = MediaMetadataCompat.Builder()
-                .apply {
-                    title = bookname
-                    artist = book.artist
-                    mediaUri = audioUrl
-
-                    displayTitle = bookname
-                    displaySubtitle = book.artist
-                    downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
-                    if (Prefs.showAlbumInLockScreen) {
-                        var art = App.coverBitmap
-                        if (art == null) {
-                            art = BitmapFactory.decodeResource(App.appContext.resources, R.drawable.ic_notification)
-                        }
-                        albumArt = art
-                    }
-                }
-                .build()
-
-            val source = metadata.toMediaSource(dataSourceFactory)
-            exoPlayer.prepare(source)
-            if (book.currentEpisodePosition > 0) {
-                exoPlayer.seekTo(book.currentEpisodePosition)
+            Prefs.currentAudioUrl = audioUrl
+            if (isAutoPlay) {
+                RxBus.post(RxEvent.ParsingPlayUrlEvent(3))
+            } else {
+                RxBus.post(RxEvent.ParsingPlayUrlEvent(1))
             }
+
             webView.loadUrl("about:blank")
         }
     }
