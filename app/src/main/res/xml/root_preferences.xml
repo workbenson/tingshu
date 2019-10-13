@@ -58,10 +58,11 @@
             app:key="auto_play"
             app:title="进入播放页面自动播放"
             app:defaultValue="true"/>
+
         <SwitchPreference
                 app:key="cache_next"
                 app:title="缓存下一集"
-                app:summary="静听网除外"
+                app:summary="下载功能别找了🥺做出来影响不好\n另：缓存功能不对静听网生效"
                 app:defaultValue="true"/>
     </PreferenceCategory>
 
