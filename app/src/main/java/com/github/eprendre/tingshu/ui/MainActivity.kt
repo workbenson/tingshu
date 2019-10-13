@@ -115,11 +115,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private fun initViews() {
         fab.setOnClickListener {
-            if (mediaController.playbackState.state == PlaybackStateCompat.STATE_NONE) {
-                startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBook!!.bookUrl)
-            } else {
-                startActivity<PlayerActivity>()
-            }
+            startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBook!!.bookUrl)
         }
         fab.setOnLongClickListener {
             startActivity<FavoriteActivity>()
@@ -268,11 +264,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             headerView.container.setOnClickListener {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 Handler().postDelayed({
-                    if (mediaController.playbackState.state == PlaybackStateCompat.STATE_NONE) {
-                        startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
-                    } else {
-                        startActivity<PlayerActivity>()
-                    }
+                    startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
                 }, 250)
             }
             fab.show()

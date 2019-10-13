@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.github.eprendre.tingshu.widget.SimpleStateLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.eprendre.tingshu.widget.SimpleStateLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/state_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -9,9 +9,25 @@
         android:outAnimation="@android:anim/fade_out"
         >
 
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+    <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+            android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:layout_gravity="right|bottom"
+                android:id="@+id/fab"
+                android:layout_margin="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:contentDescription="继续播放"
+                app:srcCompat="@drawable/exo_icon_play"
+                />
+    </FrameLayout>
 </com.github.eprendre.tingshu.widget.SimpleStateLayout>

@@ -84,6 +84,14 @@ class FavoriteActivity : AppCompatActivity(), AnkoLogger {
                 linearLayoutManager.scrollToPositionWithOffset(0, 0)
             }
         })
+        if (Prefs.currentBook == null) {
+            fab.hide()
+        } else {
+            fab.show()
+        }
+        fab.setOnClickListener {
+            startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to Prefs.currentBook!!.bookUrl)
+        }
 
         loadData()
     }
