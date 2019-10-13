@@ -38,6 +38,12 @@
                 app:entryValues="@array/theme_values"
                 app:defaultValue="0"
                 app:useSimpleSummaryProvider="true"/>
+
+        <SwitchPreference
+                app:key="open_fav_on_start"
+                app:title="启动时自动打开我的收藏"
+                app:defaultValue="false"/>
+
         <SwitchPreference
                 app:key="show_album_art"
                 app:title="在锁屏显示封面背景 (仅部分系统可用，重启或者换书生效)"

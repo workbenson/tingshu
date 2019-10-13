@@ -12,6 +12,7 @@
     <color name="dark_colorPrimary">#ff212121</color>
     <color name="dark_colorAccent">#607D8B</color>
     <color name="dark_primary_text">#E0E0E0</color>
+    <color name="dark_nav_bg">#3D5058</color>
 
     <color name="blue_colorPrimary">#2196F3</color>
     <color name="blue_primary_light">#BBDEFB</color>

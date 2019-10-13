@@ -1,9 +1,10 @@
 package com.github.eprendre.tingshu.ui
 
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,41 +20,39 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_favorite.*
+import kotlinx.android.synthetic.main.activity_favorite.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
 import java.text.Collator
 import java.util.*
 import kotlin.Comparator
 
-class FavoriteFragment : Fragment(), AnkoLogger {
+class FavoriteActivity : AppCompatActivity(), AnkoLogger {
     private val compositeDisposable = CompositeDisposable()
     private val onItemClickListener: (Book) -> Unit = { book ->
         Prefs.currentBook?.apply { RxBus.post(RxEvent.StorePositionEvent(this)) }
         Prefs.currentBook = book
         Prefs.addToHistory(book)
-        context?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
+        startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
     }
 
     private val onItemLongClickListener: (Book) -> Unit = {
-        if (context != null) {
-            AlertDialog.Builder(context!!)
-                .setTitle("是否取消收藏?")
-                .setPositiveButton("是") { dialog, which ->
-                    //取消收藏
-                    AppDatabase.getInstance(context!!).bookDao()
-                        .deleteBooks(it)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeBy(onSuccess = {
-                        }, onError = {
-                            it.printStackTrace()
-                        })
-                        .addTo(compositeDisposable)
-                }
-                .setNegativeButton("否", null)
-                .show()
-        }
+        AlertDialog.Builder(this)
+            .setTitle("是否取消收藏?")
+            .setPositiveButton("是") { dialog, which ->
+                //取消收藏
+                AppDatabase.getInstance(this).bookDao()
+                    .deleteBooks(it)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeBy(onSuccess = {
+                    }, onError = {
+                        it.printStackTrace()
+                    })
+                    .addTo(compositeDisposable)
+            }
+            .setNegativeButton("否", null)
+            .show()
     }
 
     private val listAdapter by lazy {
@@ -62,26 +61,20 @@ class FavoriteFragment : Fragment(), AnkoLogger {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+        when (Prefs.currentTheme) {
+            0 -> setTheme(R.style.AppTheme)
+            1 -> setTheme(R.style.DarkTheme)
+            2 -> setTheme(R.style.BlueTheme)
+        }
+        setContentView(R.layout.activity_favorite)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_favorite, container, false)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         state_layout.setEmptyText("暂无收藏")
         state_layout.setErrorText("加载出错啦")
-        val linearLayoutManager = LinearLayoutManager(context)
+        val linearLayoutManager = LinearLayoutManager(this)
         recycler_view.layoutManager = linearLayoutManager
         recycler_view.addItemDecoration(
-            DividerItemDecoration(
-                context,
+            DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL
             )
         )
@@ -95,9 +88,14 @@ class FavoriteFragment : Fragment(), AnkoLogger {
         loadData()
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
     private fun loadData() {
         compositeDisposable.clear()
-        AppDatabase.getInstance(context!!)
+        AppDatabase.getInstance(this)
             .bookDao()
             .loadAllBooks(Prefs.sortType)
             .subscribeOn(Schedulers.io())
@@ -132,16 +130,15 @@ class FavoriteFragment : Fragment(), AnkoLogger {
             .addTo(compositeDisposable)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.favorite_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.favorite_menu, menu)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.sort -> {
-                AlertDialog.Builder(context!!)
+                AlertDialog.Builder(this)
                     .setSingleChoiceItems(SORT_TYPES, Prefs.sortType) { dialog, which ->
                         Prefs.sortType = which
                         loadData()
@@ -153,8 +150,8 @@ class FavoriteFragment : Fragment(), AnkoLogger {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
         compositeDisposable.clear()
     }
 

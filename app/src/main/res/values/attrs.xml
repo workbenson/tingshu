@@ -2,4 +2,5 @@
 <resources>
     <attr name="primary_text_color" format="color" />
     <attr name="source_bg_color" format="color" />
+    <attr name="nav_bg_color" format="color" />
 </resources>

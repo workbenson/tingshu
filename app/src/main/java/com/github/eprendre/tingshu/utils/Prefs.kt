@@ -137,4 +137,8 @@ object Prefs {
     var isCacheNextEpisode: Boolean
         get() = prefs.getBoolean("cache_next", true)
         set(value) = prefs.edit().putBoolean("cache_next", value).apply()
+
+    var isOpenFavOnStart: Boolean
+        get() = prefs.getBoolean("open_fav_on_start", false)
+        set(value) = prefs.edit().putBoolean("cache_next", value).apply()
 }

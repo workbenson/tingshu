@@ -3,30 +3,28 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:showIn="navigation_view">
 
-    <item android:title="听书">
-        <menu>
-            <!--<group android:checkableBehavior="single"-->
-                    <!--android:id="@id/group_category">-->
-                <!--<item-->
-                        <!--android:id="@+id/nav_home"-->
-                        <!--android:icon="@drawable/ic_library_books"-->
-                        <!--android:title="小说"/>-->
-                <!--<item-->
-                        <!--android:id="@+id/nav_other"-->
-                        <!--android:icon="@drawable/ic_more_horiz"-->
-                        <!--android:title="其它"/>-->
-            <!--</group>-->
-        </menu>
-    </item>
+<!--    <item android:title="听书">-->
+<!--        <menu>-->
+<!--            &lt;!&ndash;<group android:checkableBehavior="single"&ndash;&gt;-->
+<!--                    &lt;!&ndash;android:id="@id/group_category">&ndash;&gt;-->
+<!--                &lt;!&ndash;<item&ndash;&gt;-->
+<!--                        &lt;!&ndash;android:id="@+id/nav_home"&ndash;&gt;-->
+<!--                        &lt;!&ndash;android:icon="@drawable/ic_library_books"&ndash;&gt;-->
+<!--                        &lt;!&ndash;android:title="小说"/>&ndash;&gt;-->
+<!--                &lt;!&ndash;<item&ndash;&gt;-->
+<!--                        &lt;!&ndash;android:id="@+id/nav_other"&ndash;&gt;-->
+<!--                        &lt;!&ndash;android:icon="@drawable/ic_more_horiz"&ndash;&gt;-->
+<!--                        &lt;!&ndash;android:title="其它"/>&ndash;&gt;-->
+<!--            &lt;!&ndash;</group>&ndash;&gt;-->
+<!--        </menu>-->
+<!--    </item>-->
     <item android:title="我的">
         <menu>
             <item
-                    android:checkable="true"
                     android:id="@+id/nav_history"
                     android:icon="@drawable/ic_history_black_24dp"
                     android:title="历史记录"/>
             <item
-                    android:checkable="true"
                     android:id="@+id/nav_favorite"
                     android:icon="@drawable/ic_favorite"
                     android:title="@string/title_activity_favorite"/>

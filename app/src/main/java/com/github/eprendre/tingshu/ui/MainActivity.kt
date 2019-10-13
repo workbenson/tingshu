@@ -25,7 +25,6 @@ import androidx.fragment.app.Fragment
 import com.github.eprendre.tingshu.BuildConfig
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
-import com.github.eprendre.tingshu.db.AppDatabase
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.CategoryMenu
 import com.github.eprendre.tingshu.utils.Prefs
@@ -45,7 +44,6 @@ import kotlinx.android.synthetic.main.nav_header_main.view.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 
@@ -69,13 +67,21 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         setSupportActionBar(toolbar)
         volumeControlStream = AudioManager.STREAM_MUSIC
         currentCategoryMenus = TingShuSourceHandler.getCategoryMenus()
-        refreshMenus(true)//第一次强制初始化左边源对应的菜单
+        refreshMenus(true)//第一次强制初始化
         checkUpdate()
         if (savedInstanceState == null) {
-            addFirstFragment()
+            fragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
+            updateTitle()
+            nav_view.setCheckedItem(currentCategoryMenus.first().id)
+            supportFragmentManager.beginTransaction()
+                .add(R.id.fragment_container, fragment!!)
+                .commit()
+            compositeDisposable.clear()
         }
-//        showWarning()
         autoClearCache()
+        if (Prefs.isOpenFavOnStart) {
+            startActivity<FavoriteActivity>()
+        }
     }
 
     override fun onStart() {
@@ -88,25 +94,21 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         bindService(intent, myConnection, Context.BIND_AUTO_CREATE)
     }
 
+    /**
+     * 刷新底部菜单
+     */
     fun refreshMenus(force: Boolean = false) {
         if (force || currentCategoryMenus != TingShuSourceHandler.getCategoryMenus()) {//检测是否换过源
             currentCategoryMenus = TingShuSourceHandler.getCategoryMenus()
-            val menuItem = nav_view.menu.getItem(0)//如果换过源，重新初始化侧边菜单
-            menuItem.subMenu.clear()
+            bottom_navigation.menu.clear()
+
             currentCategoryMenus.forEach { categoryMenu ->
-                menuItem.subMenu
-                    .add(R.id.group_category, categoryMenu.id, Menu.NONE, categoryMenu.title)
+                bottom_navigation.menu.add(R.id.group_category, categoryMenu.id, Menu.NONE, categoryMenu.title)
                     .setIcon(categoryMenu.icon)
             }
-            menuItem.subMenu.setGroupCheckable(R.id.group_category, true, true)
             if (fragment is MenuFragment) {
-                nav_view.setCheckedItem(currentCategoryMenus.first().id)
+                bottom_navigation.selectedItemId = currentCategoryMenus.first().id
                 updateTitle()
-                fragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
-                supportFragmentManager.beginTransaction()
-                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                    .replace(R.id.fragment_container, fragment!!)
-                    .commit()
             }
         }
     }
@@ -124,31 +126,22 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+        bottom_navigation.setOnNavigationItemSelectedListener { item ->
+            fragment = MenuFragment.newInstance(currentCategoryMenus.first { it.id == item.itemId }.tabs)
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.fragment_container, fragment!!)
+                .commit()
+            updateTitle()
+            return@setOnNavigationItemSelectedListener true
+        }
         nav_view.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
-                in currentCategoryMenus.map { it.id } -> {
-                    fragment = MenuFragment.newInstance(currentCategoryMenus.first { it.id == item.itemId }.tabs)
-                    supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                        .replace(R.id.fragment_container, fragment!!)
-                        .commit()
-                    updateTitle()
-                }
                 R.id.nav_favorite -> {
-                    fragment = FavoriteFragment()
-                    supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                        .replace(R.id.fragment_container, fragment!!)
-                        .commit()
-                    supportActionBar?.title = "我的收藏"
+                    startActivity<FavoriteActivity>()
                 }
                 R.id.nav_history -> {
-                    fragment = HistoryFragment()
-                    supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                        .replace(R.id.fragment_container, fragment!!)
-                        .commit()
-                    supportActionBar?.title = "历史记录"
+                    startActivity<HistoryActivity>()
                 }
                 R.id.nav_settings -> {
                     startActivity<SettingsActivity>()
@@ -338,36 +331,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     }
                 }
             }
-    }
-
-    private fun addFirstFragment() {
-        AppDatabase.getInstance(this)
-            .bookDao()
-            .loadAllBooks()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(onNext = {
-                if (it.isEmpty()) {
-                    fragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
-                    updateTitle()
-                    nav_view.setCheckedItem(currentCategoryMenus.first().id)
-                } else {
-                    fragment = FavoriteFragment()
-                    supportActionBar?.title = "我的收藏"
-                    nav_view.setCheckedItem(R.id.nav_favorite)
-                }
-                supportFragmentManager.beginTransaction()
-                    .add(R.id.fragment_container, fragment!!)
-                    .commit()
-                compositeDisposable.clear()
-            }, onError = {
-                fragment = MenuFragment.newInstance(currentCategoryMenus.first().tabs)
-                supportFragmentManager.beginTransaction()
-                    .add(R.id.fragment_container, fragment!!)
-                    .commit()
-                compositeDisposable.clear()
-            })
-            .addTo(compositeDisposable)
     }
 
     private fun updateTitle() {

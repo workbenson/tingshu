@@ -1,14 +1,12 @@
 package com.github.eprendre.tingshu.ui
 
 import android.os.Bundle
-import android.view.*
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.eprendre.tingshu.R
-import com.github.eprendre.tingshu.db.AppDatabase
 import com.github.eprendre.tingshu.ui.adapters.FavoriteAdapter
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
@@ -20,53 +18,51 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_favorite.*
+import kotlinx.android.synthetic.main.activity_favorite.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
 
-class HistoryFragment : Fragment(), AnkoLogger {
+class HistoryActivity : AppCompatActivity(), AnkoLogger {
     private val compositeDisposable = CompositeDisposable()
     private val onItemClickListener: (Book) -> Unit = { book ->
         Prefs.currentBook?.apply { RxBus.post(RxEvent.StorePositionEvent(this)) }
         Prefs.currentBook = book
         Prefs.addToHistory(book)
-        context?.startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
+        startActivity<PlayerActivity>(PlayerActivity.ARG_BOOKURL to book.bookUrl)
     }
 
     private val onItemLongClickListener: (Book) -> Unit = { book ->
-        if (context != null) {
-            AlertDialog.Builder(context!!)
-                .setTitle("是否删除本条记录?")
-                .setPositiveButton("是") { dialog, which ->
-                    Prefs.historyList = Prefs.historyList.apply { remove(book) }
-                    loadData()
-                }
-                .setNegativeButton("否", null)
-                .show()
-        }
+        AlertDialog.Builder(this)
+            .setTitle("是否删除本条记录?")
+            .setPositiveButton("是") { dialog, which ->
+                Prefs.historyList = Prefs.historyList.apply { remove(book) }
+                loadData()
+            }
+            .setNegativeButton("否", null)
+            .show()
     }
 
     private val listAdapter by lazy {
         FavoriteAdapter(onItemClickListener, onItemLongClickListener)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_favorite, container, false)
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        when (Prefs.currentTheme) {
+            0 -> setTheme(R.style.AppTheme)
+            1 -> setTheme(R.style.DarkTheme)
+            2 -> setTheme(R.style.BlueTheme)
+        }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+        setContentView(R.layout.activity_favorite)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         state_layout.setEmptyText("暂无浏览记录")
         state_layout.setErrorText("加载出错啦")
-        val linearLayoutManager = LinearLayoutManager(context)
+        val linearLayoutManager = LinearLayoutManager(this)
         recycler_view.layoutManager = linearLayoutManager
         recycler_view.addItemDecoration(
             DividerItemDecoration(
-                context,
+                this,
                 DividerItemDecoration.VERTICAL
             )
         )
@@ -76,10 +72,6 @@ class HistoryFragment : Fragment(), AnkoLogger {
                 linearLayoutManager.scrollToPositionWithOffset(0, 0)
             }
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
         loadData()
     }
 
@@ -108,8 +100,13 @@ class HistoryFragment : Fragment(), AnkoLogger {
             .addTo(compositeDisposable)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
         compositeDisposable.clear()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 }

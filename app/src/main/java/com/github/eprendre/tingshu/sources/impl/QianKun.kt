@@ -166,16 +166,12 @@ object QianKun : TingShu {
                 CategoryTab("蒲剧", "http://m.qktsw.com/book/32.html"),
                 CategoryTab("粤剧", "http://m.qktsw.com/book/35.html"),
                 CategoryTab("二人转", "http://m.qktsw.com/book/43.html"),
-                CategoryTab("其它戏曲", "http://m.qktsw.com/book/44.html")
-            )
-        )
-        val menu6 = CategoryMenu(
-            "其他", R.drawable.ic_more_horiz, View.generateViewId(), listOf(
+                CategoryTab("其它戏曲", "http://m.qktsw.com/book/44.html"),
                 CategoryTab("笑话", "http://m.qktsw.com/tingbook/6.html"),
                 CategoryTab("佛学", "http://m.qktsw.com/book/715.html")
             )
         )
-        return listOf(menu1, menu2, menu3, menu4, menu5, menu6)
+        return listOf(menu1, menu2, menu3, menu4, menu5)
     }
 
     override fun getCategoryDetail(url: String): Single<Category> {
