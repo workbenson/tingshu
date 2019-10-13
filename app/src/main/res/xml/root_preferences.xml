@@ -62,7 +62,7 @@
         <SwitchPreference
                 app:key="cache_next"
                 app:title="缓存下一集"
-                app:summary="下载功能别找了🥺做出来影响不好\n另：缓存功能不对静听网生效"
+                app:summary="下载功能别找了🥺做出来影响不好\n缓存最多保留20集，且不对静听网生效"
                 app:defaultValue="true"/>
     </PreferenceCategory>
 
