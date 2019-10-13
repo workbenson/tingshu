@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             addFirstFragment()
         }
 //        showWarning()
+        autoClearCache()
     }
 
     override fun onStart() {
@@ -225,6 +226,27 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             drawer_layout.closeDrawer(GravityCompat.START)
             return@setNavigationItemSelectedListener true
         }
+    }
+
+    /**
+     * 自动清除大于20个的缓存，从最老的开始删起
+     */
+    private fun autoClearCache() {
+        Completable.fromCallable {
+            if (externalCacheDir != null) {
+                val listFiles = externalCacheDir.listFiles()
+                listFiles.sortBy{ it.lastModified() }
+                if (listFiles.size > 20) {
+                    (0..(listFiles.size - 21)).forEach {
+                        listFiles[it].delete()
+                    }
+                }
+            }
+        }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(onComplete = {}, onError = {})
+            .addTo(compositeDisposable)
     }
 
     override fun onBackPressed() {
