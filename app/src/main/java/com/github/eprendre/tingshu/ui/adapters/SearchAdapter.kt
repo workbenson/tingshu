@@ -1,8 +1,5 @@
 package com.github.eprendre.tingshu.ui.adapters
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context.CLIPBOARD_SERVICE
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

@@ -39,7 +39,7 @@ class SearchFragment : Fragment(), AnkoLogger {
 
     private val listAdapter by lazy {
         SearchAdapter { book ->
-            if (book.coverUrl.isBlank()) {
+            if (book.coverUrl.isBlank() && book.bookUrl.startsWith(TingShuSourceHandler.SOURCE_URL_TINGCHINA)) {
                 activity?.toast("本条目加载中，请稍后...")
                 return@SearchAdapter
             }
