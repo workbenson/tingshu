@@ -121,6 +121,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 startActivity<PlayerActivity>()
             }
         }
+        fab.setOnLongClickListener {
+            startActivity<FavoriteActivity>()
+            return@setOnLongClickListener true
+        }
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
