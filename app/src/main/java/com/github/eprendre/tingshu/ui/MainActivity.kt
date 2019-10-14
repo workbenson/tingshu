@@ -149,6 +149,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 R.id.nav_clear_history -> {
                     SearchRecentSuggestions(this, MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE)
                         .clearHistory()
+                    toast("搜索记录清除完毕")
                 }
                 R.id.nav_clear_cache -> {
                     Completable.fromCallable {
@@ -162,7 +163,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeBy(onComplete = {
-                            toast("缓存清除完毕")
+                            toast("音频缓存清除完毕")
                         }, onError = {})
                         .addTo(compositeDisposable)
                 }
