@@ -23,6 +23,9 @@ bug反馈或者功能建议可加 QQ 群：470339586
 * TingChina：[http://www.tingchina.com](http://www.tingchina.com)
 * 天天评书网：[https://www.pingshu365.com](https://www.pingshu365.com)
 * 22听书网：[https://m.ting22.com](https://m.ting22.com)
+* 乾坤听书网：[http://m.qktsw.com](http://m.qktsw.com)
+* 恋听网：[https://ting55.com](https://ting55.com)
+* 我听评书网：[https://m.5tps.com](https://m.5tps.com)
 * 听书阁：[http://www.tingshuge.com](http://www.tingshuge.com)(现在挂了，不知道啥时候能好。)
 
 ## 注意事项
