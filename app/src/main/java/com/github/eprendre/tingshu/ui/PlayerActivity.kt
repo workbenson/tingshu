@@ -15,6 +15,7 @@ import android.os.*
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
+import android.text.format.Formatter
 import android.view.*
 import android.widget.Button
 import android.widget.ImageButton
@@ -208,8 +209,10 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 play_progress.visibility = View.GONE
                 if (App.currentEpisodeIndex() < Prefs.playList.size - 1) {
                     val episodeUrl = Prefs.playList[App.currentEpisodeIndex() + 1].url
-                    if (File(externalCacheDir, episodeUrl.md5()).exists()) {//如果缓存文件已存在，则忽略
-                        cache_text.text = "下集缓存成功"
+                    val file = File(externalCacheDir, episodeUrl.md5())
+                    if (file.exists()) {//如果缓存文件已存在，则忽略
+                        val size = Formatter.formatShortFileSize(this, file.length())
+                        cache_text.text = "下集缓存成功 $size"
                     } else {
                         cache_text.text = ""
                     }
@@ -468,9 +471,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             .subscribe {
                 when (it.status) {
                     0 -> cache_text.text = "下集缓存中..."
-                    1 -> cache_text.text = "下集缓存成功"
-                    2 -> cache_text.text = "下集缓存失败"
-                    3 -> cache_text.text = "下集缓存中...${it.progress}%"
+                    1 -> cache_text.text = "下集缓存成功 ${it.msg}"
+                    2 -> cache_text.text = "下集缓存失败${it.msg}"
+                    3 -> cache_text.text = "下集缓存中 ${it.progress}%${it.msg}"
                 }
 
             }

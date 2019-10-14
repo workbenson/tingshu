@@ -15,6 +15,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.text.format.Formatter
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import androidx.media.session.MediaButtonReceiver
@@ -206,7 +207,12 @@ class TingShuService : Service(), AnkoLogger {
                                 val progress = 100 * readBytes / totalBytes
                                 if (downloadProgress != progress && progress % 5 == 0L) {
                                     downloadProgress = progress
-                                    RxBus.post(RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 3, progress))
+                                    val read = Formatter.formatShortFileSize(this, readBytes)
+                                    val total = Formatter.formatShortFileSize(this, totalBytes)
+                                    val event = RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 3)
+                                    event.progress = progress
+                                    event.msg = "\n$read/$total"
+                                    RxBus.post(event)
                                 }
                             }
                             .response { result ->
@@ -216,8 +222,21 @@ class TingShuService : Service(), AnkoLogger {
                                         RxBus.post(RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 2))
                                     }
                                     is Result.Success -> {
-                                        RxBus.post(RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 1))
-                                        tmpFile.renameTo(File(externalCacheDir, it.episodeUrl.md5()))
+                                        val length = tmpFile.length()
+                                        if (length < 100 * 1024) { //小于100KB，说明是访问过快的音频文件
+                                            tmpFile.delete()
+                                            val event = RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 2).apply {
+                                                msg = "\n您访问过快"
+                                            }
+                                            RxBus.post(event)
+                                        } else {
+                                            val fileSize = Formatter.formatShortFileSize(this, tmpFile.length())
+                                            val event = RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 1).apply {
+                                                msg = fileSize
+                                            }
+                                            RxBus.post(event)
+                                            tmpFile.renameTo(File(externalCacheDir, it.episodeUrl.md5()))
+                                        }
                                     }
                                 }
                             }
