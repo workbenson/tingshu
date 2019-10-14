@@ -247,6 +247,17 @@ class TingShuService : Service(), AnkoLogger {
             .addTo(busDisposables)
     }
 
+    fun cancelDownloadCache() {
+        downloadRequest?.cancel()
+        if (App.currentEpisodeIndex() < Prefs.playList.size - 1) {
+            val episodeUrl = Prefs.playList[App.currentEpisodeIndex() + 1].url
+            val file = File(externalCacheDir, episodeUrl.md5())
+            if (file.exists()) {
+                file.delete()
+            }
+        }
+    }
+
     private fun retryOnError() {
         if (Prefs.audioOnError) {
             val player = MediaPlayer.create(applicationContext, R.raw.play_failed)

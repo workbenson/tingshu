@@ -478,6 +478,16 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
             }
             .addTo(compositeDisposable)
+        cache_text.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("是否取消下集缓存?")
+                .setPositiveButton("是") { dialog, which ->
+                    myService.cancelDownloadCache()
+                    cache_text.text = ""
+                }
+                .setNegativeButton("否", null)
+                .show()
+        }
         //播放速度
         myService.exoPlayer.playbackParameters = PlaybackParameters(Prefs.speed)//初始化播放器的速度
         speed_button.text = "${Prefs.speed} x"
