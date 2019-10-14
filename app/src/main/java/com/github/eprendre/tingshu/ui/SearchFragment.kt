@@ -133,6 +133,7 @@ class SearchFragment : Fragment(), AnkoLogger {
     override fun onDestroyView() {
         super.onDestroyView()
         compositeDisposable.clear()
+        listAdapter.clear()
     }
 
     companion object {

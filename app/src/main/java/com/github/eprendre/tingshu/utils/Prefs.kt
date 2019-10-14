@@ -141,4 +141,8 @@ object Prefs {
     var isOpenFavOnStart: Boolean
         get() = prefs.getBoolean("open_fav_on_start", false)
         set(value) = prefs.edit().putBoolean("cache_next", value).apply()
+
+    var isAggregateSearch: Boolean
+        get() = prefs.getBoolean("is_aggregate_search", false)
+        set(value) = prefs.edit().putBoolean("is_aggregate_search", value).apply()
 }

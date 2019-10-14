@@ -86,9 +86,7 @@ object JingTingWang : TingShu {
 
             val pageButtons = doc.select(".cpage > a")
             val totalPage = extractPage(pageButtons.last().attr("href"))
-            println("$currentPage/$totalPage")
             val nextUrl = pageButtons[2].attr("href")
-            println("nextUrl: $nextUrl")
 
             val list = ArrayList<Book>()
             val elementList = doc.select(".clist > a")

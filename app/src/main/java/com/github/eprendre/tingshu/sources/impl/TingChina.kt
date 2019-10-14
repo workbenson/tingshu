@@ -112,8 +112,6 @@ object TingChina : TingShu {
                 val index = pages.indexOfFirst { it.text() == currentPage.toString() }
                 nextUrl = pages[index + 1].absUrl("href")
             }
-            println("$currentPage/$totalPage")
-            println("nextUrl: $nextUrl")
 
             val list = ArrayList<Book>()
             val elementList = doc.select(".showlist dl")

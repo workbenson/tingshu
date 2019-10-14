@@ -130,9 +130,6 @@ object TianTianPingShu : TingShu {
             val currentPage = pages[1].toInt()
             val totalPage = pages[2].toInt()
 
-            println("$currentPage/$totalPage")
-            println("nextUrl: $nextUrl")
-
             val list = ArrayList<Book>()
             val elementList = doc.select("#ss .ssl .book")
             elementList.forEach { element ->

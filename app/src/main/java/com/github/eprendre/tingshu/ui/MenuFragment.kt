@@ -44,7 +44,11 @@ class MenuFragment : Fragment(), AnkoLogger {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.search -> {
-                context?.startActivity<SearchActivity>()
+                if (Prefs.isAggregateSearch) {
+                    context?.startActivity<AggregateSearchActivity>()
+                } else {
+                    context?.startActivity<SearchActivity>()
+                }
             }
             R.id.switch_source -> {
                 if (context == null) return false

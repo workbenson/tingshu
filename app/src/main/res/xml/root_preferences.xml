@@ -45,6 +45,12 @@
                 app:defaultValue="false"/>
 
         <SwitchPreference
+                app:key="is_aggregate_search"
+                app:title="聚合搜索"
+                app:summary="合并所有搜索结果，但是有些网站返回多页搜索结果时会忽略第一页之后的结果"
+                app:defaultValue="false"/>
+
+        <SwitchPreference
                 app:key="show_album_art"
                 app:title="在锁屏显示封面背景 (仅部分系统可用，重启或者换书生效)"
                 app:defaultValue="false"/>

@@ -21,7 +21,6 @@ object WoTingPingShu : TingShu {
             val list = ArrayList<Book>()
             try {
                 totalPage = doc.selectFirst(".booksite > .bookbutton").text().split("/")[1].toInt()
-                println(totalPage)
                 val elementList = doc.select(".top_list > a")
                 elementList.forEach { element ->
                     val bookUrl = element.absUrl("href")
@@ -35,7 +34,6 @@ object WoTingPingShu : TingShu {
                         this.status = status
                     }))
                 }
-                list.forEach { println(it) }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
