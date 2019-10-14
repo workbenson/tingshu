@@ -9,9 +9,10 @@
         >
     <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:tabMode="auto"
+            android:layout_gravity="center_horizontal"
+            app:tabMode="scrollable"
             app:tabGravity="center"
             />
 
