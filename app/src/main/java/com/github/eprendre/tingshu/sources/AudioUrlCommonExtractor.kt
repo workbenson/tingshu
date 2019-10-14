@@ -11,6 +11,7 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import java.net.URI
 
 /**
  * Jsoup 就可搞定的音频提取用此类
@@ -30,7 +31,8 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
         }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(onSuccess = { audioUrl ->
+            .subscribeBy(onSuccess = { u ->
+                val audioUrl = URI(u).toASCIIString()//若音频地址含中文会导致某些设备播放失败
                 if (isCache) {
                     RxBus.post(RxEvent.CacheEvent(url, audioUrl, 0))
                 } else {

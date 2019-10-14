@@ -12,6 +12,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import org.apache.commons.text.StringEscapeUtils
+import java.net.URI
 import java.util.concurrent.TimeUnit
 
 /**
@@ -121,8 +122,8 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
         //提取webview的html
         webView.evaluateJavascript(script) { html ->
             val unescapedHtml = StringEscapeUtils.unescapeJava(html)//提取出来的html需要unescape
-            val audioUrl = parse(unescapedHtml)
-            if (audioUrl.isNullOrBlank()) {
+            val url = parse(unescapedHtml)
+            if (url.isNullOrBlank()) {
                 Handler().postDelayed({
                     tryGetAudioSrc()
                 }, 500)
@@ -133,6 +134,7 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
             }
             compositeDisposable.clear()
             isAudioGet = true
+            val audioUrl = URI(url).toASCIIString()//若音频地址含中文会导致某些设备播放失败
 
             if (isCache) {
                 RxBus.post(RxEvent.CacheEvent(episodeUrl, audioUrl, 0))
