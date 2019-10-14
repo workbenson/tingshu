@@ -63,7 +63,7 @@ object LianTingWang : TingShu {
 
             val episodes = doc.select(".playlist > .plist > ul > li > a").map {
                 Episode(it.text(), it.attr("abs:href")).apply {
-                    this.isFree = it.hasClass("free")
+                    this.isFree = it.hasClass("free") || it.hasClass("f")
                 }
             }
             val intro = doc.selectFirst(".intro").text()
