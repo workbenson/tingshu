@@ -483,7 +483,6 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 .setTitle("是否取消下集缓存?")
                 .setPositiveButton("是") { dialog, which ->
                     myService.cancelDownloadCache()
-                    cache_text.text = ""
                 }
                 .setNegativeButton("否", null)
                 .show()
