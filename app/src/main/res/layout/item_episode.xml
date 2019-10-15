@@ -1,32 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:gravity="center"
-              android:layout_height="wrap_content"
-              android:background="?selectableItemBackground"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:cardCornerRadius="6dp"
+        app:cardElevation="6dp"
         >
 
-    <TextView
-            android:layout_margin="16dp"
-            android:layout_gravity="center"
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="16sp"
-            tools:text="第一集"
-            android:textColor="?attr/primary_text_color"
-            />
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackground"
+            android:gravity="center"
+            android:orientation="vertical"
+            >
 
-    <TextView
-            android:id="@+id/charge"
-            android:layout_gravity="right"
-            android:text="收费"
-            android:textSize="12sp"
-            android:visibility="gone"
-            android:textColor="@android:color/holo_red_light"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                android:textColor="?attr/primary_text_color"
+                android:textSize="16sp"
+                tools:text="第一集"
+                />
 
-</FrameLayout>
+        <TextView
+                android:id="@+id/charge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="收费"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="2dp"
+                android:textColor="@android:color/holo_red_light"
+                android:textSize="12sp"
+                android:visibility="visible"
+                />
+
+        <TextView
+                android:id="@+id/cached"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|bottom"
+                android:text="已缓存"
+                android:layout_marginBottom="2dp"
+                android:layout_marginRight="2dp"
+                android:textColor="@android:color/holo_green_light"
+                android:textSize="12sp"
+                android:visibility="gone"
+                />
+    </FrameLayout>
+</androidx.cardview.widget.CardView>

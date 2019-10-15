@@ -69,6 +69,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private var toolbarIconColor: Int? = null
     //    private var isFavorite = false
     private var favoriteBook: Book? = null
+    //章节列表
     private val dialogEpisodes: BottomSheetDialog by lazy {
         BottomSheetDialog(this).apply {
             setContentView(dialogView)
@@ -77,10 +78,10 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
     private val dialogView by lazy {
         layoutInflater.inflate(R.layout.dialog_episodes, null).apply {
             recycler_view.layoutManager = GridLayoutManager(this@PlayerActivity, 3)
-            recycler_view.adapter = listAdapter
+            recycler_view.adapter = episodesAdapter
         }
     }
-    private val listAdapter = EpisodeAdapter {
+    private val episodesAdapter = EpisodeAdapter {
         if (it.isFree) {
             Prefs.currentBook = Prefs.currentBook?.apply {
                 this.currentEpisodePosition = 0
@@ -91,6 +92,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         }
         dialogEpisodes.dismiss()
     }
+    //定时关闭
     private val dialogCountDown: BottomSheetDialog by lazy {
         BottomSheetDialog(this).apply {
             setContentView(countDownView)
@@ -190,7 +192,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
         val book = Prefs.currentBook!!
         artist_text.text = "${book.artist}"
         episode_text.text = "当前章节：${book.currentEpisodeName ?: ""}"
-        listAdapter.notifyDataSetChanged()//更新当前正在播放的item颜色
+        episodesAdapter.notifyDataSetChanged()//更新当前正在播放的item颜色
         when (state.state) {
             PlaybackStateCompat.STATE_ERROR -> {
                 play_progress.visibility = View.GONE
@@ -268,7 +270,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 artist_text.text = "${book.artist}"
                 episode_text.text = "当前章节：${book.currentEpisodeName ?: ""}"
                 supportActionBar?.title = book.title
-                listAdapter.submitList(Prefs.playList)
+                episodesAdapter.submitList(Prefs.playList)
                 updateState(mediaController.playbackState)
                 state_layout.showContent()
                 tintColor()
@@ -296,7 +298,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
                 //开始请求播放
                 supportActionBar?.title = book.title
-                listAdapter.submitList(Prefs.playList)
+                episodesAdapter.submitList(Prefs.playList)
                 val episode = Prefs.playList.firstOrNull { !it.isFree }
                 if (episode != null) {
                     longToast("本书章节第${episode.title}开始是收费内容，请去原网站收听。")
@@ -471,7 +473,10 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
             .subscribe {
                 when (it.status) {
                     0 -> cache_text.text = "下集缓存中..."
-                    1 -> cache_text.text = "下集缓存成功\n大小: ${it.msg}"
+                    1 -> {
+                        cache_text.text = "下集缓存成功\n大小: ${it.msg}"
+                        episodesAdapter.notifyDataSetChanged()//更新已缓存的标签
+                    }
                     2 -> cache_text.text = "下集缓存失败${it.msg}"
                     3 -> cache_text.text = "下集缓存中 ${it.progress}%${it.msg}"
                 }

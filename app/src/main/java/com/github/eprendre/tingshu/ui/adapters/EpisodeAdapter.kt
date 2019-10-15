@@ -6,12 +6,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.extensions.getColorAccent
 import com.github.eprendre.tingshu.extensions.getTextColorPrimary
+import com.github.eprendre.tingshu.extensions.md5
 import com.github.eprendre.tingshu.utils.Episode
 import com.github.eprendre.tingshu.utils.Prefs
 import kotlinx.android.synthetic.main.item_episode.view.*
+import java.io.File
 
 class EpisodeAdapter(private val itemClickedListener: (Episode) -> Unit) :
     ListAdapter<Episode, EpisodeViewHolder>(Episode.diffCallback) {
@@ -31,6 +34,7 @@ class EpisodeAdapter(private val itemClickedListener: (Episode) -> Unit) :
 class EpisodeViewHolder(view: View, itemClickedListener: (Episode) -> Unit) : RecyclerView.ViewHolder(view) {
     private val titleView: TextView = view.title
     private val chargeView: TextView = view.charge
+    private val cachedView: TextView = view.cached
     var item: Episode? = null
 
     init {
@@ -51,6 +55,12 @@ class EpisodeViewHolder(view: View, itemClickedListener: (Episode) -> Unit) : Re
             chargeView.visibility = View.GONE
         } else {
             chargeView.visibility = View.VISIBLE
+        }
+        val file = File(App.appContext.externalCacheDir, episode.url.md5())
+        if (file.exists()) {
+            cachedView.visibility = View.VISIBLE
+        } else {
+            cachedView.visibility = View.GONE
         }
     }
 }
