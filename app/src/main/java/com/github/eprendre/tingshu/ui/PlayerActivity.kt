@@ -214,7 +214,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     val file = File(externalCacheDir, episodeUrl.md5())
                     if (file.exists()) {//如果缓存文件已存在，则忽略
                         val size = Formatter.formatShortFileSize(this, file.length())
-                        cache_text.text = "下集缓存成功\n大小: $size"
+                        cache_text.text = "下集缓存成功 大小: $size"
                     } else {
                         cache_text.text = ""
                     }
@@ -474,11 +474,11 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                 when (it.status) {
                     0 -> cache_text.text = "下集缓存中..."
                     1 -> {
-                        cache_text.text = "下集缓存成功\n大小: ${it.msg}"
+                        cache_text.text = "下集缓存成功 大小: ${it.msg}"
                         episodesAdapter.notifyDataSetChanged()//更新已缓存的标签
                     }
-                    2 -> cache_text.text = "下集缓存失败${it.msg}"
-                    3 -> cache_text.text = "下集缓存中 ${it.progress}%${it.msg}"
+                    2 -> cache_text.text = "下集缓存失败 ${it.msg}"
+                    3 -> cache_text.text = "下集缓存中 ${it.progress}% ${it.msg}"
                 }
 
             }
