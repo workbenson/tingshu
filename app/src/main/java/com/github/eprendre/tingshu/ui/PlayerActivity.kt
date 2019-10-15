@@ -644,7 +644,9 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onPause() {
         super.onPause()
-        App.isRetry = true
+        if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
+            App.isRetry = true
+        }
     }
 
     override fun onStop() {

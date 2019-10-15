@@ -58,6 +58,7 @@ class TingShuService : Service(), AnkoLogger {
     private var retryCount = 0
     private var pauseCount = -1
     private var isSkipping = false
+    private var isRetrying = false
 
     lateinit var mediaSession: MediaSessionCompat
     private lateinit var mediaController: MediaControllerCompat
@@ -259,6 +260,10 @@ class TingShuService : Service(), AnkoLogger {
     }
 
     private fun retryOnError() {
+        if (isRetrying) {
+            return
+        }
+        isRetrying = true
         if (Prefs.audioOnError) {
             val player = MediaPlayer.create(applicationContext, R.raw.play_failed)
             player.setOnCompletionListener {
@@ -269,6 +274,7 @@ class TingShuService : Service(), AnkoLogger {
                             Uri.parse(Prefs.currentBook!!.currentEpisodeUrl),
                             null
                         )
+                        isRetrying = false
                     }, 1000)
                     retryCount += 1
                 }
@@ -281,6 +287,7 @@ class TingShuService : Service(), AnkoLogger {
                         Uri.parse(Prefs.currentBook!!.currentEpisodeUrl),
                         null
                     )
+                    isRetrying = false
                 }, 1000)
                 retryCount += 1
             }
