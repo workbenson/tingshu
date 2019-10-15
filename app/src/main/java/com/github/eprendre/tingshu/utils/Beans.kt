@@ -92,7 +92,7 @@ data class CategoryTab(
 @Keep
 data class CategoryMenu(
     val title: String,
-    @DrawableRes val icon: Int,
+    @DrawableRes val icon: Int?,
     @IdRes val id: Int,
     val tabs: List<CategoryTab>
 ) {
@@ -109,7 +109,6 @@ data class CategoryMenu(
 
     override fun hashCode(): Int {
         var result = title.hashCode()
-        result = 31 * result + icon
         result = 31 * result + id
         result = 31 * result + tabs.hashCode()
         return result

@@ -104,7 +104,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
             currentCategoryMenus.forEach { categoryMenu ->
                 bottom_navigation.menu.add(R.id.group_category, categoryMenu.id, Menu.NONE, categoryMenu.title)
-                    .setIcon(categoryMenu.icon)
+                    .apply {
+                        if (categoryMenu.icon != null) {
+                            setIcon(categoryMenu.icon)
+                        }
+                    }
             }
             if (fragment is MenuFragment) {
                 bottom_navigation.selectedItemId = currentCategoryMenus.first().id
