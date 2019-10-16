@@ -120,7 +120,15 @@ class AggregateSearchActivity : AppCompatActivity(), AnkoLogger {
         bookList.clear()
         listAdapter.submitList(ArrayList<Book>())
         state_layout.showLoading()
-        TingShuSourceHandler.sourceList.forEach { pair ->
+        val selectedSources = Prefs.selectedSources
+        var sourceList = TingShuSourceHandler.sourceList
+        if (selectedSources != null) {
+            sourceList = selectedSources.map {  value ->
+                sourceList.first { it.first == value }
+            }
+        }
+
+        sourceList.forEach { pair ->
             pair.second
                 .search(keywords, 1)
                 .subscribeOn(Schedulers.io())

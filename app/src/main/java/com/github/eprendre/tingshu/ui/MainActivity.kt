@@ -22,6 +22,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.BuildConfig
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.TingShuService
@@ -86,7 +87,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onStart() {
         super.onStart()
-        refreshMenus()//从设置界面回来，如果发现源变了则刷新源
+//        refreshMenus()//从设置界面回来，如果发现源变了则刷新源
         initViews()
 
         val intent = Intent(this, TingShuService::class.java)
@@ -136,7 +137,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.fragment_container, fragment!!)
                 .commit()
-            updateTitle()
             return@setOnNavigationItemSelectedListener true
         }
         nav_view.setNavigationItemSelectedListener { item ->
@@ -335,11 +335,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun updateTitle() {
-        val sources = resources.getStringArray(R.array.source_entries)
-        val index = resources.getStringArray(R.array.source_values).indexOfFirst { it == Prefs.source }
-        if (index != -1) {
-            supportActionBar?.title = "${getString(R.string.app_name)} - ${sources[index]}"
-        }
+        supportActionBar?.title = "${getString(R.string.app_name)} - ${App.getSourceTitle(Prefs.source)}"
     }
 
     private val myConnection = object : ServiceConnection {

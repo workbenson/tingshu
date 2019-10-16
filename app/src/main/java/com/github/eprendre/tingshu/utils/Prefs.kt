@@ -50,6 +50,10 @@ object Prefs {
         get() = prefs.getString("current_source", TingShuSourceHandler.SOURCE_URL_HUANTINGWANG)!!
         set(value) = prefs.edit().putString("current_source", value).apply()
 
+    var selectedSources: Set<String>?
+        get() = prefs.getStringSet("selected_sources", null)
+        set(value) = prefs.edit().putStringSet("selected_sources", value).apply()
+
     /**
      * 记录上一次检查更新的时候，避免频繁调用
      */

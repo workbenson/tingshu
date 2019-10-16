@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.adapters.CategoryPagerAdapter
@@ -52,10 +53,14 @@ class MenuFragment : Fragment(), AnkoLogger {
             }
             R.id.switch_source -> {
                 if (context == null) return false
-                val values = resources.getStringArray(R.array.source_values)
-                val checkedItem = values.indexOfFirst { it == Prefs.source }
+                var values = Prefs.selectedSources?.toTypedArray()
+                if (values == null) {
+                    values = resources.getStringArray(R.array.source_values)
+                }
+                val checkedItem = values!!.indexOfFirst { it == Prefs.source }
+                val entries = values.map { App.getSourceTitle(it) }.toTypedArray()
                 AlertDialog.Builder(context!!)
-                    .setSingleChoiceItems(R.array.source_entries, checkedItem) { dialog, which ->
+                    .setSingleChoiceItems(entries, checkedItem) { dialog, which ->
                         Prefs.source = values[which]
                         TingShuSourceHandler.setupConfig()
                         (activity as MainActivity).refreshMenus()

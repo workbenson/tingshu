@@ -10,8 +10,6 @@ import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.sources.impl.*
 import com.github.eprendre.tingshu.utils.*
 import com.github.eprendre.tingshu.widget.GlideApp
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 

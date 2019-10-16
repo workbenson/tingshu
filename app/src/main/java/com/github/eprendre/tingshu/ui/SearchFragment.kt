@@ -60,8 +60,6 @@ class SearchFragment : Fragment(), AnkoLogger {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         keywords = arguments?.getString(ARG_KEYWORDS) ?: ""
-        val index = arguments?.getInt(ARG_INDEX) ?: 0
-        tingShu = TingShuSourceHandler.sourceList[index].second
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -71,6 +69,8 @@ class SearchFragment : Fragment(), AnkoLogger {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        val index = arguments?.getInt(ARG_INDEX) ?: 0
+        tingShu = (activity as SearchActivity).sources[index].second
 
         state_layout.setErrorText("搜索出错啦")
         state_layout.setEmptyText("暂无搜索结果")

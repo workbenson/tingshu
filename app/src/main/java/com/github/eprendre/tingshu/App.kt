@@ -40,8 +40,8 @@ class App : MultiDexApplication() {
             }
             return index
         }
-        private val sourceValues by lazy { appContext.resources.getStringArray(R.array.source_values) }
-        private val sourceEntries by lazy { appContext.resources.getStringArray(R.array.source_entries) }
+        val sourceValues by lazy { appContext.resources.getStringArray(R.array.source_values) }
+        val sourceEntries by lazy { appContext.resources.getStringArray(R.array.source_entries) }
 
         @SuppressLint("CheckResult")
         fun findBookInHistoryOrFav(book: Book, f: (book:Book) -> Unit) {

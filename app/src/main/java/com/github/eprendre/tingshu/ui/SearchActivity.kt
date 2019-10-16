@@ -8,7 +8,9 @@ import android.provider.SearchRecentSuggestions
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.ui.adapters.SearchPagerAdapter
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.MySuggestionProvider
@@ -19,8 +21,18 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     private var keywords = ""
     private var lastTabIndex = 0
     private lateinit var searchPagerAdapter: SearchPagerAdapter
-    private val sources by lazy {
-        resources.getStringArray(R.array.source_entries).toList()
+   val sources by lazy {
+        val selectedSources = Prefs.selectedSources
+        var sourceList = TingShuSourceHandler.sourceList
+        if (selectedSources != null) {
+            sourceList = selectedSources.map {  value ->
+                sourceList.first { it.first == value }
+            }
+        }
+        return@lazy sourceList
+    }
+    private val titles by lazy {
+        sources.map { App.getSourceTitle(it.first) }
     }
     private var searchView: SearchView? = null
 
@@ -33,7 +45,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
         }
         setContentView(R.layout.activity_search)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        lastTabIndex = resources.getStringArray(R.array.source_values).indexOfFirst { it == Prefs.source }
+        lastTabIndex = App.sourceValues.indexOfFirst { it == Prefs.source }
         if (lastTabIndex == -1) {
             lastTabIndex = 0
         }
@@ -48,7 +60,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
 
     private fun initPagerAdapter() {
         searchPagerAdapter = SearchPagerAdapter(this, supportFragmentManager)
-        searchPagerAdapter.sources = sources
+        searchPagerAdapter.titles = titles
         searchPagerAdapter.keywords = keywords
         view_pager.adapter = searchPagerAdapter
         view_pager.currentItem = lastTabIndex
