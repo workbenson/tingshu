@@ -33,9 +33,13 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = { u ->
-                val url1 = URL(u)
-                val uri = URI(url1.protocol, url1.userInfo, url1.host, url1.port, url1.path, url1.query, url1.ref)
-                val audioUrl = uri.toASCIIString()//若音频地址含中文会导致某些设备播放失败
+                val audioUrl = if (u.contains("%")) {
+                    u
+                } else {
+                    val url1 = URL(u)
+                    val uri = URI(url1.protocol, url1.userInfo, url1.host, url1.port, url1.path, url1.query, url1.ref)
+                    uri.toASCIIString()//若音频地址含中文会导致某些设备播放失败
+                }
                 if (isCache) {
                     RxBus.post(RxEvent.CacheEvent(url, audioUrl, 0))
                 } else {

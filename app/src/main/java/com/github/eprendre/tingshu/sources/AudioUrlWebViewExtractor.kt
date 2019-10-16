@@ -2,6 +2,7 @@ package com.github.eprendre.tingshu.sources
 
 import android.annotation.SuppressLint
 import android.os.Handler
+import android.util.Log
 import android.webkit.*
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.utils.Prefs
@@ -135,9 +136,13 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
             }
             compositeDisposable.clear()
             isAudioGet = true
-            val url1 = URL(url)
-            val uri = URI(url1.protocol, url1.userInfo, url1.host, url1.port, url1.path, url1.query, url1.ref)
-            val audioUrl = uri.toASCIIString()//若音频地址含中文会导致某些设备播放失败
+            val audioUrl = if (url.contains("%")) {
+                url
+            } else {
+                val url1 = URL(url)
+                val uri = URI(url1.protocol, url1.userInfo, url1.host, url1.port, url1.path, url1.query, url1.ref)
+                uri.toASCIIString()//若音频地址含中文会导致某些设备播放失败
+            }
 
             if (isCache) {
                 RxBus.post(RxEvent.CacheEvent(episodeUrl, audioUrl, 0))
