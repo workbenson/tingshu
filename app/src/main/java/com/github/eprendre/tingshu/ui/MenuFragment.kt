@@ -14,6 +14,10 @@ import kotlinx.android.synthetic.main.fragment_menu.tabs
 import kotlinx.android.synthetic.main.fragment_menu.view_pager
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
+import java.text.Collator
+import java.util.*
+import kotlin.Comparator
+import kotlin.collections.ArrayList
 
 /**
  * 小说分类的容器
@@ -53,15 +57,21 @@ class MenuFragment : Fragment(), AnkoLogger {
             }
             R.id.switch_source -> {
                 if (context == null) return false
-                var values = Prefs.selectedSources?.toTypedArray()
+                var values = Prefs.selectedSources?.toList()
                 if (values == null) {
-                    values = resources.getStringArray(R.array.source_values)
+                    values = resources.getStringArray(R.array.source_values).toList()
                 }
-                val checkedItem = values!!.indexOfFirst { it == Prefs.source }
                 val entries = values.map { App.getSourceTitle(it) }.toTypedArray()
+                val pairs = entries.zip(values).sortedWith(Comparator { o1: Pair<String, String>, o2: Pair<String, String> ->
+                    return@Comparator Collator.getInstance(Locale.CHINA).compare(o1.first, o2.first)
+                })
+                val sortedEntries = pairs.map { it.first }.toTypedArray()
+                val sortedValues = pairs.map { it.second }
+
+                val checkedItem = sortedValues.indexOfFirst { it == Prefs.source }
                 AlertDialog.Builder(context!!)
-                    .setSingleChoiceItems(entries, checkedItem) { dialog, which ->
-                        Prefs.source = values[which]
+                    .setSingleChoiceItems(sortedEntries, checkedItem) { dialog, which ->
+                        Prefs.source = sortedValues[which]
                         TingShuSourceHandler.setupConfig()
                         (activity as MainActivity).refreshMenus()
                         dialog.dismiss()
