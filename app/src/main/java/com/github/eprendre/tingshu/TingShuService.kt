@@ -224,11 +224,9 @@ class TingShuService : Service(), AnkoLogger {
                                     }
                                     is Result.Success -> {
                                         val length = tmpFile.length()
-                                        if (length < 100 * 1024) { //小于100KB，说明是访问过快的音频文件
+                                        if (length < 100 * 1024) { //小于100KB，很大概率是访问过快的音频文件
                                             tmpFile.delete()
-                                            val event = RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 2).apply {
-                                                msg = "您访问过快"
-                                            }
+                                            val event = RxEvent.CacheEvent(it.episodeUrl, it.audioUrl, 2)
                                             RxBus.post(event)
                                         } else {
                                             val fileSize = Formatter.formatShortFileSize(this, tmpFile.length())

@@ -11,6 +11,8 @@ import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.db.AppDatabase
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
+import com.github.eprendre.tingshu.sources.impl.TingChina
+import com.github.eprendre.tingshu.sources.impl.WeiAi
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.widget.GlideApp
 import io.reactivex.Completable
@@ -21,7 +23,6 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.item_search.view.*
 import org.jetbrains.anko.toast
-import org.jsoup.Jsoup
 
 
 class SearchAdapter(private val itemClickListener: (Book) -> Unit) :
@@ -37,29 +38,25 @@ class SearchAdapter(private val itemClickListener: (Book) -> Unit) :
         val book = getItem(position)
         holder.bind(book)
 
-        //TingChina 的搜索页面比较特殊，需要另外异步读取一下。
-        if (book.coverUrl.isBlank() && book.bookUrl.startsWith(TingShuSourceHandler.SOURCE_URL_TINGCHINA)) {
-            Completable.fromCallable {
-                val doc = Jsoup.connect(book.bookUrl).get()
-                val book01 = doc.getElementsByClass("book01").first()
-                val coverUrl = book01.selectFirst("img").absUrl("src")
-                val lis = book01.select("ul li")
-                val author = lis[5].text()
-                val artist = lis[4].text()
-                val status = lis[6].text()
-
-                val bookInfo = doc.selectFirst(".book02").ownText()
-                book.coverUrl = coverUrl
-                book.author = author
-                book.artist = artist
-                book.intro = bookInfo
-                book.status = status
-                return@fromCallable null
+        //TingChina 和 唯爱 的搜索页面比较特殊，需要另外异步读取一下。
+        if (book.coverUrl.isBlank()) {
+            var completable: Completable? = null
+            when {
+                book.bookUrl.startsWith(TingShuSourceHandler.SOURCE_URL_TINGCHINA) -> {
+                    completable = TingChina.fetchBookInfo(book)
+                }
+                book.bookUrl.startsWith(TingShuSourceHandler.SOURCE_URL_WEIAI) -> {
+                    completable = WeiAi.fetchBookInfo(book)
+                }
             }
+            if (completable == null) {
+                return
+            }
+            completable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    notifyDataSetChanged()
+                    notifyItemRangeChanged(position, 1)
                 }, {
                     it.printStackTrace()
                 })
@@ -128,7 +125,19 @@ class SearchViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycler
         introView.text = book.intro
         statusView.text = book.status
         sourceView.text = App.getSourceTitle(book.bookUrl)
-        GlideApp.with(itemView).load(book.coverUrl).into(coverView)
+        if (book.coverUrl.isBlank()) {
+            when {
+                book.bookUrl.startsWith(TingShuSourceHandler.SOURCE_URL_TINGCHINA) ||
+                        book.bookUrl.startsWith(TingShuSourceHandler.SOURCE_URL_WEIAI) -> {
+                    //do nothing
+                }
+                else -> {
+                    GlideApp.with(itemView).load(book.coverUrl).into(coverView)
+                }
+            }
+        } else {
+            GlideApp.with(itemView).load(book.coverUrl).into(coverView)
+        }
     }
 
 }

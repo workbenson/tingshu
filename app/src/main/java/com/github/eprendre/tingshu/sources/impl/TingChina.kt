@@ -154,4 +154,23 @@ object TingChina : TingShu {
         }
     }
 
+    fun fetchBookInfo(book: Book): Completable {
+        return Completable.fromCallable {
+            val doc = Jsoup.connect(book.bookUrl).get()
+            val book01 = doc.getElementsByClass("book01").first()
+            val coverUrl = book01.selectFirst("img").absUrl("src")
+            val lis = book01.select("ul li")
+            val author = lis[5].text()
+            val artist = lis[4].text()
+            val status = lis[6].text()
+
+            val bookInfo = doc.selectFirst(".book02").ownText()
+            book.coverUrl = coverUrl
+            book.author = author
+            book.artist = artist
+            book.intro = bookInfo
+            book.status = status
+            return@fromCallable null
+        }
+    }
 }

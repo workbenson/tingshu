@@ -10,10 +10,16 @@ import androidx.room.EmptyResultSetException
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
 import com.github.eprendre.tingshu.db.AppDatabase
+import com.github.eprendre.tingshu.sources.TingShuSourceHandler
+import com.github.eprendre.tingshu.sources.impl.TingChina
+import com.github.eprendre.tingshu.sources.impl.WeiAi
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.GlideApp
+import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.item_search.view.*
@@ -22,13 +28,45 @@ import org.jetbrains.anko.toast
 
 class CategoryAdapter(private val itemClickListener: (Book) -> Unit) :
     ListAdapter<Book, CategoryViewHolder>(Book.diffCallback) {
+    private val compositeDisposable = CompositeDisposable()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_search, parent, false)
         return CategoryViewHolder(view, itemClickListener)
     }
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val book = getItem(position)
+        holder.bind(book)
+
+        //TingChina 和 唯爱 的搜索页面比较特殊，需要另外异步读取一下。
+        if (book.coverUrl.isBlank()) {
+            var completable: Completable? = null
+            when {
+                book.bookUrl.startsWith(TingShuSourceHandler.SOURCE_URL_TINGCHINA) -> {
+                    completable = TingChina.fetchBookInfo(book)
+                }
+                book.bookUrl.startsWith(TingShuSourceHandler.SOURCE_URL_WEIAI) -> {
+                    completable = WeiAi.fetchBookInfo(book)
+                }
+            }
+            if (completable == null) {
+                return
+            }
+            completable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    notifyItemRangeChanged(position, 1)
+                }, {
+                    it.printStackTrace()
+                })
+                .addTo(compositeDisposable)
+        }
+    }
+
+    fun clear() {
+        compositeDisposable.clear()
     }
 }
 
@@ -88,7 +126,19 @@ class CategoryViewHolder(view: View, itemClickListener: (Book) -> Unit) : Recycl
         introView.text = book.intro
         statusView.text = book.status
         sourceView.text = App.getSourceTitle(book.bookUrl)
-        GlideApp.with(itemView).load(book.coverUrl).into(coverView)
+        if (book.coverUrl.isBlank()) {
+            when {
+                book.bookUrl.startsWith(TingShuSourceHandler.SOURCE_URL_TINGCHINA) ||
+                        book.bookUrl.startsWith(TingShuSourceHandler.SOURCE_URL_WEIAI) -> {
+                    //do nothing
+                }
+                else -> {
+                    GlideApp.with(itemView).load(book.coverUrl).into(coverView)
+                }
+            }
+        } else {
+            GlideApp.with(itemView).load(book.coverUrl).into(coverView)
+        }
     }
 
 }

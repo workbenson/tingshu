@@ -1,6 +1,7 @@
 package com.github.eprendre.tingshu.ui
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,7 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_category.*
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 
@@ -39,7 +41,6 @@ class CategoryFragment : Fragment(), AnkoLogger {
 
     private val listAdapter by lazy {
         CategoryAdapter { book ->
-            //这里数据都一样的，可以共用SearchAdapter
             Prefs.currentBook?.apply { RxBus.post(RxEvent.StorePositionEvent(this))}
             if (Prefs.currentBook == null || Prefs.currentBook!!.bookUrl != book.bookUrl) {
                 App.findBookInHistoryOrFav(book) {
@@ -86,6 +87,7 @@ class CategoryFragment : Fragment(), AnkoLogger {
         swiperefresh_layout.setColorSchemeColors(context!!.getColorAccent())
 
         swiperefresh_layout.setOnRefreshListener {
+            listAdapter.clear()
             fetch(categoryUrl)
         }
         fetch(categoryUrl)
@@ -129,6 +131,7 @@ class CategoryFragment : Fragment(), AnkoLogger {
     override fun onDestroyView() {
         super.onDestroyView()
         compositeDisposable.clear()
+        listAdapter.clear()
     }
 
     companion object {

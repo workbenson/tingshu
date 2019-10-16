@@ -21,18 +21,11 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
     private var keywords = ""
     private var lastTabIndex = 0
     private lateinit var searchPagerAdapter: SearchPagerAdapter
-   val sources by lazy {
-        val selectedSources = Prefs.selectedSources
-        var sourceList = TingShuSourceHandler.sourceList
-        if (selectedSources != null) {
-            sourceList = selectedSources.map {  value ->
-                sourceList.first { it.first == value }
-            }
+    val sources by lazy {
+        val pairs = App.getSortedSources()
+        return@lazy pairs.map { pair ->
+            TingShuSourceHandler.sourceList.first { it.first == pair.second }
         }
-        return@lazy sourceList
-    }
-    private val titles by lazy {
-        sources.map { App.getSourceTitle(it.first) }
     }
     private var searchView: SearchView? = null
 
@@ -45,7 +38,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
         }
         setContentView(R.layout.activity_search)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        lastTabIndex = App.sourceValues.indexOfFirst { it == Prefs.source }
+        lastTabIndex = App.getSortedSources().map { it.second }.indexOfFirst { it == Prefs.source }
         if (lastTabIndex == -1) {
             lastTabIndex = 0
         }
@@ -60,7 +53,7 @@ class SearchActivity : AppCompatActivity(), AnkoLogger {
 
     private fun initPagerAdapter() {
         searchPagerAdapter = SearchPagerAdapter(this, supportFragmentManager)
-        searchPagerAdapter.titles = titles
+        searchPagerAdapter.titles = App.getSortedSources().map { it.first }
         searchPagerAdapter.keywords = keywords
         view_pager.adapter = searchPagerAdapter
         view_pager.currentItem = lastTabIndex

@@ -14,6 +14,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import java.text.Collator
+import java.util.*
+import kotlin.Comparator
 
 class App : MultiDexApplication() {
     override fun onCreate() {
@@ -40,8 +43,20 @@ class App : MultiDexApplication() {
             }
             return index
         }
-        val sourceValues by lazy { appContext.resources.getStringArray(R.array.source_values) }
-        val sourceEntries by lazy { appContext.resources.getStringArray(R.array.source_entries) }
+        val sourceValues: Array<String> by lazy { appContext.resources.getStringArray(R.array.source_values) }
+        val sourceEntries: Array<String> by lazy { appContext.resources.getStringArray(R.array.source_entries) }
+
+        fun getSortedSources(): List<Pair<String, String>> {
+            var values = Prefs.selectedSources?.toList()
+            if (values == null) {
+                values = sourceValues.toList()
+            }
+            val entries = values.map { getSourceTitle(it) }.toTypedArray()
+            val pairs = entries.zip(values).sortedWith(Comparator { o1: Pair<String, String>, o2: Pair<String, String> ->
+                return@Comparator Collator.getInstance(Locale.CHINA).compare(o1.first, o2.first)
+            })
+            return pairs
+        }
 
         @SuppressLint("CheckResult")
         fun findBookInHistoryOrFav(book: Book, f: (book:Book) -> Unit) {
