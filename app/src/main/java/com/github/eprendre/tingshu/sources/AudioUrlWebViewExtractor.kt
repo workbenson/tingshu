@@ -13,6 +13,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import org.apache.commons.text.StringEscapeUtils
 import java.net.URI
+import java.net.URL
 import java.util.concurrent.TimeUnit
 
 /**
@@ -134,7 +135,9 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
             }
             compositeDisposable.clear()
             isAudioGet = true
-            val audioUrl = URI(url).toASCIIString()//若音频地址含中文会导致某些设备播放失败
+            val url1 = URL(url)
+            val uri = URI(url1.protocol, url1.userInfo, url1.host, url1.port, url1.path, url1.query, url1.ref)
+            val audioUrl = uri.toASCIIString()//若音频地址含中文会导致某些设备播放失败
 
             if (isCache) {
                 RxBus.post(RxEvent.CacheEvent(episodeUrl, audioUrl, 0))
