@@ -125,8 +125,12 @@ class AggregateSearchActivity : AppCompatActivity(), AnkoLogger {
                 .search(keywords, 1)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(onSuccess = {
-                    bookList.addAll(it.first)
+                .subscribeBy(onSuccess = { pair ->
+                    if (Prefs.isAccurateSearch) {
+                        bookList.addAll(pair.first.filter { it.title.contains(keywords, true) })
+                    } else {
+                        bookList.addAll(pair.first)
+                    }
                     listAdapter.submitList(ArrayList<Book>().apply {
                         addAll(bookList)
                     })

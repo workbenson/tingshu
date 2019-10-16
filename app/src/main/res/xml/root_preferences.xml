@@ -14,68 +14,73 @@
   ~ limitations under the License.
   -->
 
-<androidx.preference.PreferenceScreen
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory
-            app:title="@string/sources_header">
-
+    <PreferenceCategory app:title="@string/sources_header">
         <ListPreference
-                app:key="current_source"
-                app:title="@string/source_title"
+                app:defaultValue="http://m.ting89.com"
                 app:entries="@array/source_entries"
                 app:entryValues="@array/source_values"
-                app:defaultValue="http://m.ting89.com"
-                app:useSimpleSummaryProvider="true"/>
-
+                app:key="current_source"
+                app:title="@string/source_title"
+                app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
-    <PreferenceCategory
-            app:title="其它设置">
+
+    <PreferenceCategory app:title="播放设置">
+        <SwitchPreference
+                app:defaultValue="false"
+                app:key="ignore_focus"
+                app:summary="开启之后，在其它 app 中播放音频时，本 app 不会自动暂停。（重启后生效）"
+                app:title="忽略其它 app" />
+
+        <SwitchPreference
+                app:defaultValue="false"
+                app:key="audio_on_error"
+                app:title="播放失败时语音提示" />
+
+        <SwitchPreference
+                app:defaultValue="true"
+                app:key="auto_play"
+                app:title="进入播放页面自动播放" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="搜索设置">
+        <SwitchPreference
+                app:defaultValue="false"
+                app:key="is_aggregate_search"
+                app:summary="合并所有搜索结果，但是有些网站返回多页搜索结果时会忽略第一页之后的结果。"
+                app:title="聚合搜索" />
+        <SwitchPreference
+                app:defaultValue="true"
+                app:key="is_accurate_search"
+                app:summary="只对聚合搜索有效，因部分网站返回的模糊结果很影响聚合的体验, 开启以过滤不相关的结果。"
+                app:title="精确搜索" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="其它设置">
+        <SwitchPreference
+                app:defaultValue="false"
+                app:key="show_album_art"
+                app:title="在锁屏显示封面背景 (仅部分系统可用，重启或者换书生效)" />
+
         <ListPreference
-                app:key="current_theme"
-                app:title="@string/select_theme"
+                app:defaultValue="0"
                 app:entries="@array/theme_entries"
                 app:entryValues="@array/theme_values"
-                app:defaultValue="0"
-                app:useSimpleSummaryProvider="true"/>
+                app:key="current_theme"
+                app:title="@string/select_theme"
+                app:useSimpleSummaryProvider="true" />
 
         <SwitchPreference
+                app:defaultValue="false"
                 app:key="open_fav_on_start"
-                app:title="启动时自动打开我的收藏"
-                app:defaultValue="false"/>
+                app:title="启动时自动打开我的收藏" />
 
         <SwitchPreference
-                app:key="is_aggregate_search"
-                app:title="聚合搜索"
-                app:summary="合并所有搜索结果，但是有些网站返回多页搜索结果时会忽略第一页之后的结果"
-                app:defaultValue="false"/>
-
-        <SwitchPreference
-                app:key="show_album_art"
-                app:title="在锁屏显示封面背景 (仅部分系统可用，重启或者换书生效)"
-                app:defaultValue="false"/>
-
-        <SwitchPreference
-                app:key="ignore_focus"
-                app:title="忽略其它 app"
-                app:summary="开启之后，在其它 app 中播放音频时，本 app 不会自动暂停。（重启后生效）"
-                app:defaultValue="false"/>
-
-        <SwitchPreference
-                app:key="audio_on_error"
-                app:title="播放失败时语音提示"
-                app:defaultValue="false"/>
-
-        <SwitchPreference
-            app:key="auto_play"
-            app:title="进入播放页面自动播放"
-            app:defaultValue="true"/>
-
-        <SwitchPreference
+                app:defaultValue="true"
                 app:key="cache_next"
-                app:title="缓存下一集"
                 app:summary="下载功能别找了🥺做出来影响不好\n缓存最多保留20集，且不对静听网生效"
-                app:defaultValue="true"/>
+                app:title="缓存下一集" />
     </PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>

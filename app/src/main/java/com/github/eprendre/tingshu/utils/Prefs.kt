@@ -145,4 +145,8 @@ object Prefs {
     var isAggregateSearch: Boolean
         get() = prefs.getBoolean("is_aggregate_search", false)
         set(value) = prefs.edit().putBoolean("is_aggregate_search", value).apply()
+
+    var isAccurateSearch: Boolean
+        get() = prefs.getBoolean("is_accurate_search", true)
+        set(value) = prefs.edit().putBoolean("is_accurate_search", value).apply()
 }
