@@ -15,6 +15,7 @@ import io.reactivex.rxkotlin.addTo
 import org.apache.commons.text.StringEscapeUtils
 import java.net.URI
 import java.net.URL
+import java.net.URLDecoder
 import java.util.concurrent.TimeUnit
 
 /**
@@ -136,9 +137,9 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
             }
             compositeDisposable.clear()
             isAudioGet = true
-            val audioUrl = if (url.contains("%")) {
+            val audioUrl = if (URLDecoder.decode(url, "UTF-8") != url) {//已编码
                 url
-            } else {
+            } else {//未编码
                 val url1 = URL(url)
                 val uri = URI(url1.protocol, url1.userInfo, url1.host, url1.port, url1.path, url1.query, url1.ref)
                 uri.toASCIIString()//若音频地址含中文会导致某些设备播放失败

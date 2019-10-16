@@ -13,6 +13,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.net.URI
 import java.net.URL
+import java.net.URLDecoder
 
 /**
  * Jsoup 就可搞定的音频提取用此类
@@ -33,9 +34,9 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = { u ->
-                val audioUrl = if (u.contains("%")) {
+                val audioUrl = if (URLDecoder.decode(u, "UTF-8") != u) {//已编码
                     u
-                } else {
+                } else {//未编码
                     val url1 = URL(u)
                     val uri = URI(url1.protocol, url1.userInfo, url1.host, url1.port, url1.path, url1.query, url1.ref)
                     uri.toASCIIString()//若音频地址含中文会导致某些设备播放失败
