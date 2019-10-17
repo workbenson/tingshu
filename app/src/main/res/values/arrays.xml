@@ -13,7 +13,7 @@
         <item>恋听网</item>
         <item>我听评书网</item>
         <item>声波FM(视障平台)</item>
-        <item>唯爱听书网</item>
+<!--        <item>唯爱听书网</item>-->
         <item>心魔听书网</item>
     </string-array>
 
@@ -31,7 +31,7 @@
         <item>https://ting55.com/</item>
         <item>https://m.5tps.com</item>
         <item>http://fm.shengbo.org</item>
-        <item>http://www.ting199.com</item>
+<!--        <item>http://www.ting199.com</item>-->
         <item>http://m.ixinmo.com</item>
     </string-array>
 

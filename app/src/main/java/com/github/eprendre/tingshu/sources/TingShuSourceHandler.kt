@@ -52,7 +52,7 @@ object TingShuSourceHandler {
             LianTingWang,
             WoTingPingShu,
             ShengBoFM,
-            WeiAi,
+//            WeiAi,
             XinMoWang
         )
         keyArray.zip(valueArray)
