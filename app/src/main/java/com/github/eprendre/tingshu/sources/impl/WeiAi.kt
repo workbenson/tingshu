@@ -52,10 +52,11 @@ object WeiAi : TingShu {
     }
 
     override fun getAudioUrlExtractor(): AudioUrlExtractor {
-        AudioUrlCommonExtractor.setUp { doc ->
+        AudioUrlWebViewExtractor.setUp { str ->
+            val doc = Jsoup.parse(str)
             return@setUp doc.selectFirst("audio").attr("src")
         }
-        return AudioUrlCommonExtractor
+        return AudioUrlWebViewExtractor
     }
 
     override fun getCategoryMenus(): List<CategoryMenu> {

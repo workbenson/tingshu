@@ -491,8 +491,7 @@ class TingShuService : Service(), AnkoLogger {
         }
         if (App.currentEpisodeIndex() < Prefs.playList.size - 1) {
             val episodeUrl = Prefs.playList[App.currentEpisodeIndex() + 1].url
-            if (episodeUrl.startsWith(TingShuSourceHandler.SOURCE_URL_JINGTINGWANG) ||
-                episodeUrl.startsWith(TingShuSourceHandler.SOURCE_URL_WEIAI)) {
+            if (episodeUrl.startsWith(TingShuSourceHandler.SOURCE_URL_JINGTINGWANG)) {
                 return //部分网站不能频繁加载，故不做缓存。
             }
             //audiourl可能每次都不一样，所以用episodeUrl来判断
