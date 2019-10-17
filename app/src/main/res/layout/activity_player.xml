@@ -122,6 +122,7 @@
                                 android:layout_height="wrap_content"
                                 android:textColor="?attr/primary_text_color"
                                 android:textStyle="bold"
+                                android:visibility="gone"
                                 tools:text="缓存完成"/>
 
                     </LinearLayout>

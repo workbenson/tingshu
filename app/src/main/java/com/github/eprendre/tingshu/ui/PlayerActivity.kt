@@ -215,8 +215,10 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     if (file.exists()) {//如果缓存文件已存在，则忽略
                         val size = Formatter.formatShortFileSize(this, file.length())
                         cache_text.text = "下集缓存成功 大小: $size"
+                        cache_text.visibility = View.VISIBLE
                     } else {
                         cache_text.text = ""
+                        cache_text.visibility = View.GONE
                     }
                 }
             }
@@ -480,7 +482,7 @@ class PlayerActivity : AppCompatActivity(), AnkoLogger {
                     2 -> cache_text.text = "下集缓存失败 ${it.msg}"
                     3 -> cache_text.text = "下集缓存中 ${it.progress}% ${it.msg}"
                 }
-
+                cache_text.visibility = View.VISIBLE
             }
             .addTo(compositeDisposable)
         cache_text.setOnClickListener {
