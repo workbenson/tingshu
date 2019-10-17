@@ -115,7 +115,8 @@ class TingShuService : Service(), AnkoLogger {
         closeReciver = CloseBroadcastReceiver(this)
         mediaSessionConnector = MediaSessionConnector(mediaSession).also {
             val httpDataSourceFactory = DefaultHttpDataSourceFactory(
-                Util.getUserAgent(this, "tingshu"),
+//                Util.getUserAgent(this, "tingshu"),
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9",
                 null,
                 DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
                 DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
@@ -492,7 +493,8 @@ class TingShuService : Service(), AnkoLogger {
         if (App.currentEpisodeIndex() < Prefs.playList.size - 1) {
             val episodeUrl = Prefs.playList[App.currentEpisodeIndex() + 1].url
             if (episodeUrl.startsWith(TingShuSourceHandler.SOURCE_URL_JINGTINGWANG) ||
-                episodeUrl.startsWith(TingShuSourceHandler.SOURCE_URL_WEIAI)) {
+                episodeUrl.startsWith(TingShuSourceHandler.SOURCE_URL_WEIAI) ||
+                episodeUrl.startsWith(TingShuSourceHandler.SOURCE_URL_XINMO)) {
                 return //部分网站不能频繁加载，故不做缓存。
             }
             //audiourl可能每次都不一样，所以用episodeUrl来判断

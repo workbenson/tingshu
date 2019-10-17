@@ -2,7 +2,6 @@ package com.github.eprendre.tingshu.sources
 
 import android.annotation.SuppressLint
 import android.os.Handler
-import android.util.Log
 import android.webkit.*
 import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.utils.Prefs
