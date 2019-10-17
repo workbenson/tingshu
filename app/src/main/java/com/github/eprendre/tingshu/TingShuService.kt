@@ -168,7 +168,9 @@ class TingShuService : Service(), AnkoLogger {
             }
 
             override fun onPlayerError(error: ExoPlaybackException) {
-                retryOnError()
+                if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
+                    retryOnError()
+                }
             }
         })
         RxBus.toFlowable(RxEvent.ParsingPlayUrlEvent::class.java)
@@ -265,7 +267,7 @@ class TingShuService : Service(), AnkoLogger {
         if (Prefs.audioOnError) {
             val player = MediaPlayer.create(applicationContext, R.raw.play_failed)
             player.setOnCompletionListener {
-                if (App.isRetry && retryCount < 3) {
+                if (App.isRetry && retryCount < 2) {
                     MediaPlayer.create(applicationContext, R.raw.retry).start()
                     Handler().postDelayed({
                         mediaController.transportControls.playFromUri(
@@ -279,7 +281,7 @@ class TingShuService : Service(), AnkoLogger {
             }
             player.start()
         } else {
-            if (App.isRetry && retryCount < 3) {
+            if (App.isRetry && retryCount < 2) {
                 Handler().postDelayed({
                     mediaController.transportControls.playFromUri(
                         Uri.parse(Prefs.currentBook!!.currentEpisodeUrl),
