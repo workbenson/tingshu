@@ -95,9 +95,11 @@ object TingShuSourceHandler {
      * 判断请求时的 url， 选择对应的解析
      */
     private fun findSource(url: String): TingShu {
-        return sourceList
-            .first { url.startsWith(it.first) }
-            .second
+        var tingShu = sourceList.firstOrNull { url.startsWith(it.first) }?.second
+        if (tingShu == null) {
+           tingShu = HuanTingWang
+        }
+        return tingShu
     }
 
     /**

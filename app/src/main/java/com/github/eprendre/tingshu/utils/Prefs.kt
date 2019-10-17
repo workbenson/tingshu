@@ -13,6 +13,12 @@ object Prefs {
 
     fun init() {
         prefs = App.appContext.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
+        //以后如果某些源失效从代码中移除时，需要更新 seledtedSources
+        val selected = selectedSources
+        if (selected != null) {
+            val deletedSet = selected - App.sourceValues.toSet()
+            selectedSources = selected - deletedSet
+        }
     }
 
     var speed: Float
