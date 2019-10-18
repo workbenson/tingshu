@@ -57,7 +57,7 @@ object XinMoWang : TingShu {
 
     override fun getAudioUrlExtractor(): AudioUrlExtractor {
        AudioUrlCommonExtractor.setUp { doc ->
-           return@setUp doc.selectFirst("audio > source").attr("src")
+           return@setUp doc.selectFirst("audio > source")?.attr("src") ?: ""
        }
         return AudioUrlCommonExtractor
     }

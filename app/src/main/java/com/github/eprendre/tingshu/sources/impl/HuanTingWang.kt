@@ -72,7 +72,7 @@ object HuanTingWang : TingShu {
                         .find(it)?.groupValues?.get(1)
                 }
             if (result == null) {
-                throw Exception("幻听网提取播放地址失败")
+                return@setUp ""
             } else {
                 val list = URLDecoder.decode(result, "gb2312").split("&")
                 return@setUp list[0]

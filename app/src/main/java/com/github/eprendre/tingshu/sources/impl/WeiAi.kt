@@ -54,7 +54,7 @@ object WeiAi : TingShu {
     override fun getAudioUrlExtractor(): AudioUrlExtractor {
         AudioUrlWebViewExtractor.setUp { str ->
             val doc = Jsoup.parse(str)
-            return@setUp doc.selectFirst("audio").attr("src")
+            return@setUp doc.selectFirst("audio")?.attr("src")
         }
         return AudioUrlWebViewExtractor
     }

@@ -34,6 +34,10 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = { u ->
+                if (u.isNullOrBlank()) {
+                    RxBus.post(RxEvent.ParsingPlayUrlEvent(2))
+                    return@subscribeBy
+                }
                 val audioUrl = if (URLDecoder.decode(u, "UTF-8") != u) {//已编码
                     u
                 } else {//未编码

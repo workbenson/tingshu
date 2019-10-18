@@ -43,7 +43,7 @@ object ShengBoFM : TingShu {
 
     override fun getAudioUrlExtractor(): AudioUrlExtractor {
        AudioUrlCommonExtractor.setUp { doc ->
-           return@setUp doc.selectFirst(".program-player > audio").absUrl("src")
+           return@setUp doc.selectFirst(".program-player > audio")?.absUrl("src") ?: ""
        }
         return AudioUrlCommonExtractor
     }

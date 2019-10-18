@@ -56,8 +56,8 @@ object JingTingWang : TingShu {
     override fun getAudioUrlExtractor(): AudioUrlExtractor {
        AudioUrlCommonExtractor.setUp { doc ->
            return@setUp doc.getElementsByTag("source")
-               .first()
-               .attr("src")
+               ?.first()
+               ?.attr("src") ?: ""
        }
         return AudioUrlCommonExtractor
     }
