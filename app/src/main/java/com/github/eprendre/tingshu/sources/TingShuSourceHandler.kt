@@ -34,6 +34,7 @@ object TingShuSourceHandler {
     const val SOURCE_URL_SHENGBO = "http://fm.shengbo.org"
     const val SOURCE_URL_WEIAI = "http://www.ting199.com"
     const val SOURCE_URL_XINMO = "http://m.ixinmo.com"
+    const val SOURCE_URL_YOUSHENG = "http://m.ysxs8.com/"
 
     private lateinit var tingShu: TingShu
     val sourceList by lazy {
@@ -51,9 +52,10 @@ object TingShuSourceHandler {
             QianKun,
             LianTingWang,
             WoTingPingShu,
-            ShengBoFM
+            ShengBoFM,
 //            WeiAi,
 //            XinMoWang
+            YouShengXiaoShuoBa
         )
         keyArray.zip(valueArray)
     }
