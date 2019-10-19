@@ -335,7 +335,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun updateTitle() {
-        supportActionBar?.title = "${getString(R.string.app_name)} - ${App.getSourceTitle(Prefs.source)}"
+        supportActionBar?.title = App.getSourceTitle(Prefs.source)
     }
 
     private val myConnection = object : ServiceConnection {
