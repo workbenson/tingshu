@@ -8,8 +8,6 @@ import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.*
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 import org.jsoup.Jsoup
@@ -21,7 +19,7 @@ object JingTingWang : TingShu {
         return Single.fromCallable {
             val encodedKeywords = URLEncoder.encode(keywords, "utf-8")
             val url = "http://m.audio699.com/search?keyword=$encodedKeywords"
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).userAgent(App.userAgent).get()
             val totalPage = 1
             val list = ArrayList<Book>()
             val elementList = doc.select(".category .clist a")
@@ -41,7 +39,7 @@ object JingTingWang : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).userAgent(App.userAgent).get()
             TingShuSourceHandler.downloadCoverForNotification()
 
             val episodes = doc.select(".plist a").map {
@@ -81,7 +79,7 @@ object JingTingWang : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).userAgent(App.userAgent).get()
             val currentPage = extractPage(url)
 
             val pageButtons = doc.select(".cpage > a")

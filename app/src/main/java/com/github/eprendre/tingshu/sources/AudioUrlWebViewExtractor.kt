@@ -88,6 +88,10 @@ object AudioUrlWebViewExtractor : AudioUrlExtractor {
         this.script = script
     }
 
+    fun getWebViewUA() : String {
+        return webView.settings.userAgentString
+    }
+
     private fun postError() {
         if (!isAudioGet) {
             isError = true

@@ -7,6 +7,7 @@ import androidx.multidex.MultiDex
 import androidx.multidex.MultiDexApplication
 import androidx.room.EmptyResultSetException
 import com.github.eprendre.tingshu.db.AppDatabase
+import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Prefs
 import com.tencent.bugly.crashreport.CrashReport
@@ -25,6 +26,7 @@ class App : MultiDexApplication() {
         Prefs.init()
         RxJavaPlugins.setErrorHandler { }
         CrashReport.initCrashReport(applicationContext, "1103deea28", true)
+        userAgent = AudioUrlWebViewExtractor.getWebViewUA()//初始化拿到 WebView 自带的 UA
     }
 
     override fun attachBaseContext(base: Context?) {
@@ -43,6 +45,7 @@ class App : MultiDexApplication() {
             }
             return index
         }
+        var userAgent: String = ""
         val sourceValues: Array<String> by lazy { appContext.resources.getStringArray(R.array.source_values) }
         val sourceEntries: Array<String> by lazy { appContext.resources.getStringArray(R.array.source_entries) }
 
