@@ -46,7 +46,6 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
 import java.io.File
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
@@ -115,8 +114,7 @@ class TingShuService : Service(), AnkoLogger {
         closeReciver = CloseBroadcastReceiver(this)
         mediaSessionConnector = MediaSessionConnector(mediaSession).also {
             val httpDataSourceFactory = DefaultHttpDataSourceFactory(
-//                Util.getUserAgent(this, "tingshu"),
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9",
+                Util.getUserAgent(this, "tingshu"),
                 null,
                 DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
                 DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
