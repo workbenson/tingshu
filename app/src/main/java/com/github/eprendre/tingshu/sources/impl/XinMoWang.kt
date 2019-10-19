@@ -17,7 +17,7 @@ object XinMoWang : TingShu {
     override fun search(keywords: String, page: Int): Single<Pair<List<Book>, Int>> {
         return Single.fromCallable {
             val url = "http://m.ixinmo.com/search.html"
-            val doc = Jsoup.connect(url).data("searchword", keywords).post()
+            val doc = Jsoup.connect(url).userAgent(App.userAgent).data("searchword", keywords).post()
             val totalPage = 1
             val list = ArrayList<Book>()
             val elementList = doc.select(".xxzx > .list-ov-tw")
@@ -40,7 +40,7 @@ object XinMoWang : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).userAgent(App.userAgent).get()
             TingShuSourceHandler.downloadCoverForNotification()
 
             val episodes = doc.select("#playlist > ul > li > a").map {
@@ -81,7 +81,7 @@ object XinMoWang : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).userAgent(App.userAgent).get()
             val (currentPage, totalPage) = doc.selectFirst("#page_num1").text().split("/").let {
                 Pair(it[0].toInt(), it[1].toInt())
             }

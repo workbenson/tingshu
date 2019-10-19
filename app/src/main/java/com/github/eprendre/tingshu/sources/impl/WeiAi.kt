@@ -18,7 +18,7 @@ object WeiAi : TingShu {
         return Single.fromCallable {
             val encodedKeywords = URLEncoder.encode(keywords, "utf-8")
             val url = "http://www.ting199.com/search?keyword=$encodedKeywords"
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).userAgent(App.userAgent).get()
             val totalPage = 1
             val list = ArrayList<Book>()
             val elementList = doc.select(".top_list > a")
@@ -36,7 +36,7 @@ object WeiAi : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).userAgent(App.userAgent).get()
             TingShuSourceHandler.downloadCoverForNotification()
 
             val episodes = doc.select("#playlist > ul > li > a").map {
@@ -70,7 +70,7 @@ object WeiAi : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).userAgent(App.userAgent).get()
             val currentPage = 1
             val totalPage = 1
 
@@ -90,7 +90,7 @@ object WeiAi : TingShu {
 
     fun fetchBookInfo(book: Book): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(book.bookUrl).get()
+            val doc = Jsoup.connect(book.bookUrl).userAgent(App.userAgent).get()
             val coverUrl = doc.selectFirst(".booksite > .bookimg > img").absUrl("src")
             val infos = doc.selectFirst(".booksite > .bookinfo > .info").children()
             val artist = infos[0].text()
