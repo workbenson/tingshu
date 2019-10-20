@@ -53,7 +53,7 @@ object TingShuSourceHandler {
             LianTingWang,
             WoTingPingShu,
             ShengBoFM,
-//            WeiAi,
+            WeiAi,
 //            XinMoWang,
             YouShengXiaoShuoBa
         )
