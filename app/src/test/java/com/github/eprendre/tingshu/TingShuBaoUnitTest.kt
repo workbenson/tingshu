@@ -2,6 +2,7 @@ package com.github.eprendre.tingshu
 
 import assertk.assertThat
 import assertk.assertions.isGreaterThan
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import org.jsoup.Jsoup
@@ -23,7 +24,7 @@ class TingShuBaoUnitTest {
 
         val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
         val url = "https://www.tingshubao.com/search.asp?page=11&searchword=$encodedKeywords&searchtype=-1"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val pages = doc.selectFirst(".fanye").children().map { it.ownText() }.filter { it.matches("\\d+".toRegex()) }
         val totalPage = pages.last().toInt()
@@ -64,7 +65,7 @@ class TingShuBaoUnitTest {
     fun bookDetail() {
         val url = "https://www.tingshubao.com/book/24.html"
 
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val episodes = doc.select("#playlist li a").map {
             Episode(it.text(), it.attr("abs:href"))
@@ -80,7 +81,7 @@ class TingShuBaoUnitTest {
     @Test
     fun category() {
         val url = "https://www.tingshubao.com/list/27.html"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val nextUrl = doc.select(".fanye a").firstOrNull { it.text().contains("下一页") }?.attr("abs:href") ?: ""
         val currentPage = doc.selectFirst(".fanye strong").ownText().toInt()

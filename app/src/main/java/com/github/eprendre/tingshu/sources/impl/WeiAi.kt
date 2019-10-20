@@ -1,16 +1,13 @@
 package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
-import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.*
 import com.github.eprendre.tingshu.utils.*
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 import org.jsoup.Jsoup
-import java.lang.Exception
 import java.net.URLEncoder
 
 object WeiAi : TingShu {
@@ -18,7 +15,7 @@ object WeiAi : TingShu {
         return Single.fromCallable {
             val encodedKeywords = URLEncoder.encode(keywords, "utf-8")
             val url = "http://www.ting199.com/search?keyword=$encodedKeywords"
-            val doc = Jsoup.connect(url).userAgent(App.userAgent).get()
+            val doc = Jsoup.connect(url).config().get()
             val totalPage = 1
             val list = ArrayList<Book>()
             val elementList = doc.select(".top_list > a")
@@ -36,7 +33,7 @@ object WeiAi : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).userAgent(App.userAgent).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
             TingShuSourceHandler.downloadCoverForNotification()
 
             val episodes = doc.select("#playlist > ul > li > a").map {
@@ -70,7 +67,7 @@ object WeiAi : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).userAgent(App.userAgent).get()
+            val doc = Jsoup.connect(url).config().get()
             val currentPage = 1
             val totalPage = 1
 
@@ -90,7 +87,7 @@ object WeiAi : TingShu {
 
     fun fetchBookInfo(book: Book): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(book.bookUrl).userAgent(App.userAgent).get()
+            val doc = Jsoup.connect(book.bookUrl).config().get()
             val coverUrl = doc.selectFirst(".booksite > .bookimg > img").absUrl("src")
             val infos = doc.selectFirst(".booksite > .bookinfo > .info").children()
             val artist = infos[0].text()

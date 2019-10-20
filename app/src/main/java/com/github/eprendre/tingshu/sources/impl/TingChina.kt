@@ -1,12 +1,10 @@
 package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
-import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.*
 import com.github.eprendre.tingshu.utils.*
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 import org.jsoup.Jsoup
@@ -52,7 +50,7 @@ object TingChina : TingShu {
         return Single.fromCallable {
             val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
             val url = "http://www.tingchina.com/search1.asp?mainlei=0&lei=0&keyword=$encodedKeywords"
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
 
             val totalPage = 1
             val list = ArrayList<Book>()
@@ -72,7 +70,7 @@ object TingChina : TingShu {
             TingShuSourceHandler.downloadCoverForNotification()
 
             //获取章节列表
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
             val episodes = doc.select(".main03 .list .b2 a").map {
                 Episode(it.text(), it.attr("abs:href"))
             }
@@ -100,7 +98,7 @@ object TingChina : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val pages = doc.selectFirst(".yema span").children()
             val currentPage = Regex(".+leip_\\d+_(\\d+)\\.htm").find(url)!!.groupValues[1].toInt()
             var totalPage = currentPage
@@ -156,7 +154,7 @@ object TingChina : TingShu {
 
     fun fetchBookInfo(book: Book): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(book.bookUrl).get()
+            val doc = Jsoup.connect(book.bookUrl).config().get()
             val book01 = doc.getElementsByClass("book01").first()
             val coverUrl = book01.selectFirst("img").absUrl("src")
             val lis = book01.select("ul li")

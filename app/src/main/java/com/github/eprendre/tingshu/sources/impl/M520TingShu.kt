@@ -2,15 +2,13 @@ package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
 import androidx.core.text.isDigitsOnly
-import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.*
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 import org.jsoup.Jsoup
@@ -59,7 +57,7 @@ object M520TingShu : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
 //            val cover = doc.selectFirst("#wrap .vod .vodbox img").attr("src")
 
             TingShuSourceHandler.downloadCoverForNotification()
@@ -85,7 +83,7 @@ object M520TingShu : TingShu {
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
             val list = ArrayList<Book>()
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val pages = doc.select(".main .page a")
             val totalPage = pages.last { it.text().isDigitsOnly() }.text().toInt()
             val currentPage = doc.selectFirst(".main .page span").text().toInt()
@@ -110,7 +108,7 @@ object M520TingShu : TingShu {
             val url =
                 "http://m.520tingshu.com/search.asp?searchword=${URLEncoder.encode(keywords, "gb2312")}&page=$page"
             val list = ArrayList<Book>()
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val totalPage = doc.select(".main .page a").last().attr("href").let {
                 it.split("&")[0].split("=")[1].toInt()
             }

@@ -2,6 +2,7 @@ package com.github.eprendre.tingshu
 
 import assertk.assertThat
 import assertk.assertions.isGreaterThan
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import org.jsoup.Jsoup
@@ -61,7 +62,7 @@ function getCookie(name){var arr = document.cookie.match(new RegExp("(^| )"+name
         val keywords = "仙"
         val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
         val url = "http://www.tingchina.com/search1.asp?mainlei=0&lei=0&keyword=$encodedKeywords"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val totalPage = 1
         val list = ArrayList<Book>()
@@ -77,7 +78,7 @@ function getCookie(name){var arr = document.cookie.match(new RegExp("(^| )"+name
 
     @Test
     fun fetchSearchInfo() {
-        val doc = Jsoup.connect("http://www.tingchina.com/yousheng/disp_30156.htm").get()
+        val doc = Jsoup.connect("http://www.tingchina.com/yousheng/disp_30156.htm").testConfig().get()
         val book = doc.getElementsByClass("book01").first()
         val coverUrl = book.selectFirst("img").absUrl("src")
         val lis = book.select("ul li")
@@ -93,11 +94,11 @@ function getCookie(name){var arr = document.cookie.match(new RegExp("(^| )"+name
 
     @Test
     fun bookDetail() {
-        val doc = Jsoup.connect("http://www.tingchina.com/yousheng/30140/play_30140_0.htm").get()
+        val doc = Jsoup.connect("http://www.tingchina.com/yousheng/30140/play_30140_0.htm").testConfig().get()
 //        println(doc)
-        val play = Jsoup.connect(doc.getElementById("playmedia").absUrl("src")).get()
+        val play = Jsoup.connect(doc.getElementById("playmedia").absUrl("src")).testConfig().get()
         println(play)
-//        val doc = Jsoup.connect("http://www.tingchina.com/yousheng/disp_30156.htm").get()
+//        val doc = Jsoup.connect("http://www.tingchina.com/yousheng/disp_30156.htm").testConfig().get()
 
 //        val episodes = doc.select(".main03 .list .b2 a").map {
 //            Episode(it.text(), it.attr("abs:href"))
@@ -110,7 +111,7 @@ function getCookie(name){var arr = document.cookie.match(new RegExp("(^| )"+name
     @Test
     fun category() {
         val url = "http://www.tingchina.com/yousheng/leip_135_3.htm"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
         val pages = doc.selectFirst(".yema span").children()
         val currentPage = Regex(".+leip_\\d+_(\\d+)\\.htm").find(url)!!.groupValues[1].toInt()
         var totalPage = currentPage

@@ -3,13 +3,12 @@ package com.github.eprendre.tingshu.sources.impl
 import android.util.Log
 import android.view.View
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.*
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 import org.jsoup.Jsoup
@@ -20,7 +19,7 @@ object YouShengXiaoShuoBa : TingShu {
         return Single.fromCallable {
             val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
             val url = "http://m.ysxs8.com/search.asp?searchword=$encodedKeywords&page=$page"
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
 
             val totalPage = doc.selectFirst(".page").ownText().split("/")[1].toInt()
 
@@ -48,7 +47,7 @@ object YouShengXiaoShuoBa : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
             TingShuSourceHandler.downloadCoverForNotification()
 
             val episodes = doc.select("#playlist > ul > li > a").map {
@@ -104,7 +103,7 @@ object YouShengXiaoShuoBa : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val pageElement = doc.selectFirst(".page")
             val nextUrl = pageElement.selectFirst("a").absUrl("href")
 

@@ -3,6 +3,7 @@ package com.github.eprendre.tingshu
 import androidx.core.text.isDigitsOnly
 import assertk.assertThat
 import assertk.assertions.isGreaterThan
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import org.jetbrains.anko.collections.forEachWithIndex
@@ -24,7 +25,7 @@ class LianTingUnitTest {
         val encodedKeywords = URLEncoder.encode(keywords, "utf-8")
         val page = 1
         val url = "https://ting55.com/search/$encodedKeywords/page/$page"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val pages = doc.selectFirst(".c-page").children()
         var totalPage = 1
@@ -59,7 +60,7 @@ class LianTingUnitTest {
      */
     @Test
     fun bookDetail() {
-        val doc = Jsoup.connect("https://ting55.com/book/14020").get()
+        val doc = Jsoup.connect("https://ting55.com/book/14020").testConfig().get()
 
         val episodes = doc.select(".playlist > .plist > ul > li > a").map {
             Episode(it.text(), it.attr("abs:href")).apply {
@@ -78,7 +79,7 @@ class LianTingUnitTest {
      */
     @Test
     fun category() {
-        val doc = Jsoup.connect("https://ting55.com/category/1/page/67").get()
+        val doc = Jsoup.connect("https://ting55.com/category/1/page/67").testConfig().get()
 
         val cPage = doc.selectFirst(".c-page")
         val currentPage = cPage.selectFirst("span").text().toInt()
@@ -111,7 +112,7 @@ class LianTingUnitTest {
 
     @Test
     fun fetchCategory() {
-        val doc = Jsoup.connect("https://ting55.com/").get()
+        val doc = Jsoup.connect("https://ting55.com/").testConfig().get()
         val navs = doc.select(".nav > a")
             val sb = StringBuilder()
 

@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isGreaterThan
 import assertk.assertions.startsWith
 import assertk.fail
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
@@ -22,7 +23,7 @@ class HuanTingUnitTest {
      */
     @Test
     fun audioUrl() {
-        val doc = Jsoup.connect("http://m.ting89.com/playbook/?15235-0-0.html").get()
+        val doc = Jsoup.connect("http://m.ting89.com/playbook/?15235-0-0.html").testConfig().get()
         val result = doc.getElementsByTag("script")
             .first { !it.hasAttr("src") && !it.hasAttr("type") }
             .html()
@@ -48,7 +49,7 @@ class HuanTingUnitTest {
         val keywords = "仙"
         val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
         val url = "http://m.ting89.com/search.asp?searchword=$encodedKeywords&page=1"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val totalPage = doc.selectFirst(".page").ownText().split("/")[1]
         println("总页数: $totalPage")
@@ -79,7 +80,7 @@ class HuanTingUnitTest {
      */
     @Test
     fun bookDetail() {
-        val doc = Jsoup.connect("http://m.ting89.com/book/?14790.html").get()
+        val doc = Jsoup.connect("http://m.ting89.com/book/?14790.html").testConfig().get()
 
         val episodes = doc.select("#playlist li a").map {
             Episode(it.text(), it.attr("abs:href"))
@@ -94,7 +95,7 @@ class HuanTingUnitTest {
      */
     @Test
     fun category() {
-        val doc = Jsoup.connect("http://m.ting89.com/booklist/?2-2.html").get()
+        val doc = Jsoup.connect("http://m.ting89.com/booklist/?2-2.html").testConfig().get()
         val nextUrl = doc.select(".page a").firstOrNull { it.text().contains("下页") }?.attr("abs:href") ?: ""
         val pages = doc.selectFirst(".page").ownText().let { text ->
             Regex("(\\d+)/(\\d+)").find(text)!!.groupValues

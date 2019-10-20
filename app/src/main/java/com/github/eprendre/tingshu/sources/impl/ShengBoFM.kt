@@ -1,19 +1,16 @@
 package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
-import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.AudioUrlCommonExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.*
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 import org.jsoup.Jsoup
-import java.net.URLEncoder
 
 object ShengBoFM : TingShu {
 
@@ -28,7 +25,7 @@ object ShengBoFM : TingShu {
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
             TingShuSourceHandler.downloadCoverForNotification()
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
 
             val episodes = ArrayList<Episode>()
 
@@ -105,7 +102,7 @@ object ShengBoFM : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val pagination = doc.selectFirst(".pages > .pagination")
             var currentPage = 1
             var totalPage = 1

@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isGreaterThan
 import assertk.assertions.startsWith
 import assertk.fail
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import io.reactivex.Completable
@@ -21,7 +22,7 @@ class WeiAiUnitTest {
      */
     @Test
     fun audioUrl() {
-        val doc = Jsoup.connect("http://www.ting199.com/bofang/?l=41&a=1").get()
+        val doc = Jsoup.connect("http://www.ting199.com/bofang/?l=41&a=1").testConfig().get()
         val url = doc.selectFirst("audio").attr("src")
 
         println(url)
@@ -32,7 +33,7 @@ class WeiAiUnitTest {
         val keywords = "仙"
         val encodedKeywords = URLEncoder.encode(keywords, "utf-8")
         val url = "http://www.ting199.com/search?keyword=$encodedKeywords"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
         val totalPage = 1
         val list = ArrayList<Book>()
         val elementList = doc.select(".top_list > a")
@@ -51,7 +52,7 @@ class WeiAiUnitTest {
     @Test
     fun fetchBookInfo() {
 //        return Completable.fromCallable {
-            val doc = Jsoup.connect("http://www.ting199.com/list/?l=1188").get()
+            val doc = Jsoup.connect("http://www.ting199.com/list/?l=1188").testConfig().get()
             val coverUrl = doc.selectFirst(".booksite > .bookimg > img").absUrl("src")
             val infos = doc.selectFirst(".booksite > .bookinfo > .info").children()
             val artist = infos[0].text()
@@ -67,7 +68,7 @@ class WeiAiUnitTest {
 
     @Test
     fun bookDetail() {
-        val doc = Jsoup.connect("http://www.ting199.com/list/?l=1188").get()
+        val doc = Jsoup.connect("http://www.ting199.com/list/?l=1188").testConfig().get()
 
         val episodes = doc.select("#playlist > ul > li > a").map {
             Episode(it.text(), it.absUrl("href"))
@@ -81,7 +82,7 @@ class WeiAiUnitTest {
     @Test
     fun category() {
         val url = "http://www.ting199.com/"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
         val currentPage = 1
         val totalPage = 1
 

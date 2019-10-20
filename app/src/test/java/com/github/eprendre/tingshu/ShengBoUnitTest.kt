@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isGreaterThan
 import assertk.assertions.startsWith
 import assertk.fail
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import org.jsoup.Jsoup
@@ -20,7 +21,7 @@ class ShengBoUnitTest {
      */
     @Test
     fun audioUrl() {
-        val doc = Jsoup.connect("http://fm.shengbo.org/Program/283349").get()
+        val doc = Jsoup.connect("http://fm.shengbo.org/Program/283349").testConfig().get()
         val url = doc.selectFirst(".program-player > audio").absUrl("src")
         println(url)
     }
@@ -34,7 +35,7 @@ class ShengBoUnitTest {
     @Test
     fun bookDetail() {
         val url = "http://fm.shengbo.org/Program/283197"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val episodes = ArrayList<Episode>()
 
@@ -48,7 +49,7 @@ class ShengBoUnitTest {
     @Test
     fun category() {
         val url = "http://fm.shengbo.org/Category/34"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
         val pagination = doc.selectFirst(".pages > .pagination")
         var currentPage = 1
         var totalPage = 1

@@ -1,15 +1,13 @@
 package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
-import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.*
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 import org.jsoup.Jsoup
@@ -70,7 +68,7 @@ object TingShuGe : TingShu {
             val list = ArrayList<Book>()
             val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
             val url = "http://www.tingshuge.com/search.asp?page=$page&searchword=$encodedKeywords&searchtype=-1"
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val pages = doc.selectFirst("#channelright .list_mod .pagesnums").select("li")
             val totalPage = pages[pages.size - 3].text().toInt()
             val elementList = doc.select("#channelright .list_mod .clist li")
@@ -88,7 +86,7 @@ object TingShuGe : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
             TingShuSourceHandler.downloadCoverForNotification()
 
             val episodes = doc.selectFirst(".numlist").select("li a").map {
@@ -113,7 +111,7 @@ object TingShuGe : TingShu {
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
             val list = ArrayList<Book>()
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val container = doc.getElementById("channelleft")
             val pages = container.selectFirst(".list_mod .pagesnums").select("li")
             val totalPage = pages[pages.size - 3].text().toInt()

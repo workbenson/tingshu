@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isGreaterThan
 import assertk.assertions.startsWith
 import assertk.fail
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import io.reactivex.Completable
@@ -21,7 +22,7 @@ class XinMoUnitTest {
      */
     @Test
     fun audioUrl() {
-        val doc = Jsoup.connect("http://m.ixinmo.com/shu/1545/1.html").get()
+        val doc = Jsoup.connect("http://m.ixinmo.com/shu/1545/1.html").testConfig().get()
         val url = doc.selectFirst("audio > source").attr("src")
         println(url)
     }
@@ -53,7 +54,7 @@ class XinMoUnitTest {
 
     @Test
     fun bookDetail() {
-        val doc = Jsoup.connect("http://m.ixinmo.com/shu/1549.html").get()
+        val doc = Jsoup.connect("http://m.ixinmo.com/shu/1549.html").testConfig().get()
 
         val episodes = doc.select("#playlist > ul > li > a").map {
             Episode(it.text(), it.absUrl("href"))
@@ -67,7 +68,7 @@ class XinMoUnitTest {
     @Test
     fun category() {
         val url = "http://m.ixinmo.com/mulu/2_1.html"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
         val (currentPage, totalPage) = doc.selectFirst("#page_num1").text().split("/").let {
             Pair(it[0].toInt(), it[1].toInt())
         }

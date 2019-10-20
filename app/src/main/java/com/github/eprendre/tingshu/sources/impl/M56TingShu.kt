@@ -2,6 +2,7 @@ package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
@@ -60,7 +61,7 @@ object M56TingShu : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
 //            val book = doc.getElementsByClass("list-ov-tw").first()
 //            val cover = book.getElementsByTag("img").first().attr("src")
 
@@ -90,7 +91,7 @@ object M56TingShu : TingShu {
             var totalPage = 1
 
             val list = ArrayList<Book>()
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             doc.getElementById("page_num1")?.text()?.split("/")?.let {
                 currentPage = it[0].toInt()
                 totalPage = it[1].toInt()
@@ -123,7 +124,7 @@ object M56TingShu : TingShu {
             var totalPage: Int
             val url = "http://m.ting56.com/search.asp?searchword=${URLEncoder.encode(keywords, "gb2312")}&page=$page"
             val list = ArrayList<Book>()
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val container = doc.selectFirst(".xsdz")
             container.getElementById("page_num1").text().split("/").let {
                 //                currentPage = it[0].toInt()

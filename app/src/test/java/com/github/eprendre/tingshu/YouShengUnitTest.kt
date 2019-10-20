@@ -2,6 +2,7 @@ package com.github.eprendre.tingshu
 
 import assertk.assertThat
 import assertk.assertions.isGreaterThan
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import org.jsoup.Jsoup
@@ -26,7 +27,7 @@ class YouShengUnitTest {
 
         val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
         val url = "http://m.ysxs8.com/search.asp?searchword=$encodedKeywords&page=1"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val totalPage = doc.selectFirst(".page").ownText().split("/")[1].toInt()
         println(totalPage)
@@ -60,7 +61,7 @@ class YouShengUnitTest {
     fun bookDetail() {
         val url = "http://m.ysxs8.com/downlist/11359.html"
 
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val episodes = doc.select("#playlist > ul > li > a").map {
             Episode(it.text(), it.attr("abs:href"))
@@ -79,7 +80,7 @@ class YouShengUnitTest {
     @Test
     fun category() {
         val url = "http://m.ysxs8.com/downlist/r52_1.html"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val pageElement = doc.selectFirst(".page")
         val nextUrl = pageElement.selectFirst("a").absUrl("href")
@@ -115,7 +116,7 @@ class YouShengUnitTest {
 
     @Test
     fun fetchCategory() {
-        val doc = Jsoup.connect("http://m.ysxs8.com/category.html").get()
+        val doc = Jsoup.connect("http://m.ysxs8.com/category.html").testConfig().get()
         val navs = doc.select(".cat_tit > a")
         val sb = StringBuilder()
 

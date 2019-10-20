@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isGreaterThan
 import assertk.assertions.startsWith
 import assertk.fail
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import org.jsoup.Jsoup
@@ -20,7 +21,7 @@ class JingTingUnitTest {
      */
     @Test
     fun audioUrl() {
-        val doc = Jsoup.connect("http://m.audio699.com/book/1555/1.html").get()
+        val doc = Jsoup.connect("http://m.audio699.com/book/1555/1.html").testConfig().get()
         val url = doc.getElementsByTag("source")
             .first()
             .attr("src")
@@ -39,7 +40,7 @@ class JingTingUnitTest {
         val keywords = "仙"
         val encodedKeywords = URLEncoder.encode(keywords, "utf-8")
         val url = "http://m.audio699.com/search?keyword=$encodedKeywords"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
         val totalPage = 1
         val list = ArrayList<Book>()
         val elementList = doc.select(".category .clist a")
@@ -58,7 +59,7 @@ class JingTingUnitTest {
 
     @Test
     fun bookDetail() {
-        val doc = Jsoup.connect("http://m.audio699.com/book/1555.html").get()
+        val doc = Jsoup.connect("http://m.audio699.com/book/1555.html").testConfig().get()
 
         val episodes = doc.select(".plist a").map {
             Episode(it.text(), it.attr("abs:href"))
@@ -71,7 +72,7 @@ class JingTingUnitTest {
     @Test
     fun category() {
         val url = "http://m.audio699.com/list/2_1.html"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
         val currentPage = extractPage(url)
 
         val pageButtons = doc.select(".cpage > a")

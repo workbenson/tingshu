@@ -2,6 +2,7 @@ package com.github.eprendre.tingshu
 
 import assertk.assertThat
 import assertk.assertions.isGreaterThan
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import org.jsoup.Jsoup
@@ -19,7 +20,7 @@ class TianTianPingShuTest {
         val keywords = "("
         val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
         val url = "https://www.pingshu365.com/search/1.asp?page=16&keyword=$encodedKeywords&stype="
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
         val pages = doc.selectFirst(".fy").ownText().let { text ->
             Regex(".+页次:(\\d+)/(\\d+).+").find(text)!!.groupValues
         }
@@ -46,7 +47,7 @@ class TianTianPingShuTest {
     @Test
     fun bookDetail() {
         val url = "https://www.pingshu365.com/ps/3000.html"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
         val episodes = doc.select("#playlist ul li").map {
             val a = it.selectFirst("a")
             Episode(a.text(), a.absUrl("href"))
@@ -58,7 +59,7 @@ class TianTianPingShuTest {
     @Test
     fun category() {
         val url = "https://www.pingshu365.com/list/293_1.html"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val nextUrl = doc.select("#ss .ssl .fy a").firstOrNull { it.ownText() == "下一页" }?.absUrl("href") ?: ""
         val pages = doc.selectFirst("#ss .ssl .fy").ownText().let { text ->

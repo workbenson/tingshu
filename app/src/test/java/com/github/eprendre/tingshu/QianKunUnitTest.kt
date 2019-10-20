@@ -2,6 +2,7 @@ package com.github.eprendre.tingshu
 
 import assertk.assertThat
 import assertk.assertions.isGreaterThan
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
@@ -19,7 +20,7 @@ class QianKunUnitTest {
         val keywords = "仙"
         val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
         val url = "http://m.qktsw.com/search.asp?page=16&searchword=$encodedKeywords"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val totalPage = doc.selectFirst(".page").ownText().split("/")[1]
 
@@ -49,7 +50,7 @@ class QianKunUnitTest {
      */
     @Test
     fun bookDetail() {
-        val doc = Jsoup.connect("http://m.qktsw.com/tingshu/56179.html").get()
+        val doc = Jsoup.connect("http://m.qktsw.com/tingshu/56179.html").testConfig().get()
 
         val episodes = doc.select("#playlist li a").map {
             Episode(it.text(), it.attr("abs:href"))
@@ -64,7 +65,7 @@ class QianKunUnitTest {
      */
     @Test
     fun category() {
-        val doc = Jsoup.connect("http://m.qktsw.com/tingbook/1.html").get()
+        val doc = Jsoup.connect("http://m.qktsw.com/tingbook/1.html").testConfig().get()
         val nextUrl = doc.select(".page a").firstOrNull { it.text().contains("下页") }?.attr("abs:href") ?: ""
         val pages = doc.selectFirst(".page").ownText().let { text ->
             Regex("(\\d+)/(\\d+)").find(text)!!.groupValues
@@ -98,7 +99,7 @@ class QianKunUnitTest {
 
     @Test
     fun fetchCategory() {
-        val doc = Jsoup.connect("http://m.qktsw.com/category.html").get()
+        val doc = Jsoup.connect("http://m.qktsw.com/category.html").testConfig().get()
         val catbox = doc.select(".cat_box")
         catbox.forEachWithIndex { i, element ->
             val sb = StringBuilder()

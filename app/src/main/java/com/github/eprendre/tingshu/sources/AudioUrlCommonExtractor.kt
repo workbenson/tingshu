@@ -1,6 +1,7 @@
 package com.github.eprendre.tingshu.sources
 
 import com.github.eprendre.tingshu.App
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.utils.Prefs
 import com.github.eprendre.tingshu.widget.RxBus
 import com.github.eprendre.tingshu.widget.RxEvent
@@ -30,7 +31,7 @@ object AudioUrlCommonExtractor : AudioUrlExtractor {
     override fun extract(url: String, autoPlay: Boolean, isCache: Boolean) {
         compositeDisposable.clear()
         Single.fromCallable {
-            return@fromCallable parse(Jsoup.connect(url).userAgent(App.userAgent).get())
+            return@fromCallable parse(Jsoup.connect(url).config().get())
         }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

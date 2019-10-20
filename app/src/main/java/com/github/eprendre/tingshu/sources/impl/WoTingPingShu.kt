@@ -2,6 +2,7 @@ package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.*
 import com.github.eprendre.tingshu.utils.*
 import io.reactivex.Completable
@@ -15,7 +16,7 @@ object WoTingPingShu : TingShu {
         return Single.fromCallable {
             val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
             val url = "https://m.5tps.com/so.asp?keyword=$encodedKeywords&page=$page"
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
 
             var totalPage = 1
             val list = ArrayList<Book>()
@@ -43,7 +44,7 @@ object WoTingPingShu : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
             TingShuSourceHandler.downloadCoverForNotification()
 
             val episodes = doc.select("#playlist > ul > li > a").map {
@@ -59,7 +60,7 @@ object WoTingPingShu : TingShu {
     override fun getAudioUrlExtractor(): AudioUrlExtractor {
         AudioUrlCommonExtractor.setUp { doc ->
             val iframeSrc = doc.getElementById("play").absUrl("src")
-            val iframeStr = Jsoup.connect(iframeSrc).get().toString()
+            val iframeStr = Jsoup.connect(iframeSrc).config().get().toString()
 
             return@setUp Regex("mp3:'(.*?)'").find(iframeStr)?.groupValues?.get(1) ?: ""
         }
@@ -122,7 +123,7 @@ object WoTingPingShu : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val nextUrl = doc.select(".page > a").firstOrNull { it.text().contains("下页") }?.attr("abs:href") ?: ""
             val (currentPage, totalPage) = doc.selectFirst(".booksite > .bookbutton > a").text().let {
                 val pages = it.split(" ")[1].split("/")

@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -219,6 +218,7 @@ class TingShuService : Service(), AnkoLogger {
                                     RxBus.post(event)
                                 }
                             }
+                            .header("User-Agent", App.userAgent)
                             .response { result ->
                                 downloadingEpisodeUrl = null
                                 when (result) {

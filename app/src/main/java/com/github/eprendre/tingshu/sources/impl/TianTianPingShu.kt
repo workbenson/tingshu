@@ -1,15 +1,13 @@
 package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
-import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.*
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 import org.jsoup.Jsoup
@@ -20,7 +18,7 @@ object TianTianPingShu : TingShu {
         return Single.fromCallable {
             val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
             val url = "https://www.pingshu365.com/search/1.asp?page=$page&keyword=$encodedKeywords&stype="
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val pages = doc.selectFirst(".fy").ownText().let { text ->
                 Regex(".+页次:(\\d+)/(\\d+).+").find(text)!!.groupValues
             }
@@ -47,7 +45,7 @@ object TianTianPingShu : TingShu {
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
             TingShuSourceHandler.downloadCoverForNotification()
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
             val episodes = doc.select("#playlist ul li").map {
                 val a = it.selectFirst("a")
                 Episode(a.text(), a.absUrl("href"))
@@ -121,7 +119,7 @@ object TianTianPingShu : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
 
             val nextUrl = doc.select("#ss .ssl .fy a").firstOrNull { it.ownText() == "下一页" }?.absUrl("href") ?: ""
             val pages = doc.selectFirst("#ss .ssl .fy").ownText().let { text ->

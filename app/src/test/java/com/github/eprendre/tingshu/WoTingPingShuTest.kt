@@ -2,6 +2,7 @@ package com.github.eprendre.tingshu
 
 import assertk.assertThat
 import assertk.assertions.isGreaterThan
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import org.jetbrains.anko.collections.forEachWithIndex
@@ -15,8 +16,8 @@ class WoTingPingShuTest {
     @Test
     fun audioUrl() {
         val url = "https://m.5tps.com/play_m/27593_50_1_1.html"
-        val src = Jsoup.connect(url).get().getElementById("play").absUrl("src")
-        val doc = Jsoup.connect(src).get().toString()
+        val src = Jsoup.connect(url).testConfig().get().getElementById("play").absUrl("src")
+        val doc = Jsoup.connect(src).testConfig().get().toString()
         val audioUrl = Regex("mp3:'(.*?)'").find(doc)?.groupValues?.get(1)
         println(audioUrl)
     }
@@ -26,7 +27,7 @@ class WoTingPingShuTest {
         val keywords = "修仙"
         val encodedKeywords = URLEncoder.encode(keywords, "gb2312")
         val url = "https://m.5tps.com/so.asp?keyword=$encodedKeywords&page=1"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         try {
             val totalPage = doc.selectFirst(".booksite > .bookbutton").text().split("/")[1]
@@ -53,7 +54,7 @@ class WoTingPingShuTest {
 
     @Test
     fun bookDetail() {
-        val doc = Jsoup.connect("https://m.5tps.com/m_h/27054.html").get()
+        val doc = Jsoup.connect("https://m.5tps.com/m_h/27054.html").testConfig().get()
 
         val episodes = doc.select("#playlist > ul > li > a").map {
             Episode(it.text(), it.attr("abs:href"))
@@ -64,7 +65,7 @@ class WoTingPingShuTest {
 
     @Test
     fun category() {
-        val doc = Jsoup.connect("https://m.5tps.com/m_l/46_1.html").get()
+        val doc = Jsoup.connect("https://m.5tps.com/m_l/46_1.html").testConfig().get()
         val nextUrl = doc.select(".page > a").firstOrNull { it.text().contains("下页") }?.attr("abs:href") ?: ""
         val (currentPage, totalPage) = doc.selectFirst(".booksite > .bookbutton > a").text().let {
             val pages = it.split(" ")[1].split("/")
@@ -93,7 +94,7 @@ class WoTingPingShuTest {
 
     @Test
     fun fetchCategory() {
-        val doc = Jsoup.connect("https://m.5tps.com/list.html").get()
+        val doc = Jsoup.connect("https://m.5tps.com/list.html").testConfig().get()
         val catbox = doc.select(".cat_box")
         catbox.forEachWithIndex { i, element ->
             val sb = StringBuilder()

@@ -1,12 +1,10 @@
 package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
-import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.*
 import com.github.eprendre.tingshu.utils.*
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 import org.jsoup.Jsoup
@@ -17,7 +15,7 @@ object XinMoWang : TingShu {
     override fun search(keywords: String, page: Int): Single<Pair<List<Book>, Int>> {
         return Single.fromCallable {
             val url = "http://m.ixinmo.com/search.html"
-            val doc = Jsoup.connect(url).userAgent(App.userAgent).data("searchword", keywords).post()
+            val doc = Jsoup.connect(url).config().data("searchword", keywords).post()
             val totalPage = 1
             val list = ArrayList<Book>()
             val elementList = doc.select(".xxzx > .list-ov-tw")
@@ -40,7 +38,7 @@ object XinMoWang : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).userAgent(App.userAgent).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
             TingShuSourceHandler.downloadCoverForNotification()
 
             val episodes = doc.select("#playlist > ul > li > a").map {
@@ -81,7 +79,7 @@ object XinMoWang : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).userAgent(App.userAgent).get()
+            val doc = Jsoup.connect(url).config().get()
             val (currentPage, totalPage) = doc.selectFirst("#page_num1").text().split("/").let {
                 Pair(it[0].toInt(), it[1].toInt())
             }

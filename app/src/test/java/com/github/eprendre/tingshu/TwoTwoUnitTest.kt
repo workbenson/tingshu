@@ -2,6 +2,7 @@ package com.github.eprendre.tingshu
 
 import assertk.assertThat
 import assertk.assertions.isGreaterThan
+import com.github.eprendre.tingshu.extensions.testConfig
 import com.github.eprendre.tingshu.utils.Book
 import com.github.eprendre.tingshu.utils.Episode
 import org.jsoup.Jsoup
@@ -22,7 +23,7 @@ class TwoTwoUnitTest {
         val encodedKeywords = URLEncoder.encode(keywords, "utf-8")
         val page = 6
         val url = "https://m.ting22.com/search.php?q=$encodedKeywords&page=$page"
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url).testConfig().get()
 
         val a = doc.selectFirst("#more-wrapper a")
         val nextPageUrl = a?.attr("href")
@@ -50,7 +51,7 @@ class TwoTwoUnitTest {
      */
     @Test
     fun bookDetail() {
-        val doc = Jsoup.connect("https://m.ting22.com/book/213.html").get()
+        val doc = Jsoup.connect("https://m.ting22.com/book/213.html").testConfig().get()
 
         val episodes = doc.select("#playlist li a").map {
             Episode(it.text(), it.attr("abs:href"))
@@ -66,7 +67,7 @@ class TwoTwoUnitTest {
      */
     @Test
     fun category() {
-        val doc = Jsoup.connect("https://m.ting22.com/yousheng/").get()
+        val doc = Jsoup.connect("https://m.ting22.com/yousheng/").testConfig().get()
         val nextUrl = doc.select(".page")[1].select("a")[1].attr("abs:href")
         val pages = doc.select(".page")[1].ownText().let { text ->
             Regex("(\\d+)/(\\d+)").find(text)!!.groupValues

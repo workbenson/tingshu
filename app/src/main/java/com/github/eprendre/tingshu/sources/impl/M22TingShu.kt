@@ -1,15 +1,13 @@
 package com.github.eprendre.tingshu.sources.impl
 
 import android.view.View
-import com.github.eprendre.tingshu.App
 import com.github.eprendre.tingshu.R
+import com.github.eprendre.tingshu.extensions.config
 import com.github.eprendre.tingshu.sources.AudioUrlExtractor
 import com.github.eprendre.tingshu.sources.AudioUrlWebViewExtractor
 import com.github.eprendre.tingshu.sources.TingShu
 import com.github.eprendre.tingshu.sources.TingShuSourceHandler
 import com.github.eprendre.tingshu.utils.*
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.upstream.DataSource
 import io.reactivex.Completable
 import io.reactivex.Single
 import org.jsoup.Jsoup
@@ -20,7 +18,7 @@ object M22TingShu : TingShu {
         return Single.fromCallable {
             val encodedKeywords = URLEncoder.encode(keywords, "utf-8")
             val url = "https://m.ting22.com/search.php?q=$encodedKeywords&page=$page"
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
 
             val a = doc.selectFirst("#more-wrapper a")
             val nextPageUrl = a?.attr("href")
@@ -48,7 +46,7 @@ object M22TingShu : TingShu {
 
     override fun playFromBookUrl(bookUrl: String): Completable {
         return Completable.fromCallable {
-            val doc = Jsoup.connect(bookUrl).get()
+            val doc = Jsoup.connect(bookUrl).config().get()
             TingShuSourceHandler.downloadCoverForNotification()
 
             val episodes = doc.select("#playlist li a").map {
@@ -92,7 +90,7 @@ object M22TingShu : TingShu {
 
     override fun getCategoryDetail(url: String): Single<Category> {
         return Single.fromCallable {
-            val doc = Jsoup.connect(url).get()
+            val doc = Jsoup.connect(url).config().get()
             val nextUrl = doc.select(".page")[1].select("a")[1].attr("abs:href")
             val pages = doc.select(".page")[1].ownText().let { text ->
                 Regex("(\\d+)/(\\d+)").find(text)!!.groupValues
